@@ -1,0 +1,17 @@
+File per analisi dei requisiti di progetto: 
+
+1 - Creare schermata per funzionalità di Accesso/Iscrizione anche con Facebook/Google(opzionale)
+2 - Creare una schermata di gioco con chat
+3 - Come effettuare la creazione di una lobby: in qualsiasi schermata l'utente si trovi, alla pressione del tasto "Gioca", verrà
+    visualizzato a schermo una card con:
+    1. Dare la possibilità di giocare online con altri giocatori tramite un meccanismo di ricerca
+    2. Dare la possibilità di giocare contro il Computer con difficolità: Facile, Media, Difficile
+    3. Dare la possibilità di sfidare un amico: tramite creazione di un link o invito tramite username
+    Alla scelta di una delle tre opzioni verrò mostrata a schermo la sua card specifica facendo diventare invisibile card sottostante
+    che mostra la schermata "Gioca"
+4 - Creare schermata di Home in cui si da una visione generale del sito
+5 - Creare una sezione dedicata ad aiuti tipo: Fai una domanda, Dai un suggerimento, Segnalazione di eventuali bug, ...
+6 - Creare una schermata per la visualizzazione della classifica globale dei giocatori: vittorie, patte, sconfitte, punti, 
+    partite giocate, ...
+7 - Creazione di una pagina dedicata al profilo del giocatore: modifica immagini, nome, password, nazionalità, data di nascita, 
+    match history, ...
