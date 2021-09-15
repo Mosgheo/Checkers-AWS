@@ -17,3 +17,16 @@ File per analisi dei requisiti di progetto:
     partite giocate, ...
 7 - Creazione di una pagina dedicata al profilo del giocatore: modifica immagini, nome, password, nazionalità, data di nascita, 
     match history, ...
+
+
+Gestione lato FrontEnd e BackEnd
+
+- FrontEnd: questa parte verrà valutata inizialmente tramite dei mockup, per poi passare alla fase effettiva di implementazione
+
+- BackEnd: 
+    1. Gestione notifiche tramite libreria SocketIO
+    2. Creazione di una sessione per le partite e i giocatori all'interno del sito
+    3. Gestione di MongoDB
+    4. Creazione di un algoritmo per le regole di Dama
+    5. Creazione di un algoritmo per l'IA
+    6. Creazione di un meccanismo di ricerca partita
