@@ -1,14 +1,17 @@
-import Vue from 'vue';
-import App from './App.vue';
-import VueRouter from 'vue-router';
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import VueSocketIO from 'vue-3-socket.io'
+import SocketIO from 'socket.io-client'
 
-import router from './router';
+const app = createApp(App)
 
-Vue.config.productionTip = false;
+app.config.productionTip = false
 
-Vue.use(VueRouter);
-
-new Vue({
-  render: h => h(App),
-  router
-}).$mount('#app');
+app
+.use(new VueSocketIO({
+  connection: SocketIO('http://localhost:3032'),
+  vuex: false,
+}))
+.use(router)
+.mount('#app')

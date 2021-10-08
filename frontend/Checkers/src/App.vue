@@ -10,7 +10,6 @@ import CheckersHeader from './components/CheckersHeader.vue'
 
 export default {
   components: {
-    
     CheckersHeader
   }
 }
