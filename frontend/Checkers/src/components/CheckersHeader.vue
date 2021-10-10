@@ -1,7 +1,6 @@
 <template>
   <header>
-    <img alt="Vue logo" src="../assets/logo.png" height="50">
-    <p>Checkers</p>
+    <router-link to="/"><img src="../assets/logo.png" height="100"/></router-link>
     <nav>
       <ul>
         <li><router-link to="/login">Login</router-link></li>
@@ -15,7 +14,7 @@
 header {
 	display: flex;
 	border-bottom: 1px solid #ccc;
-	padding: 0.5rem 1rem;
+	padding: 0rem 1rem;
 }
  header p {
 	margin-left: 1rem;

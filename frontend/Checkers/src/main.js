@@ -3,6 +3,9 @@ import App from './App.vue'
 import router from './router'
 import VueSocketIO from 'vue-3-socket.io'
 import SocketIO from 'socket.io-client'
+import BootstrapVue3 from 'bootstrap-vue-3'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
 
 const app = createApp(App)
 
@@ -14,4 +17,5 @@ app
   vuex: false,
 }))
 .use(router)
+.use(BootstrapVue3)
 .mount('#app')
