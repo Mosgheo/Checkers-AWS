@@ -6,7 +6,9 @@ import SocketIO from 'socket.io-client'
 import BootstrapVue3 from 'bootstrap-vue-3'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
-
+import store from './store'
+import authConfig from '../auth_config.json'
+import { setupAuth } from './auth'
 const app = createApp(App)
 
 app.config.productionTip = false
@@ -17,5 +19,17 @@ app
   vuex: false,
 }))
 .use(router)
+.use(store)
 .use(BootstrapVue3)
-.mount('#app')
+
+function callbackRedirect(appState) {
+  router.push(
+    appState && appState.targetUrl
+      ? appState.targetUrl
+      : '/'
+  );
+}
+
+setupAuth(authConfig, callbackRedirect).then((auth) => {
+  app.use(auth).mount('#app')
+})

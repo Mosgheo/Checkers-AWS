@@ -3,12 +3,31 @@
     <router-link to="/"><img src="../assets/logo.png" height="100"/></router-link>
     <nav>
       <ul>
-        <li><router-link to="/login">Login</router-link></li>
-        <li><router-link to="/register">Register</router-link></li>
+        <li><div v-if="!$auth.loading.value">
+          <button v-if="!$auth.isAuthenticated.value" @click="login">Log in</button>
+          <button v-if="$auth.isAuthenticated.value" @click="logout">Log out</button>
+        </div></li>
       </ul>
     </nav>
   </header>
 </template>
+
+<script>
+export default {
+  name: 'Header',
+    methods: {
+    login() {
+      this.$auth.loginWithRedirect();
+    },
+    // Log the user out
+    logout() {
+      this.$auth.logout({
+        returnTo: window.location.origin
+      });
+    }
+  }
+}
+</script>
 
 <style>
 header {

@@ -1,0 +1,6 @@
+{
+    "domain": "dev-xo05c27e.us.auth0.com",
+    "client_id": "fEhmSIoUiBJ1Pazf7B1NCC2IFDkAGc99",
+    "redirect_uri": "http://localhost:8080/",
+    "audience": ""
+  }
