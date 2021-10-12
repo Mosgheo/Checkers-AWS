@@ -1,6 +1,7 @@
 <template>
   <header>
     <router-link to="/"><img src="../assets/logo.png" height="100"/></router-link>
+    
     <nav>
       <ul>
         <li><div v-if="!$auth.loading.value">
@@ -19,7 +20,6 @@ export default {
     login() {
       this.$auth.loginWithRedirect();
     },
-    // Log the user out
     logout() {
       this.$auth.logout({
         returnTo: window.location.origin

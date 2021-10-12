@@ -9,6 +9,7 @@ import 'bootstrap-vue-3/dist/bootstrap-vue-3.css'
 import store from './store'
 import authConfig from '../auth_config.json'
 import { setupAuth } from './auth'
+
 const app = createApp(App)
 
 app.config.productionTip = false
