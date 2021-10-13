@@ -10,6 +10,8 @@ import store from './store'
 import authConfig from '../auth_config.json'
 import { setupAuth } from './auth'
 
+import '@fortawesome/fontawesome-free/js/all'
+
 const app = createApp(App)
 
 app.config.productionTip = false
