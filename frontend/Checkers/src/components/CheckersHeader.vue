@@ -1,22 +1,22 @@
 <template>
   <header>
-    <router-link to="/"><img src="../assets/logo.png" height="100"/></router-link>
+    <router-link to="/"><img src="../assets/logo.png" /></router-link>
     
-    <nav>
+    <!--<nav>
       <ul>
         <li><div v-if="!$auth.loading.value">
           <button v-if="!$auth.isAuthenticated.value" @click="login">Log in</button>
           <button v-if="$auth.isAuthenticated.value" @click="logout">Log out</button>
         </div></li>
       </ul>
-    </nav>
+    </nav>-->
   </header>
 </template>
 
 <script>
 export default {
   name: 'Header',
-    methods: {
+  /*  methods: {
     login() {
       this.$auth.loginWithRedirect();
     },
@@ -25,17 +25,18 @@ export default {
         returnTo: window.location.origin
       });
     }
-  }
+  }*/
 }
 </script>
 
 <style>
-header {
-	display: flex;
-	border-bottom: 1px solid #ccc;
-	padding: 0rem 1rem;
+img {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  width: 10%
 }
- header p {
+/* header p {
 	margin-left: 1rem;
 }
  nav {
@@ -47,5 +48,5 @@ header {
  nav ul li {
 	display: inline-flex;
   margin-left: 1rem;
-}
+}*/
 </style>
