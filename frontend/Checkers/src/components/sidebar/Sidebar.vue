@@ -1,6 +1,6 @@
 
 <template>
-  <div class="sidebar">
+  <div class="sidebar" :style="{ width: sidebarWidth }">
     <h1>
       <!--<span v-if="collapsed">
         <div>V</div>

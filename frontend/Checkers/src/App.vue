@@ -61,7 +61,7 @@ export default {
   display: flex;
   flex-direction: column;
   flex-basis: 100%;
-  flex: 8;
-  margin-right: 10%
+  flex: 7;
+  margin-right: 9%
 }
 </style>
