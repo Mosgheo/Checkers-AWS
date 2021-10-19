@@ -14,8 +14,8 @@
 </template>
 
 <script>
-import Sidebar from '@/components/sidebar/Sidebar'
-import {sidebarWidth} from '@/components/sidebar/state'
+import Sidebar from '@/components/sidebarComponents/Sidebar'
+import {sidebarWidth} from '@/components/sidebarComponents/state'
 import CheckersHeader from './components/CheckersHeader.vue'
 
 export default {
@@ -28,6 +28,7 @@ export default {
   }
 }
 </script>
+
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
