@@ -20,8 +20,8 @@
     <div class="data">
       <b-card no-body>
         <b-tabs v-model="tabIndex" card>
-          <b-tab title="Tab 1" :title-link-class="linkClass(0)"><DataInfo /></b-tab>
-          <b-tab title="Tab 2" :title-link-class="linkClass(1)"><MatchInfo /></b-tab>
+          <b-tab title="Dati Profilo" :title-link-class="linkClass(0)"><DataInfo /></b-tab>
+          <b-tab title="Partite" :title-link-class="linkClass(1)"><MatchInfo /></b-tab>
         </b-tabs>
       </b-card>
     </div>

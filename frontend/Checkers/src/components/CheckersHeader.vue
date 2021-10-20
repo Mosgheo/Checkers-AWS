@@ -33,8 +33,7 @@ export default {
 img {
   margin-left: auto;
   margin-right: auto;
-  display: block;
-  width: 10%
+  width: 20%;
 }
 /* header p {
 	margin-left: 1rem;
