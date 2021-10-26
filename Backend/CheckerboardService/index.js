@@ -1,25 +1,23 @@
 const express = require("express")
 const mongoose = require("mongoose")
+const dotenv = require("dotenv")
 
-mongoose.connect('mongodb://localhost/test', { useNewUrlParser: true, useFindAndModify: false });
+// Load .env
+dotenv.config()
+
 // Initialize express const
 const app = express()
 
 // Connect to DB
-const db = process.env.DB_URL
+const db = "mongodb+srv://admin:o8FQwQuqTRFqeA6w@cluster0.kj7xb.mongodb.net/checkersdb?retryWrites=true&w=majority"
 mongoose.connect(db, {useNewUrlParser: true, 
-                    useFindAndModify: false,
-                    useCreateIndex: true,
                     useUnifiedTopology: true})
-
-// Initialize cors               
-app.use(cors())
 
 // Body Parser
 app.use(express.json());
 
 // Routes
-app.use("/", require("./routes/playerRoutes"))
+app.use("/", require("./routes/checkerboardRoutes.js"))
 
 const PORT = process.env.PORT
 app.listen(PORT, function () {
