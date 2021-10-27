@@ -1,6 +1,6 @@
 <template>
   <header>
-    <router-link to="/"><img src="../assets/logo.png" /></router-link>
+    <router-link to="/"><img src="../assets/logo.png" class="mask mask-squircle"/></router-link>
     
     <!--<nav>
       <ul>
@@ -29,7 +29,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 img {
   margin-left: auto;
   margin-right: auto;

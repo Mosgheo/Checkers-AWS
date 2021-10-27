@@ -3,11 +3,11 @@
   <div class ="centralSpace">
     <Checkerboard class="board"/>
     <div class ="rightMenu">
-      <b-button pill variant="success">Crea Lobby</b-button>
-      <b-button pill variant="success">Unisciti a una lobby</b-button>
-      <b-button pill variant="success">CPU</b-button>
-      <b-button pill variant="success">Aggiungi amico</b-button>
-      <b-button pill variant="success">Invita amico</b-button>
+      <button class="btn">Crea lobby</button> 
+      <button class="btn">Unisciti ad una lobby</button> 
+      <button class="btn">CPU</button> 
+      <button class="btn">Aggiungi amico</button> 
+      <button class="btn">Invita amico</button> 
     </div>
   </div>
 </div>
@@ -24,7 +24,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .centralSpace{
   display: flex;
   flex-direction: row;
