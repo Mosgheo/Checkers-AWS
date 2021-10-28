@@ -1,102 +1,100 @@
 <template>
-    <div>
-        <b-card
-            title="Domande"
-            tag="Domande"
-            class="mb-2"
-        >
-            <b-accordion flush>
-                <b-accordion-item title="Accordion Item #1">
-                    <strong>This is the first item's accordion body.</strong> It is shown by default, until the
-                    collapse plugin adds the appropriate classes that we use to style each element. These classes
-                    control the overall appearance, as well as the showing and hiding via CSS transitions. You can
-                    modify any of this with custom CSS or overriding our default variables. It's also worth noting
-                    that just about any HTML can go within the <code>.accordion-body</code>, though the transition
-                    does limit overflow.
-                </b-accordion-item>
-                <b-accordion-item title="Accordion Item #2">
-                    <strong>This is the second item's accordion body.</strong> It is hidden by default, until the
-                    collapse plugin adds the appropriate classes that we use to style each element. These classes
-                    control the overall appearance, as well as the showing and hiding via CSS transitions. You can
-                    modify any of this with custom CSS or overriding our default variables. It's also worth noting
-                    that just about any HTML can go within the <code>.accordion-body</code>, though the transition
-                    does limit overflow.
-                </b-accordion-item>
-                <b-accordion-item title="Accordion Item #3">
-                    <strong>This is the third item's accordion body.</strong> It is hidden by default, until the
-                    collapse plugin adds the appropriate classes that we use to style each element. These classes
-                    control the overall appearance, as well as the showing and hiding via CSS transitions. You can
-                    modify any of this with custom CSS or overriding our default variables. It's also worth noting
-                    that just about any HTML can go within the <code>.accordion-body</code>, though the transition
-                    does limit overflow.
-                </b-accordion-item>
-            </b-accordion>
-        </b-card>
-
-        <b-card
-            title="Segnala eventuali bug"
-            tag="Bug"
-            class="mb-2"
-        >
-            <b-accordion flush>
-                <b-accordion-item title="Accordion Item #1">
-                    <strong>This is the first item's accordion body.</strong> It is shown by default, until the
-                    collapse plugin adds the appropriate classes that we use to style each element. These classes
-                    control the overall appearance, as well as the showing and hiding via CSS transitions. You can
-                    modify any of this with custom CSS or overriding our default variables. It's also worth noting
-                    that just about any HTML can go within the <code>.accordion-body</code>, though the transition
-                    does limit overflow.
-                </b-accordion-item>
-                <b-accordion-item title="Accordion Item #2">
-                    <strong>This is the second item's accordion body.</strong> It is hidden by default, until the
-                    collapse plugin adds the appropriate classes that we use to style each element. These classes
-                    control the overall appearance, as well as the showing and hiding via CSS transitions. You can
-                    modify any of this with custom CSS or overriding our default variables. It's also worth noting
-                    that just about any HTML can go within the <code>.accordion-body</code>, though the transition
-                    does limit overflow.
-                </b-accordion-item>
-                <b-accordion-item title="Accordion Item #3">
-                    <strong>This is the third item's accordion body.</strong> It is hidden by default, until the
-                    collapse plugin adds the appropriate classes that we use to style each element. These classes
-                    control the overall appearance, as well as the showing and hiding via CSS transitions. You can
-                    modify any of this with custom CSS or overriding our default variables. It's also worth noting
-                    that just about any HTML can go within the <code>.accordion-body</code>, though the transition
-                    does limit overflow.
-                </b-accordion-item>
-            </b-accordion>
-        </b-card>
-
-        <b-card
-            title="Inviaci un suggerimento"
-            tag="Suggerimento"
-            class="mb-2"
-        >
-            <b-accordion flush>
-                <b-accordion-item title="Accordion Item #1">
-                    <strong>This is the first item's accordion body.</strong> It is shown by default, until the
-                    collapse plugin adds the appropriate classes that we use to style each element. These classes
-                    control the overall appearance, as well as the showing and hiding via CSS transitions. You can
-                    modify any of this with custom CSS or overriding our default variables. It's also worth noting
-                    that just about any HTML can go within the <code>.accordion-body</code>, though the transition
-                    does limit overflow.
-                </b-accordion-item>
-                <b-accordion-item title="Accordion Item #2">
-                    <strong>This is the second item's accordion body.</strong> It is hidden by default, until the
-                    collapse plugin adds the appropriate classes that we use to style each element. These classes
-                    control the overall appearance, as well as the showing and hiding via CSS transitions. You can
-                    modify any of this with custom CSS or overriding our default variables. It's also worth noting
-                    that just about any HTML can go within the <code>.accordion-body</code>, though the transition
-                    does limit overflow.
-                </b-accordion-item>
-                <b-accordion-item title="Accordion Item #3">
-                    <strong>This is the third item's accordion body.</strong> It is hidden by default, until the
-                    collapse plugin adds the appropriate classes that we use to style each element. These classes
-                    control the overall appearance, as well as the showing and hiding via CSS transitions. You can
-                    modify any of this with custom CSS or overriding our default variables. It's also worth noting
-                    that just about any HTML can go within the <code>.accordion-body</code>, though the transition
-                    does limit overflow.
-                </b-accordion-item>
-            </b-accordion>
-        </b-card>
+<div>
+<div tabindex="0" class="collapse w-100 border mt-10 rounded-box border-base-300 collapse-arrow"> 
+  <div class="collapse-title text-xl font-medium">
+    Fai una domanda
+  </div> 
+  <div class="collapse-content"> 
+    <div class="card lg:card-side bordered">
+        <div class="card-body">
+            <h2 class="card-title">No Images</h2> 
+            <p>Rerum reiciendis beatae tenetur excepturi aut pariatur est eos. Sit sit necessitatibus veritatis sed molestiae voluptates incidunt iure sapiente.</p> 
+            <div class="card-actions">
+            </div>
+        </div>
     </div>
+    <div class="card lg:card-side bordered">
+        <div class="card-body">
+            <h2 class="card-title">No Images</h2> 
+            <p>Rerum reiciendis beatae tenetur excepturi aut pariatur est eos. Sit sit necessitatibus veritatis sed molestiae voluptates incidunt iure sapiente.</p> 
+            <div class="card-actions">
+            </div>
+        </div>
+    </div>
+    <div class="card lg:card-side bordered">
+        <div class="card-body">
+            <h2 class="card-title">No Images</h2> 
+            <p>Rerum reiciendis beatae tenetur excepturi aut pariatur est eos. Sit sit necessitatibus veritatis sed molestiae voluptates incidunt iure sapiente.</p> 
+            <div class="card-actions">
+            </div>
+        </div>
+    </div>
+  </div>
+</div> 
+<div tabindex="0" class="collapse w-100 border mt-10 rounded-box border-base-300 collapse-arrow"> 
+  <div class="collapse-title text-xl font-medium">
+    Segnala bug
+  </div> 
+  <div class="collapse-content"> 
+    <div class="card lg:card-side bordered">
+        <div class="card-body">
+            <h2 class="card-title">No Images</h2> 
+            <p>Rerum reiciendis beatae tenetur excepturi aut pariatur est eos. Sit sit necessitatibus veritatis sed molestiae voluptates incidunt iure sapiente.</p> 
+            <div class="card-actions">
+            </div>
+        </div>
+    </div>
+    <div class="card lg:card-side bordered">
+        <div class="card-body">
+            <h2 class="card-title">No Images</h2> 
+            <p>Rerum reiciendis beatae tenetur excepturi aut pariatur est eos. Sit sit necessitatibus veritatis sed molestiae voluptates incidunt iure sapiente.</p> 
+            <div class="card-actions">
+            </div>
+        </div>
+    </div>
+    <div class="card lg:card-side bordered">
+        <div class="card-body">
+            <h2 class="card-title">No Images</h2> 
+            <p>Rerum reiciendis beatae tenetur excepturi aut pariatur est eos. Sit sit necessitatibus veritatis sed molestiae voluptates incidunt iure sapiente.</p> 
+            <div class="card-actions">
+            </div>
+        </div>
+    </div>
+  </div>
+</div> 
+<div tabindex="0" class="collapse w-100 border mt-10 rounded-box border-base-300 collapse-arrow"> 
+  <div class="collapse-title text-xl font-medium">
+    Inviaci un suggerimento
+  </div> 
+  <div class="collapse-content"> 
+    <div class="card lg:card-side bordered">
+        <div class="card-body">
+            <h2 class="card-title">No Images</h2> 
+            <p>Rerum reiciendis beatae tenetur excepturi aut pariatur est eos. Sit sit necessitatibus veritatis sed molestiae voluptates incidunt iure sapiente.</p> 
+            <div class="card-actions">
+            </div>
+        </div>
+    </div>
+    <div class="card lg:card-side bordered">
+        <div class="card-body">
+            <h2 class="card-title">No Images</h2> 
+            <p>Rerum reiciendis beatae tenetur excepturi aut pariatur est eos. Sit sit necessitatibus veritatis sed molestiae voluptates incidunt iure sapiente.</p> 
+            <div class="card-actions">
+            </div>
+        </div>
+    </div>
+    <div class="card lg:card-side bordered">
+        <div class="card-body">
+            <h2 class="card-title">No Images</h2> 
+            <p>Rerum reiciendis beatae tenetur excepturi aut pariatur est eos. Sit sit necessitatibus veritatis sed molestiae voluptates incidunt iure sapiente.</p> 
+            <div class="card-actions">
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+</div>
 </template>
+
+<style>
+</style>

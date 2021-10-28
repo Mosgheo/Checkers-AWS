@@ -1,20 +1,117 @@
 <template>
-  <div>
-    <b-table striped hover :items="items"></b-table>
-  </div>
+<div class="overflow-x-auto">
+  <table class="table w-full">
+    <thead>
+      <tr>
+        <th>Pos</th> 
+        <th>Nome</th> 
+        <th>Punti</th> 
+        <th>Partite giocate</th> 
+        <th>Vittorie</th> 
+        <th>Sconfitte</th> 
+      </tr>
+    </thead> 
+    <tbody>
+
+      <tr>
+        <th>
+          #1
+        </th> 
+        <td>
+          <div class="flex items-center space-x-3">
+            <div class="avatar">
+              <div class="w-12 h-12 mask mask-squircle">
+                <img src="https://picsum.photos/id/1005/400/250" alt="Avatar Tailwind CSS Component">
+              </div>
+            </div> 
+            <div>
+                <div class="font-bold">
+                    Hart Hagerty
+                </div> 
+                <div class="text-sm opacity-50">
+                    United States
+                </div>
+            </div>
+          </div>
+        </td> 
+        <td>
+            Zemlak, Daniel and Leannon
+            
+          <br>
+        </td> 
+        <td>Purple</td>
+        <td>Purple</td> 
+        <td>Purple</td> 
+      </tr>
+
+      <tr>
+        <th>
+          #2
+        </th> 
+        <td>
+          <div class="flex items-center space-x-3">
+            <div class="avatar">
+              <div class="w-12 h-12 mask mask-squircle">
+                <img src="https://picsum.photos/id/1005/400/250" alt="Avatar Tailwind CSS Component">
+              </div>
+            </div> 
+            <div>
+                <div class="font-bold">
+                    Hart Hagerty
+                </div> 
+                <div class="text-sm opacity-50">
+                    United States
+                </div>
+            </div>
+          </div>
+        </td> 
+        <td>
+            Zemlak, Daniel and Leannon
+            
+          <br>
+        </td> 
+        <td>Purple</td>
+        <td>Purple</td> 
+        <td>Purple</td> 
+      </tr>
+
+      <tr>
+        <th>
+          #3
+        </th> 
+        <td>
+          <div class="flex items-center space-x-3">
+            <div class="avatar">
+              <div class="w-12 h-12 mask mask-squircle">
+                <img src="https://picsum.photos/id/1005/400/250" alt="Avatar Tailwind CSS Component">
+              </div>
+            </div> 
+            <div>
+                <div class="font-bold">
+                    Hart Hagerty
+                </div> 
+                <div class="text-sm opacity-50">
+                    United States
+                </div>
+            </div>
+          </div>
+        </td> 
+        <td>
+            Zemlak, Daniel and Leannon
+            
+          <br>
+        </td> 
+        <td>Purple</td>
+        <td>Purple</td> 
+        <td>Purple</td> 
+      </tr>
+    </tbody> 
+  </table>
+</div>
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        items: [
-          { durata: 40, avversario: 'Dickerson', esito: 'Vittoria', punteggio: '200' },
-          { durata: 21, avversario: 'Larsen', esito: 'Vittoria', punteggio: '130' },
-          { durata: 89, avversario: 'Geneva', esito: 'Sconfitta', punteggio: '30' },
-          { durata: 38, avversario: 'Jami', esito: 'Sconfitta', punteggio: '25' }
-        ]
-      }
-    }
-  }
 </script>
+
+<style>
+</style>

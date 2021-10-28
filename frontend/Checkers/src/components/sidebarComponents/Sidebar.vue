@@ -1,14 +1,7 @@
 
 <template>
   <div class="sidebar" :style="{ width: sidebarWidth }">
-    <h1>
-      <!--<span v-if="collapsed">
-        <div>V</div>
-        <div>S</div>
-      </span>
-      <span v-else>Checkers</span>-->
-      <span>Checkers</span>
-    </h1>
+    <router-link to="/"><img src="@/assets/logo.png" class="mask mask-squircle"/></router-link>
 
     <SidebarLink class="home" to="/" icon="fas fa-home">Home</SidebarLink>
     <SidebarLink class="profile" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
@@ -74,9 +67,8 @@ export default {
   padding: 0.5em;
   transition: 0.3s ease;
 }
-.sidebar h1 {
-  height: 2.5em;
-  font-size: 30px;
+img {
+  margin-top: 2%;
   margin-bottom: 10%;
 }
 /*collapse-icon {

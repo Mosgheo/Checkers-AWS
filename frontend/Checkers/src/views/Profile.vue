@@ -1,29 +1,27 @@
 <template>
   <div class="profile">
-    <div>
-      <b-card no-body class="overflow-hidden">
-        <b-row no-gutters>
-          <b-col md="6">
-            <b-card-img src="https://picsum.photos/400/400/?image=20" alt="User's Image" class="rounded-0"></b-card-img>
-          </b-col>
-          <b-col md="6">
-            <b-card-body title="Username">
-              <b-card-text>
-                This is a wider card with supporting text as a natural lead-in to additional content.
-                This content is a little bit longer.
-              </b-card-text>
-            </b-card-body>
-          </b-col>
-        </b-row>
-      </b-card>
+    <div class="card lg:card-side bordered">
+      <figure>
+        <img src="https://picsum.photos/id/1005/400/250">
+      </figure> 
+      <div class="card-body">
+        <h2 class="card-title">Horizontal</h2> 
+        <p>Rerum reiciendis beatae tenetur excepturi aut pariatur est eos. Sit sit necessitatibus veritatis sed molestiae voluptates incidunt iure sapiente.</p> 
+        <div class="card-actions">
+          <button class="btn btn-primary">Get Started</button> 
+          <button class="btn btn-ghost">More info</button>
+        </div>
+      </div>
     </div>
-    <div class="data">
-      <b-card no-body>
-        <b-tabs v-model="tabIndex" card>
-          <b-tab title="Dati Profilo" :title-link-class="linkClass(0)"><DataInfo /></b-tab>
-          <b-tab title="Partite" :title-link-class="linkClass(1)"><MatchInfo /></b-tab>
-        </b-tabs>
-      </b-card>
+    <div class="tabs">
+      <a v-on:click="dataInfo()" id="dataInfo" class="tab tab-lg tab-lifted tab-active">DataInfo</a>
+      <a v-on:click="matchInfo()" id="matchInfo" class="tab tab-lg tab-lifted">MatchInfo</a>
+    </div>
+    <div id="content" class="card shadow-lg">
+      <div id="tabDiv" class="card-body">
+        <h2 class="card-title">Dati Utente</h2>
+        <div class="info"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -31,25 +29,28 @@
 <script>
 import DataInfo from "@/components/profileComponents/DataInfo";
 import MatchInfo from "@/components/profileComponents/MatchInfo";
+import { createApp } from 'vue';
+
+const wrapper = document.getElementsByClassName("info")
 
 export default {
   name: 'Profile',
   components: {
-    DataInfo,
-    MatchInfo
-  },
-  data() {
-    return {
-      tabIndex: 0
-    }
+    //DataInfo,
+    //MatchInfo
   },
   methods: {
-    linkClass(idx) {
-      if (this.tabIndex === idx) {
-        return ['bg-primary', 'text-light']
-      } else {
-        return ['bg-light', 'text-info']
-      }
+    dataInfo() {
+      const dataInfo = createApp(DataInfo)
+      document.getElementById("dataInfo").setAttribute("class", "tab tab-lg tab-lifted tab-active");
+      document.getElementById("matchInfo").setAttribute("class", "tab tab-lg tab-lifted");
+      dataInfo.mount(wrapper[0])
+    },
+    matchInfo() {
+      const matchInfo = createApp(MatchInfo)
+      document.getElementById("dataInfo").setAttribute("class", "tab tab-lg tab-lifted");
+      document.getElementById("matchInfo").setAttribute("class", "tab tab-lg tab-lifted tab-active");
+      matchInfo.mount(wrapper[0])
     }
   }
 }
@@ -59,7 +60,10 @@ export default {
 .overflow-hidden{
   padding: 3%;
 }
-.data {
+.tabs {
+  margin-top: 3%;
+}
+#content {
   margin-top: 3%;
 }
 </style>

@@ -1,49 +1,117 @@
 <template>
-  <div>
-    <b-table
-      id="table-transition-example"
-      :items="items"
-      :fields="fields"
-      striped
-      hover
-      primary-key="Posizione"
-      :tbody-transition-props="transProps"
-    ></b-table>
-  </div>
+<div class="overflow-x-auto">
+  <table class="table w-full">
+    <thead>
+      <tr>
+        <th>Pos</th> 
+        <th>Nome</th> 
+        <th>Punti</th> 
+        <th>Partite giocate</th> 
+        <th>Vittorie</th> 
+        <th>Sconfitte</th> 
+      </tr>
+    </thead> 
+    <tbody>
+
+      <tr>
+        <th>
+          #1
+        </th> 
+        <td>
+          <div class="flex items-center space-x-3">
+            <div class="avatar">
+              <div class="w-12 h-12 mask mask-squircle">
+                <img src="https://picsum.photos/id/1005/400/250" alt="Avatar Tailwind CSS Component">
+              </div>
+            </div> 
+            <div>
+                <div class="font-bold">
+                    Hart Hagerty
+                </div> 
+                <div class="text-sm opacity-50">
+                    United States
+                </div>
+            </div>
+          </div>
+        </td> 
+        <td>
+            Zemlak, Daniel and Leannon
+            
+          <br>
+        </td> 
+        <td>Purple</td>
+        <td>Purple</td> 
+        <td>Purple</td> 
+      </tr>
+
+      <tr>
+        <th>
+          #2
+        </th> 
+        <td>
+          <div class="flex items-center space-x-3">
+            <div class="avatar">
+              <div class="w-12 h-12 mask mask-squircle">
+                <img src="https://picsum.photos/id/1005/400/250" alt="Avatar Tailwind CSS Component">
+              </div>
+            </div> 
+            <div>
+                <div class="font-bold">
+                    Hart Hagerty
+                </div> 
+                <div class="text-sm opacity-50">
+                    United States
+                </div>
+            </div>
+          </div>
+        </td> 
+        <td>
+            Zemlak, Daniel and Leannon
+            
+          <br>
+        </td> 
+        <td>Purple</td>
+        <td>Purple</td> 
+        <td>Purple</td> 
+      </tr>
+
+      <tr>
+        <th>
+          #3
+        </th> 
+        <td>
+          <div class="flex items-center space-x-3">
+            <div class="avatar">
+              <div class="w-12 h-12 mask mask-squircle">
+                <img src="https://picsum.photos/id/1005/400/250" alt="Avatar Tailwind CSS Component">
+              </div>
+            </div> 
+            <div>
+                <div class="font-bold">
+                    Hart Hagerty
+                </div> 
+                <div class="text-sm opacity-50">
+                    United States
+                </div>
+            </div>
+          </div>
+        </td> 
+        <td>
+            Zemlak, Daniel and Leannon
+            
+          <br>
+        </td> 
+        <td>Purple</td>
+        <td>Purple</td> 
+        <td>Purple</td> 
+      </tr>
+    </tbody> 
+  </table>
+</div>
 </template>
 
 <script>
-export default {
-    data() {
-        return {
-            transProps: {
-                // Transition name
-                name: 'flip-list'
-            },
-            fields: [
-                { key: 'Posizione', label:'Posizione', sortable: true },
-                { key: 'Username', label:'Username', sortable: true },
-                { key: 'Punteggio', label:'Punteggio', sortable: true },
-                { key: 'PG', label:'PG', sortable: true },
-                { key: 'Vittorie', label:'Vittorie', sortable: true },
-                { key: 'Sconfitte', label:'Sconfitte', sortable: true },
-            ],
-            items: [
-                { Posizione: '#1', Username: 'One', Punteggio: 2000, PG: 200, Vittorie: 190, Sconfitte: 10 },
-                { Posizione: '#2', Username: 'Two', Punteggio: 1900, PG: 200, Vittorie: 185, Sconfitte: 15 },
-                { Posizione: '#3', Username: 'Three', Punteggio: 1850, PG: 200, Vittorie: 170, Sconfitte: 30 },
-                { Posizione: '#4', Username: 'Four', Punteggio: 1830, PG: 200, Vittorie: 165, Sconfitte: 35 }
-            ]
-        }
-    }
-}
 </script>
 
 <style>
-table {
-    margin-top: 1%;
-}
-table#table-transition-example .flip-list-move {
-    transition: transform 1s;
-}
 </style>
