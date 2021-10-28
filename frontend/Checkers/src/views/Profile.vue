@@ -1,26 +1,29 @@
 <template>
   <div class="profile">
-    <div class="card lg:card-side bordered">
-      <figure>
-        <img src="https://picsum.photos/id/1005/400/250">
-      </figure> 
-      <div class="card-body">
-        <h2 class="card-title">Horizontal</h2> 
-        <p>Rerum reiciendis beatae tenetur excepturi aut pariatur est eos. Sit sit necessitatibus veritatis sed molestiae voluptates incidunt iure sapiente.</p> 
-        <div class="card-actions">
-          <button class="btn btn-primary">Get Started</button> 
-          <button class="btn btn-ghost">More info</button>
-        </div>
+    <div class="card lg:card-side border-2">
+      <img src="https://picsum.photos/id/1005/250" class="mask mask-square m-2">
+      <div class="p-3">
+        <div class="flex ml-2 mb-2">
+          <h2 class="card-title m-0">Username</h2>
+          <div class="avatar">
+            <div class="ml-2 rounded-btn w-10 h-10">
+              <img src="http://daisyui.com/tailwind-css-component-profile-1@40w.png">
+            </div>
+          </div>
+        </div> 
+        <p>Nome Cognome</p> 
       </div>
     </div>
-    <div class="tabs">
-      <a v-on:click="dataInfo()" id="dataInfo" class="tab tab-lg tab-lifted tab-active">DataInfo</a>
-      <a v-on:click="matchInfo()" id="matchInfo" class="tab tab-lg tab-lifted">MatchInfo</a>
-    </div>
-    <div id="content" class="card shadow-lg">
-      <div id="tabDiv" class="card-body">
-        <h2 class="card-title">Dati Utente</h2>
-        <div class="info"></div>
+    <div class="rounded-xl border-2 mt-10">
+      <div class="tabs tabs-boxed pl-5 mt-5">
+        <a v-on:click="dataInfo()" id="dataInfo" class="tab tab-lg tab-active">Dati Utente</a>
+        <a v-on:click="matchInfo()" id="matchInfo" class="tab tab-lg ">Partite</a>
+      </div>
+      <div id="content" class="card shadow-lg mt-2">
+        <div id="tabDiv" class="card-body">
+          <h2 class="card-title">Dati Utente</h2>
+          <DataInfo class="info"></DataInfo>
+        </div>
       </div>
     </div>
   </div>
@@ -36,34 +39,33 @@ const wrapper = document.getElementsByClassName("info")
 export default {
   name: 'Profile',
   components: {
-    //DataInfo,
+    DataInfo
     //MatchInfo
   },
   methods: {
     dataInfo() {
-      const dataInfo = createApp(DataInfo)
-      document.getElementById("dataInfo").setAttribute("class", "tab tab-lg tab-lifted tab-active");
-      document.getElementById("matchInfo").setAttribute("class", "tab tab-lg tab-lifted");
-      dataInfo.mount(wrapper[0])
+      const elem = document.getElementById("dataInfo")
+      if(!elem.getAttribute("class").includes("tab-active")) {
+        const dataInfo = createApp(DataInfo)
+        elem.setAttribute("class", "tab tab-lg tab-active");
+        document.getElementById("matchInfo").setAttribute("class", "tab tab-lg");
+        ((document.getElementsByClassName("card-title"))[1]).innerHTML = "Dati Utente"
+        dataInfo.mount(wrapper[0])
+      }
     },
     matchInfo() {
-      const matchInfo = createApp(MatchInfo)
-      document.getElementById("dataInfo").setAttribute("class", "tab tab-lg tab-lifted");
-      document.getElementById("matchInfo").setAttribute("class", "tab tab-lg tab-lifted tab-active");
-      matchInfo.mount(wrapper[0])
+      const elem = document.getElementById("matchInfo")
+      if(!elem.getAttribute("class").includes("tab-active")) {
+        const matchInfo = createApp(MatchInfo)
+        document.getElementById("dataInfo").setAttribute("class", "tab tab-lg");
+        elem.setAttribute("class", "tab tab-lg tab-active");
+        ((document.getElementsByClassName("card-title"))[1]).innerHTML = "Storico Partite"
+        matchInfo.mount(wrapper[0])
+      }
     }
   }
 }
 </script>
 
 <style>
-.overflow-hidden{
-  padding: 3%;
-}
-.tabs {
-  margin-top: 3%;
-}
-#content {
-  margin-top: 3%;
-}
 </style>

@@ -43,7 +43,6 @@
         <td>Purple</td> 
         <td>Purple</td> 
       </tr>
-
       <tr>
         <th>
           #2
