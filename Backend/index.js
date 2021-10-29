@@ -21,5 +21,5 @@ app.use("/", require("./routes/checkerboardRoutes.js"))
 
 const PORT = process.env.PORT
 app.listen(PORT, function () {
-    console.log('PlayerService started on port ' + PORT)
+    console.log('Server started on port ' + PORT)
 })
