@@ -49,9 +49,9 @@ export default {
 
 <style>
 :root {
-  --sidebar-bg-color: #2f855a;
-  --sidebar-item-hover: #38a169;
-  --sidebar-item-active: #276749;
+  --sidebar-bg-color: #eff3ce;
+  --sidebar-item-hover: #d0dddd;
+  --sidebar-item-active: #d0dddd;
 }
 </style>
 
@@ -64,7 +64,6 @@ export default {
   top: 0;
   left: 0;
   bottom: 0;
-  padding: 0.5em;
   transition: 0.3s ease;
 }
 img {
@@ -82,8 +81,8 @@ img {
   transform: rotate(180deg);
   transition: 0.2s linear;
 }*/
-.profile, .leaderboard, .domande{
-  margin-top: 10%;
+.profile, .leaderboard, .domande, .home{
+  margin-top: 15%;
 }
 .login, .logout {
   margin-top: 50%;

@@ -40,8 +40,8 @@ export default {
 }
 
 .header {
-  margin-bottom: 2%;
-  margin-top: 1%;
+  margin-bottom: 0.5em;
+  margin-top: 0.5em;
 }
 
 .row {
@@ -62,7 +62,13 @@ export default {
   display: flex;
   flex-direction: column;
   flex-basis: 100%;
-  flex: 7;
-  margin-right: 9%
+  flex: 8;
+  padding: 0.5em;
+  padding-bottom:100%;
+  background-color: #fafaf0;
+}
+
+.content {
+  padding: 2em;
 }
 </style>
