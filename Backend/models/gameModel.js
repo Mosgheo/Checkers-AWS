@@ -1,16 +1,16 @@
 const mongoose = require("mongoose")
 
 const gameSchema = new mongoose.Schema({
-    players: {
-        type: Map,
-        of: String
-    },
-    matchNumber:Number,
+    game_id: {
+        type: mongoose.Schema.ObjectId,
+        required: true
+      },
+    white: String,
+    black: String,
     maxStars: Number,
     fen : String,
     history:[String],
-    private: Boolean,
-    terminated: Boolean,
+    finished: Boolean,
     winner:String
 })
 module.exports = mongoose.model("Game", gameSchema)
