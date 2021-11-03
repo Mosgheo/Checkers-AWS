@@ -1,8 +1,8 @@
 const mongoose = require("mongoose")
 
-const playerSchema = new mongoose.Schema({
-    playerID: {
-        type: String,
+const userSchema = new mongoose.Schema({
+    userID: {
+        type: mongoose.Schema.ObjectId,
         required: true
     },
     username:String,
@@ -12,4 +12,4 @@ const playerSchema = new mongoose.Schema({
     losses:Number
 });
 
-module.exports = mongoose.model("player", playerSchema)
+module.exports = mongoose.model("user", userSchema)
