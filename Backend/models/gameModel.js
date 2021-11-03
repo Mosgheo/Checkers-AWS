@@ -11,6 +11,7 @@ const gameSchema = new mongoose.Schema({
     fen : String,
     history:[String],
     finished: Boolean,
-    winner:String
+    winner:String,
+    turn:String
 })
 module.exports = mongoose.model("Game", gameSchema)

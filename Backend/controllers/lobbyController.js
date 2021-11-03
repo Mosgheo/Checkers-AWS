@@ -27,12 +27,13 @@ var last_black_pieces = new Map() //lobbyID -> { pieceColor -> moves }
  */
 
 async function winCheck(game_id){
-    var game = lobbies.get(game_id)
+    let gameInstance = lobbies.get(game_id)
+    var game = gameInstance.draughts
     if(game.fen.split(':')[1].split[','].length <= 1){
-        return [game.header()["BLACK"],game.header()["WHITE"]]
+        return [gameInstance.black,gameInstance.white]
     }
     if(game.fen.split(':')[2].split[','].length <= 1 ){
-        return [game.header()["WHITE"],game.header()["BLACK"]]
+        return [gameInstance.white,gameInstance.black]
     }
     return null
 }
@@ -40,7 +41,7 @@ async function winCheck(game_id){
  * need to stop the game and save its state
  */
 async function saveGame(game_id) {
-    let game = lobbies.get(game_id)
+    let game = lobbies.get(game_id).draughts
     history = game.history();
     fen = game.fen()
     Game.findOneAndUpdate({"game_id":game_id},{
@@ -80,15 +81,19 @@ async function updatePoints(player1,points1,player2,points2){
 }
 async function getBoard(game_id){
     let data = []
-    try{
-        var game = lobbies.get(game_id)
-        var white = getUsernameById(game.header('WHITE'))
-        var black = getUsernameById(game.header('BLACK'))
-        data.push(black,white,parseFEN(game.fen()))
-        res.json(data)
-    }catch{
-        res.status(500).json({error: "Error while sending board."})
+    var gameInstance = lobbies.get(game_id)
+    if(gameInstance != null){
+        try{
+            var game = gameInstance.draughts
+            data.push(gameInstance.white,gameInstance.black,parseFEN(game.fen()))
+            res.json(data)
+        }catch{
+            res.status(500).send({message: "Error while sending board."})
+        }
+    }else{
+        res.status(400).send({message: "No such game"})
     }
+
 }
 exports.tieGame = async function(req,res){
     //WILL "_" BELOW WORK?
@@ -97,15 +102,14 @@ exports.tieGame = async function(req,res){
 }
 exports.leaveGame = async function(req,res){
     let game_id = req.params.id
-    let game = lobbies.get(game_id)
-    let quitter = req.params.player_id;
-    let winner;
-    if(game.header('WHITE') === quitter){
-        winner = game.header('BLACK')
+    let gameInstance = lobbies.get(game_id)
+    let quitter = req.params.player_id
+    if(gameInstance.white === quitter){
+        gameEnd(game_id,false,gameInstance.black,gameInstance.white)
     }else{
-        winner = game.header('WHITE')
+        gameEnd(game_id,false,gameInstance.white,gameInstance.black)
     }
-    gameEnd(game_id,false,winner,quitter)
+x
     res.status(200).send({message: "You successfully left the game, "+process.env.LOSS_STARS+" stars has been added to your profile"})
 
 }
@@ -114,7 +118,7 @@ exports.movePiece = async function(req,res){
     if(!lobbies.has(game_id)){
         res.status(400).send({message: "Can't find such game"})
     }
-    var game = lobbies.get(game_id)
+    var game = lobbies.get(game_id).draughts
     if(game.move(req.body.from+"-"+req.body.to) != null){
         let data = parseFEN(game_id)
         if(game.game_over()){
@@ -138,7 +142,7 @@ exports.movePiece = async function(req,res){
 }
 
 exports.gameHistory = async function(req,res){
-    let data = lobbies.get(req.params.game_id).history();
+    let data = lobbies.get(req.params.game_id).draughts.history();
     res.json(data);
 }
 
@@ -151,7 +155,7 @@ exports.gameHistory = async function(req,res){
  */ 
 
 async function addPlayer(game_id, player2) {
-    var game = lobbies.get(game_id)
+    var game = lobbies.get(game_id).draughts
     try{
         Game.findOneAndUpdate(
             { "game_id": game_id}, 
@@ -188,31 +192,44 @@ exports.joinLobby = async function(req,res) {
 exports.getLobbies = async function(req,res){
     let data = []
     let user_stars = req.params.stars
-    let games = await Game.find({opponent : "", maxStars: {$gte : user_stars}})
-    for(let i =0;i<games.length;i++){
-        let availableGame = games[i]
-        data.push([availableGame.game_id,availableGame.white,availableGame.maxStars])
-    }
+    lobbies.forEach((lobby_id,game) => {
+        if(game.opponent === "" && game.maxStars > user_stars){
+            data.push([lobby_id,game.white,game.maxStars])
+        }
+    })
     res.status(200).json(data)
 }
 
 exports.build_lobby = async function(req,res){
-    let playerId = req.params.game_params.white
     for (var entry of lobbies.entries()) {
         var gameIstance = entry[1];
-       if(gameIstance.header['WHITE'] === playerId
-            || gameIstance.header['BLACK'] === playerId){
+       if(gameIstance.white === playerId
+            || gameIstance.black === playerId){
            res.status(400).send({message: "Can't be in two lobbies at the same time"})
        }
     }
-
-    var new_game = new Game(req.body.game_params)
-    new_game.save()
+    var new_game = req.body
+    var db_entry = new Game(new_game)
+    /** GAME ISTANCE
+     *      game: {
+                id: "",
+                white: "",
+                black: "",
+                maxStars: intMax,
+                draughts: null,
+                finished: false,
+                fen: "",
+                winner: "",
+                tick: 0
+            }
+     */
+            db_entry.save()
 
     //Dunno if new_game._id will work
     last_black_pieces.set(new_game._id,new Map())
     last_white_pieces.set(new_game._id,new Map())
-    lobbies.set(new_game.id,new Draughts())
+    new_game.draughts = new Draughts();
+    lobbies.set(new_game.id,new_game)
     lobbies.get(new_game.id).header('WHITE', new_game.white);
     //CHECK THISfindOneAndUpdate
     res.status(200).json(new_game._id)
@@ -249,7 +266,7 @@ exports.restart_old_game = async function(req,res){
 */
 function parseFEN(game_id) {
     let data = []
-    var game = lobbies.get(game_id)
+    var game = lobbies.get(game_id).draughts
     let fen = game.fen()
     var fields = fen.split(':')
     data.push(fields[0])
