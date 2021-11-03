@@ -1,6 +1,6 @@
 <template>
 <div class="overflow-x-auto">
-  <table class="table w-full">
+  <table class="table w-full shadow">
     <thead>
       <tr>
         <th>Pos</th> 

@@ -3,7 +3,7 @@
   <div class ="centralSpace">
     <Checkerboard class="board"/>
     <div class ="rightMenu">
-      <button class="btn">Crea lobby</button> 
+      <button class="btn" @click="newGame">Crea lobby</button> 
       <button class="btn">Unisciti ad una lobby</button> 
       <button class="btn">CPU</button> 
       <button class="btn">Aggiungi amico</button> 
@@ -14,12 +14,17 @@
 </template>
 
 <script>
-import Checkerboard from '@/components/Checkerboard'
+import Checkerboard from '@/components/boardComponents/Checkerboard'
 
 export default {
   name: 'Home',
   components: {
     Checkerboard
+  },
+  methods: {
+    newGame() {
+      this.$emit("newGame")
+    }
   }
 }
 </script>

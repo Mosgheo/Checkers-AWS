@@ -1,11 +1,12 @@
 <template>
   <router-link :to="to" class="link" :class="{ active: isActive }">
     <i class="icon" :class="icon" />
-    <transition name="fade">
+    <button class="btn btn-ghost"><slot /></button> 
+    <!--<transition name="fade">
       <span v-if="!collapsed">
         <slot />
       </span>
-    </transition>
+    </transition>-->
   </router-link>
 </template>
 
@@ -48,8 +49,13 @@ export default {
   padding: 0.4em;
   border-radius: 0.25em;
   height: 2em;
-  color: white;
+  color: #CDCBCB;
   text-decoration: none;
+  transition: 0.2s;
+}
+
+button:hover {
+  background-color: transparent;
 }
 
 .link:hover {
