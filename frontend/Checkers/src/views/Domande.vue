@@ -1,6 +1,6 @@
 <template>
 <div>
-<div tabindex="0" class="collapse w-100 border mt-10 rounded-box border-base-300 collapse-arrow"> 
+<div tabindex="0" class="collapse w-100 border rounded-box border-base-300 collapse-arrow"> 
   <div class="collapse-title text-xl font-medium">
     Fai una domanda
   </div> 

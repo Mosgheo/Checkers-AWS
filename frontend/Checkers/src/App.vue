@@ -36,7 +36,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #CDCBCB;
 }
 
 .header {
@@ -65,7 +65,7 @@ export default {
   flex: 8;
   padding: 0.5em;
   padding-bottom:100%;
-  background-color: #fafaf0;
+  background-color: #343232;
 }
 
 .content {

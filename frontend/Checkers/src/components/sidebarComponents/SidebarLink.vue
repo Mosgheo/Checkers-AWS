@@ -49,7 +49,7 @@ export default {
   padding: 0.4em;
   border-radius: 0.25em;
   height: 2em;
-  color: #323630;
+  color: #CDCBCB;
   text-decoration: none;
   transition: 0.2s;
 }

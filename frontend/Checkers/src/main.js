@@ -10,7 +10,15 @@ import '@/assets/styles/app.css'
 
 import '@fortawesome/fontawesome-free/js/all'
 
-const app = createApp(App)
+export const app = createApp(App)
+app.config.productionTip = false
+app.config.globalProperties.$BOARD_SIZE = 8
+app.config.globalProperties.$COLOR_TOP = "color-top"
+app.config.globalProperties.$COLOR_BOTTOM ="color-bottom"
+app.config.globalProperties.$PLAYER_ONE = "one"
+app.config.globalProperties.$PLAYER_TWO = "two"
+app.config.globalProperties.$PIECE_TYPE_MAN ="man"
+app.config.globalProperties.$PIECE_TYPE_KING = "king"
 
 app
 .use(new VueSocketIO({
@@ -19,8 +27,6 @@ app
 }))
 .use(router)
 .use(store)
-
-app.config.productionTip = false
 
 function callbackRedirect(appState) {
   router.push(

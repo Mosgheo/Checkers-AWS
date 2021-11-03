@@ -38,6 +38,9 @@
 <script>
 </script>
 
-<style>
+<style scoped>
+span {
+  color: #CDCBCB;
+}
 </style>
 

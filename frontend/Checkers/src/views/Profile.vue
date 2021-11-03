@@ -1,20 +1,20 @@
 <template>
   <div class="profile">
-    <div class="card lg:card-side border-2">
-      <img src="https://picsum.photos/id/1005/250" class="mask mask-square m-2">
+    <div class="card lg:card-side bordered">
+      <img src="https://picsum.photos/id/1005/250" class="mask mask-square p-5">
       <div class="p-3">
-        <div class="flex ml-2 mb-2">
-          <h2 class="card-title m-0">Username</h2>
+        <div class="flex p-2">
+          <h2 class="card-title">Username</h2>
           <div class="avatar">
-            <div class="ml-2 rounded-btn w-10 h-10">
+            <div class="ml-1 rounded-btn w-11 h-11">
               <img src="http://daisyui.com/tailwind-css-component-profile-1@40w.png">
             </div>
           </div>
         </div> 
-        <p>Nome Cognome</p> 
+        <p class="text-left p-2">Nome Cognome</p> 
       </div>
     </div>
-    <div class="rounded-xl border-2 mt-10">
+    <div class="rounded-xl bordered mt-10">
       <div class="tabs tabs-boxed pl-5 mt-5">
         <a v-on:click="dataInfo()" id="dataInfo" class="tab tab-lg tab-active">Dati Utente</a>
         <a v-on:click="matchInfo()" id="matchInfo" class="tab tab-lg ">Partite</a>
