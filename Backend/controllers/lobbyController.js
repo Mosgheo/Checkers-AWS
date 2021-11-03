@@ -96,7 +96,18 @@ exports.tieGame = async function(req,res){
     res.status(200).send({message: "Game has been settled with a tie, each player will not earn nor lose stars"})
 }
 exports.leaveGame = async function(req,res){
-    //TODO
+    let game_id = req.params.id
+    let game = lobbies.get(game_id)
+    let quitter = req.params.player_id;
+    let winner;
+    if(game.header('WHITE') === quitter){
+        winner = game.header('BLACK')
+    }else{
+        winner = game.header('WHITE')
+    }
+    gameEnd(game_id,false,winner,quitter)
+    res.status(200).send({message: "You successfully left the game, "+process.env.LOSS_STARS+" stars has been added to your profile"})
+
 }
 exports.movePiece = async function(req,res){
     let game_id = req.params.game_id
@@ -155,11 +166,10 @@ async function addPlayer(game_id, player2) {
     }
 }
 async function delete_lobby(game_id){
-    if(Game.find({"game_id":game_id,"black":""})){
-        let deleted = await Game.deleteOne({game_id: game_id, black: ""})
-        return deleted && lobbies.delete(game_id)
-    }
-    else return false
+    let deleted = await Game.findOneAndDelete({"game_id":game_id,"black":""})
+        return deleted && lobbies.delete(game_id) 
+        && last_black_pieces.delete(game_id)
+        && last_white_pieces.delete(game_id) 
 }
 exports.joinLobby = async function(req,res) {
     let game_id = req.params.game_id
@@ -190,8 +200,9 @@ exports.build_lobby = async function(req,res){
     let playerId = req.params.game_params.white
     for (var entry of lobbies.entries()) {
         var gameIstance = entry[1];
-       if(gameIstance.header['WHITE'] === playerId){
-           res.status(400).send({message: "Can't have two lobbies at the same time"})
+       if(gameIstance.header['WHITE'] === playerId
+            || gameIstance.header['BLACK'] === playerId){
+           res.status(400).send({message: "Can't be in two lobbies at the same time"})
        }
     }
 
@@ -203,7 +214,7 @@ exports.build_lobby = async function(req,res){
     last_white_pieces.set(new_game._id,new Map())
     lobbies.set(new_game.id,new Draughts())
     lobbies.get(new_game.id).header('WHITE', new_game.white);
-    //CHECK THIS
+    //CHECK THISfindOneAndUpdate
     res.status(200).json(new_game._id)
 }
 exports.delete_lobby = async function(req,res){
@@ -211,9 +222,10 @@ exports.delete_lobby = async function(req,res){
     if(deleted == 1){
         res.status(200).json();
     }else{
-        res.status(400).send({message: "couldn't delete such lobby, it either was already deleted or the game is still running"});
+        res.status(400).send({message: "Couldn't delete such lobby, it either was already deleted or the game is still running"});
     }
 }
+
 exports.get_old_games = async function(req,res){
     //TODO
 }
