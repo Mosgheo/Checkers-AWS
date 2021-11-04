@@ -67,8 +67,9 @@ export default {
   transition: 0.3s ease;
 }
 img {
-  margin-top: 2%;
-  margin-bottom: 10%;
+  width: 100px;
+  height: 100px;
+  margin: 2% auto;
 }
 /*collapse-icon {
   position: absolute;
@@ -82,7 +83,7 @@ img {
   transition: 0.2s linear;
 }*/
 .profile, .leaderboard, .domande, .home{
-  margin-top: 15%;
+  margin-top: 10%;
 }
 .login, .logout {
   margin-top: 50%;

@@ -1,6 +1,6 @@
 <template>
   <div class="profile">
-    <div class="card lg:card-side bordered">
+    <div class="basic-info card lg:card-side">
       <img src="https://picsum.photos/id/1005/250" class="mask mask-square p-5">
       <div class="p-3">
         <div class="flex p-2">
@@ -14,7 +14,7 @@
         <p class="text-left p-2">Nome Cognome</p> 
       </div>
     </div>
-    <div class="rounded-xl bordered mt-10">
+    <div class="profile-info rounded-xl bordered mt-10">
       <div class="tabs tabs-boxed pl-5 mt-5">
         <a v-on:click="dataInfo()" id="dataInfo" class="tab tab-lg tab-active">Dati Utente</a>
         <a v-on:click="matchInfo()" id="matchInfo" class="tab tab-lg ">Partite</a>
@@ -67,5 +67,20 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.profile {
+  padding: 3.8em 3.8em 2em 3.8em
+}
+
+.basic-info, .profile-info {
+  background-color: #1F1E1E;
+}
+
+.tabs{
+  background-color: #161512;
+}
+
+.tab {
+  color: #A39D8F;
+}
 </style>

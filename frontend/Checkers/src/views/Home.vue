@@ -1,6 +1,7 @@
 <template>
 <div>
   <div class ="centralSpace">
+    <Chat class="chat"/>
     <Checkerboard class="board"/>
     <div class ="rightMenu">
       <button class="btn" @click="newGame">Crea lobby</button> 
@@ -15,11 +16,13 @@
 
 <script>
 import Checkerboard from '@/components/boardComponents/Checkerboard'
+import Chat from '@/components/boardComponents/Chat'
 
 export default {
   name: 'Home',
   components: {
-    Checkerboard
+    Checkerboard,
+    Chat
   },
   methods: {
     newGame() {
@@ -36,6 +39,11 @@ export default {
   flex-wrap: wrap;
   width: 100%;
   height: 100%;
+  padding: 1em 0em 0.6em 4em
+}
+.chat {
+  margin: 6em 2em 0em 0em;
+  width: 300px;
 }
 .rightMenu {
   display: flex;
@@ -47,10 +55,14 @@ export default {
   display: flex;
   flex-direction: column;
   flex-basis: 100%;
-  flex: 7;
-  margin-right: 5%
+  flex: 4;
 }
-.rightMenu button:not(:first-child) {
-  margin-top: 10%;
+.rightMenu button:first-child {
+  margin-top: 8em;
+}
+.rightMenu button {
+  margin-top: 4em;
+  max-width: 205px;
+  margin-left: 5em;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class="domande">
 <div tabindex="0" class="collapse w-100 border rounded-box border-base-300 collapse-arrow"> 
   <div class="collapse-title text-xl font-medium">
     Fai una domanda
@@ -31,7 +31,7 @@
     </div>
   </div>
 </div> 
-<div tabindex="0" class="collapse w-100 border mt-10 rounded-box border-base-300 collapse-arrow"> 
+<div tabindex="1" class="collapse w-100 border mt-10 rounded-box border-base-300 collapse-arrow"> 
   <div class="collapse-title text-xl font-medium">
     Segnala bug
   </div> 
@@ -62,7 +62,7 @@
     </div>
   </div>
 </div> 
-<div tabindex="0" class="collapse w-100 border mt-10 rounded-box border-base-300 collapse-arrow"> 
+<div tabindex="2" class="collapse w-100 border mt-10 rounded-box border-base-300 collapse-arrow"> 
   <div class="collapse-title text-xl font-medium">
     Inviaci un suggerimento
   </div> 
@@ -96,5 +96,11 @@
 </div>
 </template>
 
-<style>
+<style scoped>
+.domande {
+  padding: 3.8em 3.8em 2em 3.8em
+}
+.collapse-title {
+  background-color: ##1F1E1E;
+}
 </style>

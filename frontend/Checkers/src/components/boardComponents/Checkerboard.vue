@@ -1,5 +1,6 @@
 <template>
 	<div class="content">
+    <appPlayer />
 		<!--<app-header @newGame="newGame"/>-->
 		<div class="wrapper" @newGame="newGame">
 			<div class="subwrapper">
@@ -19,18 +20,21 @@
 				</div>
 			</div>
 		</div>
+    <appPlayer class="elf-start"/>
 	</div>
 </template>
 
 <script>
-//import Header from 'Components/Header.vue';
-import Cell from '@/components/boardComponents/Cell.vue';
+//import Header from 'Components/Header';
+import Cell from '@/components/boardComponents/Cell';
+import Player from '@/components/boardComponents/Player';
 import GameManager from '@/helpers/game_manager'; 
 
 export default {
   components: {
     //appHeader: Header,
-    appCell: Cell
+    appCell: Cell,
+    appPlayer: Player
   },
   data(){
     GameManager.init();
@@ -129,12 +133,11 @@ export default {
 .content .wrapper {
   display: flex;
   width: 100%;
-  height: calc(100% - 64px);
+  height: calc(100% - 60px);
   align-items: center;
 }
 .content .wrapper .subwrapper {
   display: flex;
-  justify-content: center;
   width: 100%;
 }
 .content .wrapper .subwrapper .grid {
@@ -145,7 +148,7 @@ export default {
 }
 @media (min-width: 1020px) {
 	.content .wrapper .subwrapper .grid {
-		max-width: 750px;
+		max-width: 930px;
   }
 }
 </style>

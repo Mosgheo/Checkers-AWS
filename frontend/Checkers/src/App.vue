@@ -1,11 +1,8 @@
 <template>
   <div id="app">
-    <div class="row">
-      <div class="column">
-        <Sidebar class="sidebar" />
-      </div>
-      <div class="middle">
-        <checkers-header class="header" />
+    <div class="grid grid-cols-10">
+      <Sidebar class="sidebar" />
+      <div class="middle col-start-2 col-span-9">
         <!--<div :style="{ 'margin-left': sidebarWidth }"></div>-->
         <router-view class="content"/>
       </div>
@@ -16,11 +13,9 @@
 <script>
 import Sidebar from '@/components/sidebarComponents/Sidebar'
 import {sidebarWidth} from '@/components/sidebarComponents/state'
-import CheckersHeader from './components/CheckersHeader.vue'
 
 export default {
   components: {
-    CheckersHeader,
     Sidebar
   },
   setup() {
@@ -36,7 +31,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #CDCBCB;
+  color: #A39D8F;
 }
 
 .header {
@@ -44,31 +39,7 @@ export default {
   margin-top: 0.5em;
 }
 
-.row {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-.column {
-  display: flex;
-  flex-direction: column;
-  flex-basis: 100%;
-  flex: 2;
-}
-
 .middle {
-  display: flex;
-  flex-direction: column;
-  flex-basis: 100%;
-  flex: 8;
-  padding: 0.5em;
-  padding-bottom:100%;
   background-color: #343232;
-}
-
-.content {
-  padding: 2em;
 }
 </style>

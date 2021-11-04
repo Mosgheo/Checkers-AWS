@@ -1,5 +1,5 @@
 <template>
-<div class="overflow-x-auto">
+<div class="leaderboard overflow-x-auto">
   <table class="table w-full shadow">
     <thead>
       <tr>
@@ -112,5 +112,8 @@
 <script>
 </script>
 
-<style>
+<style scoped>
+.leaderboard {
+  padding: 3.8em 3.8em 2em 3.8em
+}
 </style>

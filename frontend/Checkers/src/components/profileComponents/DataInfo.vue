@@ -42,5 +42,12 @@
 span {
   color: #CDCBCB;
 }
+input {
+  max-width: 400px;
+  background-color: #343232;
+}
+.select {
+  background-color: #343232;
+}
 </style>
 
