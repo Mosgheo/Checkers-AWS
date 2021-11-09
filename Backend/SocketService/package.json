@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "socketservice",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -13,7 +13,6 @@
     "dotenv": "^10.0.0",
     "draughts": "^0.0.1",
     "express": "^4.17.1",
-    "express-openid-connect": "^2.5.1",
-    "mongoose": "^6.0.12"
+    "socket.io": "^4.3.2"
   }
 }
