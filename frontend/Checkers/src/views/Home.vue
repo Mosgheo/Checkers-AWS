@@ -1,9 +1,9 @@
 <template>
 <div>
-  <div class ="centralSpace">
+  <div class ="flex flex-row centralSpace">
     <Chat class="chat"/>
-    <Checkerboard class="board"/>
-    <div class ="rightMenu">
+    <Checkerboard class="flex flex-col board"/>
+    <div class ="flex flex-col rightMenu">
       <button class="btn" @click="newGame">Crea lobby</button> 
       <button class="btn">Unisciti ad una lobby</button> 
       <button class="btn">CPU</button> 
@@ -34,35 +34,52 @@ export default {
 
 <style scoped>
 .centralSpace{
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
   width: 100%;
   height: 100%;
-  padding: 1em 0em 0.6em 4em
-}
-.chat {
-  margin: 6em 2em 0em 0em;
-  width: 300px;
-}
-.rightMenu {
-  display: flex;
-  flex-direction: column;
-  flex-basis: 100%;
-  flex: 2;
+  padding: 1em 0em 0.6em 1em
 }
 .board {
-  display: flex;
-  flex-direction: column;
-  flex-basis: 100%;
-  flex: 4;
+  margin-left: 5em;
+}
+.chat {
+  margin: 5.2em 2em 0em 0em;
+  max-width: 300px;
+}
+.rightMenu {
+  margin-right: 8em;
 }
 .rightMenu button:first-child {
-  margin-top: 8em;
+  margin-top: 6.8em;
 }
 .rightMenu button {
   margin-top: 4em;
   max-width: 205px;
-  margin-left: 5em;
+  margin-left: 3em;
 }
+
+@media (max-width: 1700px) {
+  .rightMenu button {
+    min-width: 130px;
+    margin-top: 2em;
+  }
+  .board {
+    margin-left: 1em;
+  }
+} 
+
+@media (max-width: 1200px) {
+  .rightMenu button {
+    visibility: hidden
+  }
+  .chat {
+    margin-left: 1.5em;
+    margin-right: 0em;
+  }
+} 
+
+@media (max-width: 850px) {
+  .board {
+    margin-left: 0.8em;
+  }
+} 
 </style>

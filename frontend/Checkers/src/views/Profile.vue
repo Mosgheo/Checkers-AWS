@@ -1,6 +1,6 @@
 <template>
-  <div class="profile">
-    <div class="basic-info card lg:card-side">
+  <div class="profile flex flex-col">
+    <div class="basic-info card lg:card-side flex flex-row">
       <img src="https://picsum.photos/id/1005/250" class="mask mask-square p-5">
       <div class="p-3">
         <div class="flex p-2">
@@ -82,5 +82,15 @@ export default {
 
 .tab {
   color: #A39D8F;
+}
+
+@media (max-width: 785px) {
+  img {
+    width: 150px;
+    height: 150px;
+  }
+  .profile {
+    margin-left: 2em;
+  } 
 }
 </style>

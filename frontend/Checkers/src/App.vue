@@ -34,12 +34,8 @@ export default {
   color: #A39D8F;
 }
 
-.header {
-  margin-bottom: 0.5em;
-  margin-top: 0.5em;
-}
-
 .middle {
   background-color: #343232;
+  padding-left: 4em;
 }
 </style>

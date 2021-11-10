@@ -88,4 +88,15 @@ img {
 .login, .logout {
   margin-top: 50%;
 }
+@media (max-width: 1850px) {
+  .sidebar {
+    max-width: 11.6em;
+    transition: 0.2s linear;
+  }
+}
+@media (max-width: 1000px) {
+  .sidebar {
+    max-width: 9.7em;
+  }
+}
 </style>

@@ -1,5 +1,5 @@
 <template>
-	<div class="content">
+	<div class="content flex flex-col flex-grow">
     <appPlayer />
 		<!--<app-header @newGame="newGame"/>-->
 		<div class="wrapper" @newGame="newGame">
@@ -136,20 +136,22 @@ export default {
   height: calc(100% - 60px);
   align-items: center;
 }
+
 .content .wrapper .subwrapper {
   display: flex;
   width: 100%;
 }
+
 .content .wrapper .subwrapper .grid {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
   border: 2px solid black;
 }
-@media (min-width: 1020px) {
-	.content .wrapper .subwrapper .grid {
-		max-width: 930px;
-  }
+
+.grid {
+  max-width: 53.9em;
+  min-width: 435px;
 }
 </style>
  
