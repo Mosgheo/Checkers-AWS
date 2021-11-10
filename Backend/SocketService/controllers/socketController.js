@@ -19,9 +19,14 @@ exports.socket = async function(server) {
     const io = socket(server)
 var current_id = 0;
 var free_ids = []
+
 let timeOut;
 const MAX_WAITING = 20000;
-
+/**
+ * Missing:
+ * - turn management
+ * - fix req.params in req.body
+ * */
 
 const game_service = process.env.HOSTNAME+process.env.GAME_SERVICE_PORT
 const user_service = process.env.HOSTNAME+process.env.USER_SERVICE_PORT
@@ -142,7 +147,7 @@ io.on('connection', async client => {
       }
     }
   })
-  client.on('leave_ame',async(lobby_id) => {
+  client.on('leave_game',async(lobby_id) => {
     let player = online_users.get(client.id)
     let {data:result} = await axios.delete(game_service+"/game/leaveGame",{game_id: lobby_id, player_id: player})
     client.emit("left_game",result[0])
@@ -165,4 +170,19 @@ io.on('connection', async client => {
     client.emit("game_history",history)
   })
   });
+
+  /**
+   * CHAT HANDLING
+   */
+  client.on('global_msg',async(sender,msg)=>{
+    if(online_users.has(sender)){
+      io.emit("global_msg",{sender:sender, message:msg})
+    }
+  })
+  client.on('game_msg',async(lobby_id,sender,msg)=>{
+    if(online_users.has(sender) && lobbies.has(lobby_id)
+    && lobbies.get(lobby_id).getPlayers.includes(sender)){
+      io.to(lobby_id).emit("game_msg",{sender:sender, message:msg})
+    }
+  })
 }
