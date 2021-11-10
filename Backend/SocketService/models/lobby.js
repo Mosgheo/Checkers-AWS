@@ -1,6 +1,7 @@
 var Lobby = new function(stars){
     var players = []
     let maxStars = stars
+    let tie_requests = []
     function addPlayer(id){
         if (players.size < 2){
             return players.push(id)
@@ -24,12 +25,21 @@ var Lobby = new function(stars){
             return players
         }
     }
+    function tieProposal(user_id){
+        if(players.includes(user_id) && tie_requests.includes(user_id)){
+            tie_requests.push(user_id)
+        }
+    }
+    function tie(){
+        return tie_requests.length >= 2
+    }
     return {
         maxStars,
         addPlayer,
         removePlayer,
         isFree,
         getPlayers,
-        hasPlayer
+        hasPlayer,
+        tieProposal,
     }
 }

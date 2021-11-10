@@ -55,6 +55,7 @@ async function saveGame(game_id) {
 }
 async function gameEnd(game_id,tie,winner,loser){
     let lobby = games.get(game_id)
+    lobby.winner = winner
     if(!tie){
         Game.findOneAndUpdate({"game_id":game_id},
         {$set: {
@@ -94,7 +95,7 @@ exports.tieGame = async function(req,res){
 
 }
 exports.leaveGame = async function(req,res){
-    let game_id = req.params.id
+    let game_id = req.params.game_id
     let gameInstance = games.get(game_id)
     let quitter = req.params.player_id
     if(gameInstance.white === quitter){
@@ -122,14 +123,17 @@ exports.movePiece = async function(req,res){
             if(winner != null){
                 gameEnd(game_id,false,result[0],result[1])
                 res.json({
-                    winner: getUsernameById(result[0]),
-                    data: data
+                    winner: game.winner,
+                    board: data
                 })
             }else{
                 /**HANDLE WHAT HAPPENS IF GAME OVER BUT NONE WON */
             }
         }else{
-            res.json(data)
+            res.json({
+                winner: "",
+                board: data
+            })
         }
     }else{
         res.status(400).json({error: "Error while making such move, you can try again or select a different move."})
@@ -160,14 +164,14 @@ exports.create_game = async function(req,res){
     games.set(game_id,new_game)
     res.status(200).json(parseFEN(game_id))
 }
-exports.delete_lobby = async function(req,res){
+/*exports.delete_lobby = async function(req,res){
     let deleted = delete_lobby(req.params.game_id)
     if(deleted == 1){
         res.status(200).json();
     }else{
         res.status(400).send({message: "Couldn't delete such lobby, it either was already deleted or the game is still running"});
     }
-}
+}*/
 
 exports.get_old_games = async function(req,res){
     //TODO
@@ -233,12 +237,4 @@ function parseFEN(game_id) {
     data.push(white_pieces_with_moves)
     data.push(black_pieces_with_moves)
     return data
-}
-function getUsernameById(user_id){
-    let user = User.findOne({id: user_id})
-    if (user!= null){
-        return user.username
-    }else{
-        return "null"
-    }
 }

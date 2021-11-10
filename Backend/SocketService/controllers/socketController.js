@@ -24,8 +24,15 @@ const MAX_WAITING = 20000;
 
 
 const game_service = process.env.HOSTNAME+process.env.GAME_SERVICE_PORT
-const puzzle_service = process.env.HOSTNAME+process.env.USER_SERVICE_PORT
+const user_service = process.env.HOSTNAME+process.env.USER_SERVICE_PORT
 
+function map_as_bi_map(toMatch){
+  online_users.forEach((key,value) =>{
+    if(toMatch === value){
+      return key
+    }
+  })
+}
 function get_id(){
   if(free_ids.length > 0){
     return free_ids.shift()
@@ -84,54 +91,78 @@ io.on('connection', async client => {
     });
 
 
-client.on('login', async mail => {
-  //Update user id in online_users
-  online_users.set(client,mail)
-  online_users.delete(client.id)
-})
+  client.on('login', async mail => {
+    //Update user id in online_users
+    online_users.set(client,mail)
+    online_users.delete(client.id)
+  })
 
 
-/**
- *  
- * Lobby handling 
- * 
- * */
-client.on('build_lobby',async (lobbyName,maxStars) => {
-  build_lobby(lobbyName,client,maxStars)
-  let {data: lobbies} = get_lobbies()
-  client.emit("lobbies",lobbies)
-})
+  /**
+   *  
+   * Lobby handling 
+   * 
+   * */
+  client.on('build_lobby',async (lobbyName,maxStars) => {
+    build_lobby(lobbyName,client,maxStars)
+    let {data: lobbies} = get_lobbies()
+    client.emit("lobbies",lobbies)
+  })
 
-client.on('get_lobbies',async (stars) => {
-  let {data: lobbies} = get_lobbies(stars)
-  client.emit("lobbies",lobbies)
-})
+  client.on('get_lobbies',async (stars) => {
+    let {data: lobbies} = get_lobbies(stars)
+    client.emit("lobbies",lobbies)
+  })
 
-client.on('delete_lobby', async(lobby_id) => {
-  lobbies.delete(lobby_id)
-})
+  client.on('delete_lobby', async(lobby_id) => {
+    lobbies.delete(lobby_id)
+  })
 
-client.on('join_lobby', async(lobby_id) => {
-  let player = online_users.get(client.id)
-  if(join_lobby(lobby_id,client,player)){
-    let {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{lobby_id: lobby_id})
-    io.to(lobby_id).emit("game_started",board)
-  }else{
-    client.emit("join_err")
-  }
-})
-/*
- * Game handling
- */
-client.on('movePiece',async (lobby_id,from,to) =>{
-  let player = online_users.get(client.id)
-  var lobby = lobbies.get(lobby_id)
-  if(lobby != null && lobby.hasPlayer(player)){
-    let {data: board} = await axios.put(game_service+"/game/movePiece",{game_id: lobby_id,from:from,to:to})
-    io.to(lobby_id).emit("update_board",board)
-  }
-})
-
-
-});
+  client.on('join_lobby', async(lobby_id) => {
+    let player = online_users.get(client.id)
+    if(join_lobby(lobby_id,client,player)){
+      let {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{lobby_id: lobby_id})
+      io.to(lobby_id).emit("game_started",board)
+    }else{
+      client.emit("join_err")
+    }
+  })
+  /*
+  * Game handling
+  */
+  client.on('movePiece',async (lobby_id,from,to) =>{
+    let player = online_users.get(client.id)
+    var lobby = lobbies.get(lobby_id)
+    if(lobby != null && lobby.hasPlayer(player)){
+      let {data: data} = await axios.put(game_service+"/game/movePiece",{game_id: lobby_id,from:from,to:to})
+      if(data.winner === ""){
+        io.to(lobby_id).emit("update_board",data.board)
+      }else{
+        io.to(lobby_id).emit("game_ended",data)
+      }
+    }
+  })
+  client.on('leave_ame',async(lobby_id) => {
+    let player = online_users.get(client.id)
+    let {data:result} = await axios.delete(game_service+"/game/leaveGame",{game_id: lobby_id, player_id: player})
+    client.emit("left_game",result[0])
+    //will it work??
+    let lobby = lobbies.get(lobby_id)
+    let winner = lobby.getPlayers().splice(lobby.indexOf(player),1)
+    io.sockets.get(map_as_bi_map(winner)).emit("opponent_left",result[1])
+  })
+  client.on('tie_game',async(lobby_id) =>{
+    let lobby = lobbies.get(lobby_id)
+    io.to(lobby_id).emit("tie_proposal",online_users.get(client.id))
+    lobby.tieProposal();
+    if(lobby.tie()){
+      let {data:result} = await axios.put(game_service+"/game/tieGame",{game_id: lobby_id})
+      io.to(lobby_id).emit("tie_game",result)
+    }
+  })
+  client.on('game_history',async(lobby_id)=>{
+    let history = await axios.get(game_service+"/game/history",{game_id : lobby_id})
+    client.emit("game_history",history)
+  })
+  });
 }
