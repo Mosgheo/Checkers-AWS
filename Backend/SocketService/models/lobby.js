@@ -1,7 +1,8 @@
-var Lobby = new function(stars){
+var Lobby = new function(stars,initial_turn){
     var players = []
     let maxStars = stars
     let tie_requests = []
+    var turn = initial_turn;
     function addPlayer(id){
         if (players.size < 2){
             return players.push(id)
@@ -41,5 +42,6 @@ var Lobby = new function(stars){
         getPlayers,
         hasPlayer,
         tieProposal,
+        turn
     }
 }

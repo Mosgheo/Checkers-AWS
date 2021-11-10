@@ -13,7 +13,6 @@ var games = new Map(); // game_id -> game
                 last_black_pieces: { piece -> moves }
                 fen: "",
                 winner: "",
-                turn:
                 tick: 0
             }
      */
@@ -164,14 +163,6 @@ exports.create_game = async function(req,res){
     games.set(game_id,new_game)
     res.status(200).json(parseFEN(game_id))
 }
-/*exports.delete_lobby = async function(req,res){
-    let deleted = delete_lobby(req.params.game_id)
-    if(deleted == 1){
-        res.status(200).json();
-    }else{
-        res.status(400).send({message: "Couldn't delete such lobby, it either was already deleted or the game is still running"});
-    }
-}*/
 
 exports.get_old_games = async function(req,res){
     //TODO
