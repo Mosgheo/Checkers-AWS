@@ -10,16 +10,7 @@ let lobbies = new Map(); // { lobby_id -> Lobby }
 let turn_timeouts = new Map(); // {client_id -> timoutTimer}
 var current_id = 0;
 var free_ids = []
-/** 
- * lobby: {
- *      name
-        maxStars,
-        addPlayer(),
-        removePlayer(),
-        isFree(),
-        getPlayers()
-   }
- * */ 
+
 exports.socket = async function(server) {
     const io = socket(server)
 
@@ -46,27 +37,42 @@ function get_id(){
 
 
 function build_lobby(room_name,client,maxStars){
-  lobbies.set(get_id(),new Lobby(maxStars,room_name,online_users.get(client.id)))
-  client.join(room_name)
+  let room_id = get_id()
+  lobbies.set(room_id,new Lobby(maxStars,room_name,online_users.get(client.id)))
+  client.join(room_id)
 }
 async function delete_lobby(game_id){
-  let deleted = await Game.findOneAndDelete({"game_id":game_id,"black":""})
-      return deleted && games.delete(game_id) && free_ids.push(game_id)
-      //&& last_black_pieces.delete(game_id)
-      //&& last_white_pieces.delete(game_id) 
+  lobbies.delete(lobby_id)
+  free_ids.push(lobby_id)
 }
 
-function join_lobby(room_name,client){
-  let to_join = lobbies.get(room_name)
-  if(to_join != null && to_join.isFree()){
-      return to_join.addPlayer(client)
+function join_lobby(lobby_id,client,player){
+  if(lobbies.has(lobby_id)){
+    let to_join = lobbies.get(lobby_id)
+    if(to_join.isFree()){
+        return to_join.addPlayer(player)
+        && client.join(lobby_id)
+    }else{
+      return false
+    }
   }else{
-    return false
-  }
+      return false
+    }
 }
+
 function get_lobbies(user_stars){
   let available_lobbies = []
-  lobbies.forEach((lobby_id,lobby)=>{
+  Array.from(lobbies.values())
+  .filter(lobby => lobby.isFree() && lobby.maxStars >= user_stars)
+  .map(lobby =>{
+    var tmpLobby = new Object();
+    tmpLobby.id = lobby_id
+    tmpLobby.name = lobby.name
+    tmpLobby.maxStars = lobby.maxStars
+    tmpLobby.host = lobby.getPlayers(0)
+    return tmpLobby
+  })
+  /*lobbies.forEach((lobby_id,lobby)=>{
     //SHould I just return the whole lobby item?
     if(lobby.isFree && lobby.maxStars >= user_stars){
       var tmpLobby = new Object();
@@ -74,9 +80,10 @@ function get_lobbies(user_stars){
       tmpLobby.name = lobby.name
       tmpLobby.maxStars = lobby.maxStars
       tmpLobby.host = lobby.getPlayers(0)
+      return tmpLobby
       available_lobbies.push(tmpLobby)
     }
-  })
+  })*/
   return available_lobbies
 }
 
@@ -116,7 +123,7 @@ io.on('connection', async client => {
   })
 
   client.on('delete_lobby', async(lobby_id) => {
-    lobbies.delete(lobby_id)
+    delete_lobby(lobby_id)
   })
 function triggered_timeout(lobby_id){
 
@@ -128,16 +135,22 @@ function change_turn(lobby_id){
   let lobbyPlayers = lobby.getPlayers()
   let late_player = lobby.turn
   let next_player = lobbyPlayers.splice(lobbyPlayers.indexOf(late_player),1)
-  return lobbies.get(lobby_id).turn = next_player &&
+  lobbies.get(lobby_id).turn = next_player 
   turn_timeouts.set(lobby_id, setTimeout(triggered_timeout(lobby_id),process.env.TIMEOUT))
+  io.to(lobby_id).emit("turn_change",{next_player:next_player,other:late_player})
 }
-
+async function updatePoints(player1,points1,player2,points2){
+  //Not sure this  && will return a correct boolean
+  return User.findOneAndUpdate({"user_id":player1},{$inc: {stars:points1}}) 
+  && User.findOneAndUpdate({"user_id":player2},{$inc: {stars:points2}})
+}
   client.on('join_lobby', async(lobby_id) => {
     if(online_users.has(client.id)){
       let player = online_users.get(client.id)
       if(lobbies.has(lobby_id)){
+        let host = lobbies.get(lobby_id).getPlayers()[0]
         if(join_lobby(lobby_id,client,player)){
-          let {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{lobby_id: lobby_id})
+          let {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:host,opponent:player})
           io.to(lobby_id).emit("game_started",board)
           turn_timeouts.set(lobby_id, setTimeout(triggered_timeout(lobby_id),process.env.TIMEOUT))
         }else{
@@ -159,48 +172,68 @@ function change_turn(lobby_id){
       }
     }
   })
+
   /*
   * Game handling
   */
   client.on('movePiece',async (lobby_id,from,to) =>{
-    let player = online_users.get(client.id)
-    var lobby = lobbies.get(lobby_id)
-    if(lobby != null && lobby.hasPlayer(player)){
-      let {data: data} = await axios.put(game_service+"/game/movePiece",{game_id: lobby_id,from:from,to:to})
-      if(data.winner === ""){
-        io.to(lobby_id).emit("update_board",data.board)
-        if(change_turn(lobby_id)){
-          io.to(lobby_id).emit("turn_change",{next_player:to_play,other:other})
+    if(online_users.has(client.id) && lobbies.has(lobby_id)){
+      let player = online_users.get(client.id)
+      var lobby = lobbies.get(lobby_id)
+      //is == ok down here? ->
+      if(lobby.hasPlayer(player) && lobby.turn == player.turn){
+        let {data: data} = await axios.put(game_service+"/game/movePiece",{game_id: lobby_id,from:from,to:to})
+        if(data.winner === ""){
+          io.to(lobby_id).emit("update_board",data.board)
+          change_turn(lobby_id)
         }else{
-          io.to(lobby_id).emit("error while changing turn")
+          if(updatePoints(data.winner,process.env.WIN_STARS,data.loser,process.env.LOSS_STARS)){
+            io.to(lobby_id).emit("game_ended",data)
+            delete_lobby(lobby_id)
+          }
         }
       }else{
-        io.to(lobby_id).emit("game_ended",data)
+        client.emit("permit_error")
       }
+    }else{
+      client.emit("permit_error")
     }
   })
   client.on('leave_game',async(lobby_id) => {
     let player = online_users.get(client.id)
-    let {data:result} = await axios.delete(game_service+"/game/leaveGame",{game_id: lobby_id, player_id: player})
-    client.emit("left_game",result[0])
+    if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(player)){
+      let {data:result} = await axios.delete(game_service+"/game/leaveGame",{game_id: lobby_id, player_id: player})
+      client.emit("left_game",result[0])
 
-    let lobby = lobbies.get(lobby_id)
-        //will those two lines below work??
-    let winner = lobby.getPlayers().splice(lobby.indexOf(player),1)
-    io.sockets.get(online_users.getKey(winner)).emit("opponent_left",result[1])
+      let lobby = lobbies.get(lobby_id)
+          //will those two lines below work??
+      let winner = lobby.getPlayers().splice(lobby.indexOf(player),1)
+      io.sockets.get(online_users.getKey(winner)).emit("opponent_left",result[1])
+    }else{
+      client.emit("permit_error")
+    }
   })
   client.on('tie_game',async(lobby_id) =>{
-    let lobby = lobbies.get(lobby_id)
-    io.to(lobby_id).emit("tie_proposal",online_users.get(client.id))
-    lobby.tieProposal();
-    if(lobby.tie()){
-      let {data:result} = await axios.put(game_service+"/game/tieGame",{game_id: lobby_id})
-      io.to(lobby_id).emit("tie_game",result)
+    let player = online_users.get(client.id)
+    if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(player)){
+      let lobby = lobbies.get(lobby_id)
+      io.to(lobby_id).emit("tie_proposal",player)
+      lobby.tieProposal();
+      if(lobby.tie()){
+        let {data:result} = await axios.put(game_service+"/game/tieGame",{game_id: lobby_id})
+        io.to(lobby_id).emit("tie_game",result)
+      }
+    }else{
+      client.emit("permit_error")
     }
   })
   client.on('game_history',async(lobby_id)=>{
-    let history = await axios.get(game_service+"/game/history",{game_id : lobby_id})
-    client.emit("game_history",history)
+    if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(online_users.get(client.id))){
+      let history = await axios.get(game_service+"/game/history",{game_id : lobby_id})
+      client.emit("game_history",history)
+    }else{
+      client.emit("permit_error")
+    }
   })
   });
 

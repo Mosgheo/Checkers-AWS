@@ -1,7 +1,9 @@
-var Lobby = new function(stars,initial_turn){
-    var players = []
+var Lobby = new function(stars,room_name,initial_turn){
+
     let maxStars = stars
     let tie_requests = []
+    let room_name = room_name
+    var players = []
     var turn = initial_turn;
     function addPlayer(id){
         if (players.size < 2){
@@ -27,7 +29,7 @@ var Lobby = new function(stars,initial_turn){
         }
     }
     function tieProposal(user_id){
-        if(players.includes(user_id) && tie_requests.includes(user_id)){
+        if(players.includes(user_id) && !tie_requests.includes(user_id)){
             tie_requests.push(user_id)
         }
     }
@@ -36,12 +38,14 @@ var Lobby = new function(stars,initial_turn){
     }
     return {
         maxStars,
+        turn,
+        room_name,
+        isFree,
         addPlayer,
         removePlayer,
-        isFree,
-        getPlayers,
         hasPlayer,
+        getPlayers,
         tieProposal,
-        turn
+        tie
     }
 }

@@ -5,13 +5,9 @@ const gameSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         required: true
       },
-    white: String,
-    black: String,
-    maxStars: Number,
     fen : String,
     history:[String],
-    finished: Boolean,
     winner:String,
-    turn:String
+    loser:String
 })
 module.exports = mongoose.model("Game", gameSchema)
