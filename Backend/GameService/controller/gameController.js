@@ -22,7 +22,7 @@ var games = new Map(); // game_id -> game
  **
  */
 
-async function winCheck(game_id){
+function winCheck(game_id){
     let gameInstance = games.get(game_id)
     var game = gameInstance.draughts
     if(game.fen.split(':')[1].split[','].length <= 1){
@@ -55,51 +55,49 @@ async function gameEnd(game_id,tie,winner,loser){
     game.winner = winner
     game.loser = loser
     if(!tie){
-        new Game({
+        await new Game({
             fen: game.draughts.fen(),
             history:getHistory(game_id),
             winner: winner,
             loser: loser 
         }).save()
-        .then(function(){
-                games.delete(game_id)
-            })
+        
+        games.delete(game_id)
 
         //last_black_pieces.delete(game_id)
         //last_white_pieces.delete(game_id)
         //return updatePoints(winner,process.env.WIN_STARS,loser,process.env.LOSS_STARS)
     }else{
-        new Game({
+        await new Game({
             fen: game.draughts.fen(),
             history:getHistory(game_id),
             winner: "Game has been settled with a tie.",
             loser: game.loser
-        })
-            .then(function(){
-                games.delete(game_id)
-            })
+        }).save()
+        games.delete(game_id)
         //last_black_pieces.delete(game_id)
         //last_white_pieces.delete(game_id)
         //return updatePoints(game.white,process.env.TIE_STARS,game.black,process.env.TIE_STARS)
     }
 }
-async function getHistory(game_id){
+function getHistory(game_id){
     games.get(game_id).draughts.history({verbose:true});
 }
-exports.tieGame = async function(req,res){
+exports.tieGame = function(req,res){
     //WILL "_" BELOW WORK?
-    if(gameEnd(req.params.id,true,_,_)){
+    gameEnd(req.body.game_id,true,_,_).then(
         res.status(200).send({message: "Game has been settled with a tie, each player will not earn nor lose stars"})
-    }else{
+    ).catch(
         res.status(500).send({message: "Something went wrong while closing the game."})
-    }
+    )
+
 
 }
 exports.leaveGame = async function(req,res){
-    let game_id = req.params.game_id
+    let game_id = req.body.game_id
     if(games.has(game_id)){
         let game = games.get(game_id)
-        let quitter = req.params.player_id
+        let quitter = req.body.player_id
         if(game.white === quitter){
             gameEnd(game_id,false,gameInstance.black,gameInstance.white)
         }else{
@@ -111,8 +109,8 @@ exports.leaveGame = async function(req,res){
         res.status(200).send(data)
     }
 }
-exports.movePiece = async function(req,res){
-    let game_id = req.params.game_id
+exports.movePiece = function(req,res){
+    let game_id = req.body.game_id
     if(!games.has(game_id)){
         res.status(400).send({message: "Can't find such game"})
     }else{
@@ -121,7 +119,7 @@ exports.movePiece = async function(req,res){
             let data = parseFEN(game_id)
             if(game.game_over()){
                 /**HANDLE WIN NOTIFICATION */
-                if(whinCheck(game_id)){
+                if(winCheck(game_id)){
                     gameEnd(game_id,false,game.winner,game.loser)
                     res.json({
                         winner: game.winner,
@@ -145,15 +143,15 @@ exports.movePiece = async function(req,res){
 }
 
 exports.gameHistory = async function(req,res){
-    res.json(getHistory(req.params.game_id));
+    res.json(getHistory(req.body.game_id));
 }
 
 
 
-exports.create_game = async function(req,res){
-    let game_id = req.params.game_id
-    let host_id = req.params.host_id
-    let opponent = req.params.opponent
+exports.create_game = function(req,res){
+    let game_id = req.body.game_id
+    let host_id = req.body.host_id
+    let opponent = req.body.opponent
     var game = new Object();
     game.white = host_id
     game.black = opponent

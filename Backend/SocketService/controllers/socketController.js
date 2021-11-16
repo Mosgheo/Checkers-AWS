@@ -36,14 +36,14 @@ function get_id(){
 }
 
 
-function build_lobby(room_name,client,maxStars){
+function build_lobby(room_name,client,max_stars){
   let room_id = get_id()
-  lobbies.set(room_id,new Lobby(maxStars,room_name,online_users.get(client.id)))
+  lobbies.set(room_id,new Lobby(max_stars,room_name,online_users.get(client.id)))
   client.join(room_id)
 }
 async function delete_lobby(game_id){
-  lobbies.delete(lobby_id)
-  free_ids.push(lobby_id)
+  lobbies.delete(game_id)
+  free_ids.push(game_id)
 }
 
 function join_lobby(lobby_id,client,player){
@@ -63,22 +63,22 @@ function join_lobby(lobby_id,client,player){
 function get_lobbies(user_stars){
   let available_lobbies = []
   Array.from(lobbies.values())
-  .filter(lobby => lobby.isFree() && lobby.maxStars >= user_stars)
+  .filter(lobby => lobby.isFree() && lobby.max_stars >= user_stars)
   .map(lobby =>{
     var tmpLobby = new Object();
     tmpLobby.id = lobby_id
     tmpLobby.name = lobby.name
-    tmpLobby.maxStars = lobby.maxStars
+    tmpLobby.max_stars = lobby.max_stars
     tmpLobby.host = lobby.getPlayers(0)
     return tmpLobby
   })
   /*lobbies.forEach((lobby_id,lobby)=>{
     //SHould I just return the whole lobby item?
-    if(lobby.isFree && lobby.maxStars >= user_stars){
+    if(lobby.isFree && lobby.max_stars >= user_stars){
       var tmpLobby = new Object();
       tmpLobby.id = lobby_id
       tmpLobby.name = lobby.name
-      tmpLobby.maxStars = lobby.maxStars
+      tmpLobby.max_stars = lobby.max_stars
       tmpLobby.host = lobby.getPlayers(0)
       return tmpLobby
       available_lobbies.push(tmpLobby)
@@ -105,26 +105,26 @@ io.on('connection', async client => {
     online_users.set(client.id,mail)
   })
 
-
+/**
+ * GESTIONE DEGLI ASYNC, FORSE VANNO MESSI SOLO DOVE
+ * C'è ACCESSO CONCORRENTE
+ */
   /**
    *  
    * Lobby handling 
    * 
    **/
-  client.on('build_lobby',async (lobbyName,maxStars) => {
-    build_lobby(lobbyName,client,maxStars)
+  client.on('build_lobby',function(lobby_name,max_stars)  {
+    build_lobby(lobby_name,client,max_stars)
     let {data: lobbies} = get_lobbies()
     client.emit("lobbies",lobbies)
   })
 
-  client.on('get_lobbies',async (stars) => {
+  client.on('get_lobbies',function (stars) {
     let {data: lobbies} = get_lobbies(stars)
     client.emit("lobbies",lobbies)
   })
 
-  client.on('delete_lobby', async(lobby_id) => {
-    delete_lobby(lobby_id)
-  })
 function triggered_timeout(lobby_id){
 
   clearTimeout(turn_timeouts.get(game.id));
@@ -159,7 +159,7 @@ async function updatePoints(player1,points1,player2,points2){
       }
     }
   })
-  client.on('delete_lobby', async(lobby_id)=>{
+  client.on('delete_lobby', function(lobby_id) {
     if(online_users.has(client.id) && lobbies.has(lobby_id)){
       let player = online_users.get(client.id)
       let lobby = lobbies.get(lobby_id)
@@ -168,7 +168,7 @@ async function updatePoints(player1,points1,player2,points2){
         lobbies.delete(lobby_id)
         client.emit("lobby_deleted")
       }else{
-        client.emit("something wrong while deleting your lobby")
+        client.emit("error_deleting")
       }
     }
   })
@@ -176,7 +176,7 @@ async function updatePoints(player1,points1,player2,points2){
   /*
   * Game handling
   */
-  client.on('movePiece',async (lobby_id,from,to) =>{
+  client.on('move_piece',async (lobby_id,from,to) =>{
     if(online_users.has(client.id) && lobbies.has(lobby_id)){
       let player = online_users.get(client.id)
       var lobby = lobbies.get(lobby_id)
@@ -240,16 +240,51 @@ async function updatePoints(player1,points1,player2,points2){
   /**
    * CHAT HANDLING
    */
-  client.on('global_msg',async(sender,msg)=>{
-    if(online_users.has(sender)){
-      io.emit("global_msg",{sender:sender, message:msg})
+  client.on('global_msg',function(msg){
+    if(online_users.has(client.id)){
+      io.emit("global_msg",{sender:online_users.get(client.id), message:msg})
     }
   })
-  client.on('game_msg',async(lobby_id,sender,msg)=>{
-    if(online_users.has(sender) && lobbies.has(lobby_id)
-    && lobbies.get(lobby_id).getPlayers.includes(sender)){
-      io.to(lobby_id).emit("game_msg",{sender:sender, message:msg})
+  client.on('game_msg',function(lobby_id,msg){
+    if(online_users.has(client.id) && lobbies.has(lobby_id)
+    && lobbies.get(lobby_id).getPlayers.includes(online_users.get(client.id))){
+      io.to(lobby_id).emit("game_msg",{sender:online_users.get(client.id), message:msg})
     }
   })
 
-}
+  /**
+   * USER PROFILE HANDLING
+   */
+  client.on('get_profile',async(user_id) =>{
+    let user_profile = await axios.get(user_service+"/profile/getProfile",{user_id:user_id})
+    if(!user_profile === null){
+      client.emit("permit_error",user_profile)
+    }else{
+      client.emit("user_profile",user_profile)
+    }
+  })
+  client.on('get_leaderboard',async() =>{
+    let leaderboard = await axios.get(user_service+"/getLeaderboard")
+    if(leaderboard === null){
+      client.emit("permit_error",leaderboard)
+    }else{
+      client.emit("leaderboard",leaderboard)
+    }
+  })
+  client.on('update_profile',async(user_id,params) =>{
+    let updated_user = await axios.put(user_service+"/profile/updateProfile",{user_id:user_id,params:params})
+    if(updated_user === null){
+      client.emit("permit_error",user_history)
+    }else{
+      client.emit("updated_user",updated_user)
+    }
+  })
+  client.on('get_history', async(user_id) => {
+    let user_history = await axios.get(user_service+"/profile/getHistory",{user_id : user_id})
+    if(user_history === null){
+      client.emit("permit_error",user_history)
+    }else{
+      client.emit("user_history",user_history)
+    }
+  })
+} 

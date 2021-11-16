@@ -2,7 +2,7 @@ const User = require('../../GameService/models/userModel')
 
 exports.getProfile = async function(req,res){
     try{
-        let data = User.findById(req.params.id)
+        let data = await User.findById(req.body.user_id).lean()
         if(data === null){
             res.status(404).json({error: "Cannot find any player with such ID"})
         }
@@ -13,33 +13,45 @@ exports.getProfile = async function(req,res){
 }
 exports.getHistory = async function(req,res){
     try{
-        let user = User.findById({userID:req.params.id})
+        let user = await User.findById({userID:req.body.user_idid})
         let data = []
         if(user === null){
             res.status(404).json({error: "Cannot find any player with such ID"})
         }
-        data.push("Wins",user.wins)
-        data.push("Losses",data.losses)
+        data.push(user.wins)
+        data.push(data.losses)
+        res.status(200).json(data)
     }catch{
         res.status(500).json({error: "Error while retrieving player profile from DB"})
     }
 }
+//Not sure it'll work
 exports.updateProfile = async function(req,res){
-    let user_id = req.params.userId
-    let updated_user = req.body
-    let new_user
-    if(new_user = User.findOneAndUpdate({"userID": user_id},{ $set:{
-        username: updated_user.username,
-        nationality: updated_user.nationality,
-    }})){
-        res.status(200).json(new_user)
+    let user_id = req.body.params[0]
+    let nationality = req.body.params[1]
+    let name = req.body.params[2]
+    let surname = req.body.params[3]
+    let username = req.body.params[4]
+    let used_username = await User.find({username:username})
+    if(used_username === null){
+        if(new_user = await User.findOneAndUpdate({"userID": user_id},{ $set:{
+            username : username,
+            nationality : nationality,
+            name : name,
+            surname : surname
+        }})){
+            res.status(200).json(new_user)
+        }else{
+            res.status(400).send({message: "Something went wrong while updating a user, please try again"})
+        }
     }else{
-        res.status(400).send({message: "Something went wrong while updating a user, please try again"})
+        res.status(500).json({error: "Username already in use"})
     }
+
 }
 
 exports.getLeaderboard = async function(_,res){
-    let users = User.find({}).sort('stars')
+    let users = await User.find({}).sort('stars')
     if(users != null){
         res.status(200).json(users);
     }else{

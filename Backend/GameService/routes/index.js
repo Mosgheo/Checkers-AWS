@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const gameController = require("../controller/lobbyController")
+const gameController = require("../controller/gameController")
 
 router
     //Game routes
