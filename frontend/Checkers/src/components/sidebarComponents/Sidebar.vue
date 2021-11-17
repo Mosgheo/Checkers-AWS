@@ -36,7 +36,8 @@ export default {
   },
   methods: {
     login() {
-      this.$auth.loginWithRedirect();
+      this.$socket.emit("login", "pasottipro@gmail.com")
+      //this.$auth.loginWithRedirect();
     },
     logout() {
       this.$auth.logout({

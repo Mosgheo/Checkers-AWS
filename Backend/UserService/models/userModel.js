@@ -1,5 +1,4 @@
 const mongoose = require("mongoose")
-const defaultAvatar = 'data:image/png;base64,' + fs.readFileSync(path.join(__dirname, '../assets', 'avatar.png')).toString('base64');
 
 const userSchema = new mongoose.Schema({
     userID: {
@@ -11,13 +10,10 @@ const userSchema = new mongoose.Schema({
     nationality:String,
     wins:Number,
     losses:Number,
-    avatar: {
-        type: String,
-        default: defaultAvatar
-      },
+    avatar: String,
     mail:String,
     password:String,
     salt:String
 });
 
-module.exports = mongoose.model("user", userSchema)
+module.exports = mongoose.model("users", userSchema)

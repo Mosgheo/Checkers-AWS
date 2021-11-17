@@ -22,8 +22,8 @@ exports.socket = async function(server) {
  * Missing:
  * */
 
-const game_service = process.env.HOSTNAME+process.env.GAME_SERVICE_PORT
-const user_service = process.env.HOSTNAME+process.env.USER_SERVICE_PORT
+const game_service = process.env.HOSTNAME+":"+process.env.GAME_SERVICE_PORT
+const user_service = process.env.HOSTNAME+":"+process.env.USER_SERVICE_PORT
 
 function get_id(){
   if(free_ids.length > 0){
@@ -104,7 +104,11 @@ io.on('connection', async client => {
     //TODO maybe should receive mail and
     //search in DB for the corresponding username
     online_users.set(client.id,mail)
-    let player = await axios.get(user_service+"/profile/getProfile",{client_id : client.id})
+    let player = await axios.get(user_service+"/profile/getProfile", {
+      params: {
+        mail: mail
+      }
+    })
     client.emit("player",player)
   })
 

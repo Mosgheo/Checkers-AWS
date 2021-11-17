@@ -1,8 +1,9 @@
-const User = require('../../GameService/models/userModel')
+const User = require('../models/userModel')
 
 exports.getProfile = async function(req,res){
-    try{
-        let data = await User.findById(req.body.user_id).lean()
+    let mail = req.query.mail
+    try {
+        let data = await User.find({mail:mail}).lean()
         if(data === null){
             res.status(404).json({error: "Cannot find any player with such ID"})
         }

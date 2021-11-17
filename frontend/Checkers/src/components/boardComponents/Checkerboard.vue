@@ -45,7 +45,14 @@ export default {
       moves          : GameManager.getAllAvailableMoves(),
       targeted_cells : [],
       selected_piece : false,
-      available_moves: {}
+      available_moves: {},
+      player         : [],
+    }
+  },
+  sockets: {
+    player(data) {
+      console.log(data)
+      //this.player = data
     }
   },
   computed: {
