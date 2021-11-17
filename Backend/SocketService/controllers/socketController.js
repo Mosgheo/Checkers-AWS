@@ -14,7 +14,6 @@ var free_ids = []
 exports.socket = async function(server) {
     const io = socket(server)
 
-
 /**
  * Missing:
  * */
@@ -88,13 +87,14 @@ io.on('connection', async client => {
   console.log("a user connected")
   //A new anon user just connected, push it to online_players
   online_users.set(client.id,get_id())
-
+  let player = await axios.get(user_service+"/profile/getProfile",{client_id : client.id})
+  client.emit("player",player)
+  
   client.on('disconnect', function(){
     console.log('A player disconnected');
     //Remove player from active players
     online_users.deleteValue(client)
     });
-
 
   client.on('login', async mail => {
     console.log("a user logged in")
