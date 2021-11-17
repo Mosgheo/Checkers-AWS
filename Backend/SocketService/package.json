@@ -12,6 +12,7 @@
     "axios": "^0.24.0",
     "bidirectional-map": "^1.1.1",
     "bimap": "^0.0.15",
+    "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "draughts": "^0.0.1",
     "express": "^4.17.1",

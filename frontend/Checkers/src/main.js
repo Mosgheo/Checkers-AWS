@@ -22,7 +22,7 @@ app.config.globalProperties.$PIECE_TYPE_KING = "king"
 
 app
 .use(new VueSocketIO({
-  connection: SocketIO('http://localhost:3032'),
+  connection: SocketIO('http://localhost:3030'),
   vuex: false,
 }))
 .use(router)

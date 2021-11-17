@@ -1,12 +1,14 @@
 const express = require("express")
 const mongoose = require("mongoose")
 const dotenv = require("dotenv")
+const cors = require("cors")
 
 // Load .env
 dotenv.config()
 
 // Initialize express const
 const app = express()
+app.use(cors())
 
 // Connect to DB
 const db = "mongodb+srv://admin:eCpqkm1rBQgO3E8U@cluster0.kj7xb.mongodb.net/checkersdb?retryWrites=true&w=majority"
