@@ -7,7 +7,7 @@ var Lobby = require('../models/lobby')
 //TURN HANDLING 
 let online_users = new BiMap()  //{  client_id <-> user_id  }
 let lobbies = new Map(); // { lobby_id -> Lobby }
-let turn_timeouts = new Map(); // {client_id -> timoutTimer}
+let turn_timeouts = new Map(); // {lobby_id -> timoutTimer}
 var current_id = 0;
 var free_ids = []
 
@@ -15,11 +15,8 @@ exports.socket = async function(server) {
     const io = socket(server)
 
 
-let timeOut;
-const MAX_WAITING = 20000;
 /**
  * Missing:
- * - fix req.params in req.body
  * */
 
 const game_service = process.env.HOSTNAME+process.env.GAME_SERVICE_PORT
@@ -88,6 +85,7 @@ function get_lobbies(user_stars){
 }
 
 io.on('connection', async client => {
+  console.log("a user connected")
   //A new anon user just connected, push it to online_players
   online_users.set(client.id,get_id())
 
@@ -99,6 +97,7 @@ io.on('connection', async client => {
 
 
   client.on('login', async mail => {
+    console.log("a user logged in")
     //Update user id in online_users
     //TODO maybe should receive mail and
     //search in DB for the corresponding username
@@ -115,12 +114,14 @@ io.on('connection', async client => {
    * 
    **/
   client.on('build_lobby',function(lobby_name,max_stars)  {
+    console.log("a user built a lobby")
     build_lobby(lobby_name,client,max_stars)
     let {data: lobbies} = get_lobbies()
     client.emit("lobbies",lobbies)
   })
 
   client.on('get_lobbies',function (stars) {
+    console.log("a user requested lobbies")
     let {data: lobbies} = get_lobbies(stars)
     client.emit("lobbies",lobbies)
   })
@@ -145,6 +146,7 @@ async function updatePoints(player1,points1,player2,points2){
   && User.findOneAndUpdate({"user_id":player2},{$inc: {stars:points2}})
 }
   client.on('join_lobby', async(lobby_id) => {
+    console.log("a user joined a lobby")
     if(online_users.has(client.id)){
       let player = online_users.get(client.id)
       if(lobbies.has(lobby_id)){
@@ -160,6 +162,7 @@ async function updatePoints(player1,points1,player2,points2){
     }
   })
   client.on('delete_lobby', function(lobby_id) {
+    console.log("a user deleted a lobby")
     if(online_users.has(client.id) && lobbies.has(lobby_id)){
       let player = online_users.get(client.id)
       let lobby = lobbies.get(lobby_id)
@@ -177,6 +180,7 @@ async function updatePoints(player1,points1,player2,points2){
   * Game handling
   */
   client.on('move_piece',async (lobby_id,from,to) =>{
+    console.log("a user moved a piece")
     if(online_users.has(client.id) && lobbies.has(lobby_id)){
       let player = online_users.get(client.id)
       var lobby = lobbies.get(lobby_id)
@@ -235,17 +239,18 @@ async function updatePoints(player1,points1,player2,points2){
       client.emit("permit_error")
     }
   })
-  });
 
   /**
    * CHAT HANDLING
    */
   client.on('global_msg',function(msg){
+    console.log("a user sent a global-msg")
     if(online_users.has(client.id)){
       io.emit("global_msg",{sender:online_users.get(client.id), message:msg})
     }
   })
   client.on('game_msg',function(lobby_id,msg){
+    console.log("a user sent a game msg")
     if(online_users.has(client.id) && lobbies.has(lobby_id)
     && lobbies.get(lobby_id).getPlayers.includes(online_users.get(client.id))){
       io.to(lobby_id).emit("game_msg",{sender:online_users.get(client.id), message:msg})
@@ -287,4 +292,5 @@ async function updatePoints(player1,points1,player2,points2){
       client.emit("user_history",user_history)
     }
   })
+});
 } 
