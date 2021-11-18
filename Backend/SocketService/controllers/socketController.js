@@ -104,12 +104,12 @@ io.on('connection', async client => {
     //TODO maybe should receive mail and
     //search in DB for the corresponding username
     online_users.set(client.id,mail)
-    let player = await axios.get(user_service+"/profile/getProfile", {
+    let {data : player} = await axios.get(user_service+"/profile/getProfile", {
       params: {
         mail: mail
       }
     })
-    client.emit("player",player)
+    client.emit("player", player)
   })
 
 /**
