@@ -1,6 +1,20 @@
 <template>
   <div class="profile flex flex-col">
-    <div class="basic-info card lg:card-side flex flex-row">
+    <div v-if="this.player.length !== 0" class="basic-info card lg:card-side flex flex-row">
+      <img src="https://picsum.photos/id/1005/250" class="mask mask-square p-5">
+      <div class="p-3">
+        <div class="flex p-2">
+          <h2 class="card-title">{{this.player.username}}</h2>
+          <div class="avatar">
+            <div class="ml-1 rounded-btn w-11 h-11">
+              <img src="http://daisyui.com/tailwind-css-component-profile-1@40w.png">
+            </div>
+          </div>
+        </div> 
+        <p class="text-left p-2">Nome Cognome</p> 
+      </div>
+    </div>
+    <div v-else class="basic-info card lg:card-side flex flex-row">
       <img src="https://picsum.photos/id/1005/250" class="mask mask-square p-5">
       <div class="p-3">
         <div class="flex p-2">
@@ -22,7 +36,7 @@
       <div id="content" class="card shadow-lg mt-2">
         <div id="tabDiv" class="card-body">
           <h2 class="card-title">Dati Utente</h2>
-          <DataInfo class="info"></DataInfo>
+          <DataInfo :user="player" class="info"></DataInfo>
         </div>
       </div>
     </div>
@@ -41,6 +55,17 @@ export default {
   components: {
     DataInfo
     //MatchInfo
+  },
+  data() {
+    return {
+      player: []
+    }
+  },
+  sockets: {
+    player(data) {
+      this.player = data
+      this.player = JSON.parse(JSON.stringify(this.player))[0]
+    }
   },
   methods: {
     dataInfo() {

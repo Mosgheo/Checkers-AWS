@@ -1,6 +1,6 @@
 <template>
 	<div class="content flex flex-col flex-grow">
-    <appPlayer />
+    <appPlayer1 :player="player[1]"/>
 		<!--<app-header @newGame="newGame"/>-->
 		<div class="wrapper" @newGame="newGame">
 			<div class="subwrapper">
@@ -20,7 +20,7 @@
 				</div>
 			</div>
 		</div>
-    <appPlayer class="elf-start"/>
+    <appPlayer0 :player="player[0]" class="elf-start"/>
 	</div>
 </template>
 
@@ -34,7 +34,8 @@ export default {
   components: {
     //appHeader: Header,
     appCell: Cell,
-    appPlayer: Player
+    appPlayer1: Player,
+    appPlayer0: Player
   },
   data(){
     GameManager.init();
@@ -51,8 +52,7 @@ export default {
   },
   sockets: {
     player(data) {
-      console.log(data)
-      //this.player = data
+      this.player = data
     }
   },
   computed: {
