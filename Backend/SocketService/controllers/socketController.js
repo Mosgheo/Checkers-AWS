@@ -1,7 +1,12 @@
 const BiMap = require('bidirectional-map')
 const axios = require('axios');
 const socket = require("socket.io")
-var Lobby = require('../models/lobby')
+
+
+const Lobby = require('../models/lobby')
+const game_service = process.env.HOSTNAME+":"+process.env.GAME_SERVICE_PORT
+const user_service = process.env.HOSTNAME+":"+process.env.USER_SERVICE_PORT
+
 
 
 //TURN HANDLING 
@@ -21,10 +26,7 @@ exports.socket = async function(server) {
 /**
  * Missing:
  * */
-
-const game_service = process.env.HOSTNAME+":"+process.env.GAME_SERVICE_PORT
-const user_service = process.env.HOSTNAME+":"+process.env.USER_SERVICE_PORT
-
+ 
 function get_id(){
   if(free_ids.length > 0){
     return free_ids.shift()
@@ -86,6 +88,9 @@ function get_lobbies(user_stars){
   })*/
   return available_lobbies
 }
+async function authenticate_user(){
+
+}
 
 io.on('connection', async client => {
   console.log("a user connected")
@@ -98,18 +103,36 @@ io.on('connection', async client => {
     online_users.deleteValue(client)
     });
 
-  client.on('login', async mail => {
+  client.on('login', async (mail,password) => {
     console.log("a user logged in")
     //Update user id in online_users
     //TODO maybe should receive mail and
     //search in DB for the corresponding username
-    online_users.set(client.id,mail)
-    let {data : player} = await axios.get(user_service+"/profile/getProfile", {
-      params: {
-        mail: mail
-      }
+    const user = await axios.post(user_service+"/login",{
+        mail:mail,
+        password:password
     })
-    client.emit("player", player)
+    if(user.status == 400){
+      online_users.set(client.id,mail)
+      const player = await axios.get(user_service+"/profile/getProfile", {
+        params: {
+          mail: mail
+        }
+      })
+      client.emit("login_ok",player)
+    }else{
+      client.emit("login_error",user)
+    }
+
+  })
+  client.on('signup',async(mail,password,username)=>{
+    console.log("a user i s trying to sign up")
+    const new_user = await axios.put(user_service+"/signup",{
+        mail:mail,
+        password:password,
+        username:username
+      })
+    client.emit('signup_result',new_user)
   })
 
 /**
