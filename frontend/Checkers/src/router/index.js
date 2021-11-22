@@ -3,6 +3,8 @@ import Home from "@/views/Home";
 import Profile from "@/views/Profile";
 import LeaderBooard from "@/views/LeaderBoard";
 import Domande from "@/views/Domande";
+import Login from "@/views/Login";
+import Signup from "@/views/Signup";
 
 const routes = [
   {
@@ -24,6 +26,16 @@ const routes = [
     path: '/domande',
     name: 'Domande',
     component: Domande
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/signup',
+    name: 'Signup',
+    component: Signup
   }
 ]
 

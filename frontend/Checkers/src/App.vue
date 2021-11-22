@@ -3,8 +3,7 @@
     <div class="grid grid-cols-10">
       <Sidebar class="sidebar" />
       <div class="middle col-start-2 col-span-9">
-        <!--<div :style="{ 'margin-left': sidebarWidth }"></div>-->
-        <router-view class="content"/>
+        <router-view/>
       </div>
     </div>
   </div>
