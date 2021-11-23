@@ -4,6 +4,21 @@ const jwt = require('jsonwebtoken');
 const email_validator = require("email-validator");
 var passwordValidator = require('password-validator');
 const fs = require('fs');
+/**
+ *   refresh_token(succHandler, errorHandler) {
+        var tokenData = JSON.parse(atob(localStorage.token.split('.')[1]));
+        const authHeader = 'bearer '.concat(localStorage.token);
+        axiosInstance.get("/users/" + tokenData.user._id + "/token", { headers: { Authorization: authHeader } })
+            .then(response => {
+                if (succHandler) {
+                    succHandler(response.data.token);
+                }
+            })
+            .catch(error => api.handleError(error, errorHandler));
+    },
+
+    TOKEN REFRESHING ON FRONTEND, API.JS
+ */
 const password_validator = new passwordValidator()
     .is().min(8)
     .is().max(100)
@@ -12,7 +27,6 @@ const password_validator = new passwordValidator()
     .has().digits(2)
     .has().not().spaces()
     .has().symbols(1)
-
 const jsecret_path = './jwt_secret';
 const jwt_secret = load_jwt_secret()
 
@@ -31,31 +45,37 @@ function randomString(length){
     .toString('hex')
     .slice(0, length)
 }
-function  salt(psw,salt){
+function salt_function(psw,salt){
     const hash = crypto.createHmac('sha512',salt);
     hash.update(psw)
     return hash.digest('hex')
 }
 exports.signup = async function(req,res){
+    console.log("someone is signing up")
 	const username = req.body.username;
 	const email = req.body.email;
 	const password = req.body.password;
-    
+    console.log(email)
     if(!email_validator.validate(email)){
+        console.log("email not valid")
         res.status(400).send({ message: "Email not valid." }).end();
     }else if (!username || username.length < 3 || username.length > 15) {
+        console.log("username not valid")
 		res.status(400).send({ message: "Username not valid." }).end();
 	} else if (!password_validator.validate(password)) {
+        console.log("psw not valid")
 		res.status(400).send(password_validator.validate(password,{details:true})).end();
 	} else {
-        const user = await User.find({email:email})
-        const salt = genRandomString(128);
-        const hash_psw = saltPassword(password,salt)
-        const new_user = null
+        console.log("Trying to find user")
+        const user = await User.findOne({mail:email}).lean()
+        const salt = randomString(128);
+        const hash_psw = salt_function(password,salt)
+        let new_user = null
         if(user === null){
+            console.log("Signign up a new user")
              new_user = new User({ 
                 username: username,
-                email: email,
+                mail: email,
                 password: hash_psw,
                 salt: salt,
                 stars: 0,
@@ -70,22 +90,27 @@ exports.signup = async function(req,res){
             }else{
                 res.status(200).send({message:"Sign up completed successfully."})
             }
+        }else{
+            res.status(200).send({message:"An existing account has already been associated with this email."})
         }
     }
 }
 exports.login = async function(req,res){
     const email = req.body.mail
     const password = req.body.password
+    console.log(password)
     if(email.trim() === "" || password.trim() === ""){
         res.status(400).send({message: "Login parameters can't have empty values"})
     }else{
         const registered_user = await User.findOne({email:email})
         if(registered_user){
-            const alleged_password = salt(password,registered_user.salt)
+            const alleged_password = salt_function(password,registered_user.salt)
+            console.log(alleged_password)
+            console.log(registered_user.password)
             if(alleged_password == registered_user.password){
                 console.log(email+" just logged in")
                 //Will those two lines work?
-                const token = await jwt.sign({user:{email:registered_user.email,username:username}},jwt_secret,{expiresIn: '1 day'})
+                const token = await jwt.sign({user:{email:registered_user.email,username:registered_user.username}},jwt_secret,{expiresIn: '1 day'})
                 res.status(200).json({
                     token: token, 
                     message :"Authentication successfull, welcome back "+registered_user.username+"!",
@@ -97,7 +122,7 @@ exports.login = async function(req,res){
                     }})
             }else{
                 console.log(email+" failed authentication")
-                res.status(400).send({message:"Authentication failed, wrong email and/or password"})
+                res.status(200).send({message:"Authentication failed, wrong email and/or password"})
             }
         }else{
             console.log(email +"failed authentication")
@@ -135,16 +160,16 @@ exports.verify_token = async function(req,res){
         if(token){
             res.status(200).json({token:token,user:token.user})
         }else{
-            res.status(400).send({message:"Token verification"})
+            res.status(400).send({message:"Token verification error"})
         }
     }
 }
 
 exports.getProfile = async function(req,res){
-    let mail = req.query.mail
+    const mail = req.query.mail
     console.log(mail)
     try {
-        let data = await User.find({mail:mail}).lean()
+        const data = await User.find({mail:mail}).lean()
         if(data === null){
             res.status(404).json({error: "Cannot find any player with such ID"})
         }
@@ -155,8 +180,8 @@ exports.getProfile = async function(req,res){
 }
 exports.getHistory = async function(req,res){
     try{
-        let user = await User.find({email:req.query.email})
-        let data = []
+        const user = await User.find({email:req.query.email})
+        const data = []
         if(user === null){
             res.status(404).json({error: "Cannot find any player with such ID"})
         }
@@ -169,12 +194,12 @@ exports.getHistory = async function(req,res){
 }
 //Not sure it'll work
 exports.updateProfile = async function(req,res){
-    let user_id = req.body.params[0]
-    let nationality = req.body.params[1]
-    let name = req.body.params[2]
-    let surname = req.body.params[3]
-    let username = req.body.params[4]
-    let used_username = await User.find({username:username})
+    const user_id = req.body.params[0]
+    const nationality = req.body.params[1]
+    const name = req.body.params[2]
+    const surname = req.body.params[3]
+    const username = req.body.params[4]
+    const used_username = await User.find({username:username})
     if(used_username === null){
         if(new_user = await User.findOneAndUpdate({"userID": user_id},
         { $set:{
@@ -194,11 +219,20 @@ exports.updateProfile = async function(req,res){
 }
 
 exports.getLeaderboard = async function(_,res){
-    let users = await User.find({}).sort('stars')
+    const users = await User.find({}).sort('stars')
     if(users != null){
         res.status(200).json(users);
     }else{
         res.status(500).send({message: "There is no one in the leaderboard."})
     }
 }
-
+exports.updatePoints = async function(req,res){
+    const user_id = req.body.user_id
+    const stars = req.body.stars
+    const updatedUser = await User.findOneAndUpdate({"user_id":user_id},{$inc: {stars:stars}})
+    if(updatedUser){
+        res.status(200).json(updatedUser)
+    }else{
+        res.status(400).send({message:"Something went wrong while updating your points"})
+    }
+}

@@ -35,11 +35,36 @@
 </template>
 
 <script>
+import api from '../../api.js'
+
 export default {
     name: "Login",
+    data(){
+        return{
+            email:"manuele.pasini@gmail.com",
+            password:"bmzw76aF*"
+        }
+    },
     methods: {
-        login() {
-            console.log("ciao")
+        login:function() {
+            console.log("LOGGING IN ")
+            if(this.email == "" && this.password ==""){
+                console.log("something wrong")
+            }else{
+                console.log("PSW: "+this.password)
+                api.login(this.$socket,this.email,this.password)
+            }
+        }
+    },
+    sockets:{
+        login_ok(res){
+           // this.$store.commit("setToken",res.token)
+            //this.$store.commit("setUser",res.user)
+            //PRINT THAT YOU LOGGED IN
+            console.log("LOGIN_OK" + res.message)
+        },
+        login_error(err){
+            console.log(err)
         }
     }
 }

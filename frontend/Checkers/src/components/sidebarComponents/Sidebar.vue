@@ -9,7 +9,7 @@
     <SidebarLink class="domande" to="/domande" icon="fas fa-question">Domande</SidebarLink>
 
     <div v-if="!$auth.loading.value">
-        <SidebarLink class="login" to="/login" icon="fas fa-user-lock" v-if="!$auth.isAuthenticated.value" @click="login">Log in</SidebarLink>
+        <SidebarLink class="login" to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
         <SidebarLink class="logout" to="" v-if="$auth.isAuthenticated.value" @click="logout">Log out</SidebarLink>
     </div>
 

@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="object-center space-x-2 mb-3 mt-10">
-                    <button class="btn">Iscriviti</button>
+                    <button class="btn" @click.prevent="signup()">Iscriviti</button>
                 </div>
             </div>
         </div>
@@ -54,7 +54,31 @@
 </template>
 
 <script>
+import api from '../../api.js'
+
 export default {
+    name: "Signup",
+    data(){
+        return{
+            email:"manuele.pasini@gmail.com",
+            password:""
+        }
+    },
+    methods: {
+        signup:function() {
+            if(this.email == "" && this.password ==""){
+                console.log("empty")
+            }else{
+                api.signup(this.$socket,this.email,this.password,"berlin123")
+            }
+        }
+    },
+    sockets:{
+        signup_result(res){
+            //PRINT SIGNUP RESULT
+            console.log(res.message)
+        }
+    }
 }
 </script>
 
