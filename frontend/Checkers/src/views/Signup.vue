@@ -74,8 +74,12 @@ export default {
         }
     },
     sockets:{
-        signup_result(res){
+        signup_success(res){
             //PRINT SIGNUP RESULT
+            console.log(res.message)
+        },
+        signup_errror(res){
+            //PRINT SOMETHING
             console.log(res.message)
         }
     }

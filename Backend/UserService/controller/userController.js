@@ -118,6 +118,9 @@ exports.login = async function(req,res){
                         username:registered_user.username,
                         email:email,
                         stars:registered_user.stars,
+                        nationality:registered_user.nationality,
+                        wins:registered_user.wins,
+                        losses:registered_user.losses,
                         avatar:registered_user.avatar
                     }})
             }else{
