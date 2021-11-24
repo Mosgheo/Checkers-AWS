@@ -36,12 +36,13 @@
 
 <script>
 import api from '../../api.js'
+import store from '../store'
 export default {
     name: "Login",
     data(){
         return{
             email:"manuele.pasini@gmail.com",
-            password:"bmzw76aF*"
+            password:"bmzw76ae6JF*"
         }
     },
     methods: {
@@ -57,10 +58,13 @@ export default {
     },
     sockets:{
         login_ok(res){
-           // this.$store.commit("setToken",res.token)
-            //this.$store.commit("setUser",res.user)
+            //EXAMPLE ON HOW TO USE STORE
+            store.commit('setToken',res.token)
+            store.commit('setUser',res.user)
+            let user = store.getters.user
+            console.log("TEST "+ user.username)
             //PRINT THAT YOU LOGGED IN
-            console.log("LOGIN_OK" + res.message)
+            console.log(res.message)
         },
         login_error(err){
             console.log(err)

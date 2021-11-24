@@ -17,14 +17,13 @@ export default createStore({
   },
     getters:{
     is_authenticated: state =>  state.authenticated,
-    is_in_game: state => state.in_game
+    is_in_game: state => state.in_game,
+    user: state => state.user
   },
   mutations: {
     setToken(state, token) {
       if(token !== 'null') {
           state.authenticated = true
-          var tokenData = JSON.parse(atob(token.split('.')[1]));
-          state.user = tokenData.user
           state.token = token
           //localStorage.token = token
          // axios.defaults.headers.common['Authorization'] = "bearer " + token;
@@ -43,6 +42,9 @@ export default createStore({
         };
         state.token = ""
         //axios.defaults.headers.common['Authorization'] = ""
+    },
+    setUser(state,user){
+      state.user = user
     },
     setInGame(state,value){
       state.in_game = value
