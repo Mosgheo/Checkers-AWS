@@ -158,9 +158,9 @@ io.on('connection', async client => {
         username:username
       })
     if(new_user.status == 200){
-      client.emit('signup_result',new_user.data)
+      client.emit('signup_success',new_user.data)
     }else{
-      client.emit('signup_error')
+      client.emit('signup_error',{message:new_user.data.message})
     }
 
   })

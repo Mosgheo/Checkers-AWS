@@ -17,7 +17,7 @@
 <script>
 import Checkerboard from '@/components/boardComponents/Checkerboard'
 import Chat from '@/components/boardComponents/Chat'
-import api from '../../api.js'
+//import api from '../../api.js'
 
 export default {
   name: 'Home',
