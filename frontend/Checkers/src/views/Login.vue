@@ -36,7 +36,6 @@
 
 <script>
 import api from '../../api.js'
-
 export default {
     name: "Login",
     data(){

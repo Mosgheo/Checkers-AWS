@@ -3,8 +3,8 @@ import { createStore } from 'vuex'
 export default createStore({
   state: {
     user: {
-      username: username,
-      mail: email,
+      username: "",
+      mail: "",
       stars: 0,
       nationality: "",
       wins: 0,
@@ -33,8 +33,8 @@ export default createStore({
     unsetToken(state) {
         state.authenticated = false
         state.user = {
-          username: username,
-          mail: email,
+          username: "",
+          mail: "",
           stars: 0,
           nationality: "",
           wins: 0,
