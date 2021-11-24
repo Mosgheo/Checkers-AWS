@@ -98,7 +98,7 @@
 
 <style scoped>
 .domande {
-  padding: 3.8em 3.8em 2em 3.8em
+  padding: 3.8em 3.8em 2em 15em
 }
 .collapse-title {
   background-color: ##1F1E1E;
