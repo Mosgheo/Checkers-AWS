@@ -114,6 +114,6 @@
 
 <style scoped>
 .leaderboard {
-  padding: 3.8em 3.8em 2em 3.8em
+  padding: 3.8em 3.8em 2em 15em
 }
 </style>

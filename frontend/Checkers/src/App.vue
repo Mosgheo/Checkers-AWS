@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <div class="grid grid-cols-10">
-      <Sidebar class="sidebar" />
-      <div class="middle col-start-2 col-span-9">
-        <router-view/>
+    <div class="flex flex-row">
+      <Sidebar class="sidebar flex-none" />
+      <div class="middle flex-auto">
+        <router-view />
       </div>
     </div>
   </div>
@@ -35,6 +35,5 @@ export default {
 
 .middle {
   background-color: #343232;
-  padding-left: 4em;
 }
 </style>
