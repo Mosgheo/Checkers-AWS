@@ -95,19 +95,24 @@ exports.tieGame = function(req,res){
 }
 exports.leaveGame = async function(req,res){
     let game_id = req.body.game_id
-    if(games.has(game_id)){
-        let game = games.get(game_id)
-        let quitter = req.body.player_id
-        if(game.white === quitter){
-            gameEnd(game_id,false,gameInstance.black,gameInstance.white)
-        }else{
-            gameEnd(game_id,false,gameInstance.white,gameInstance.black)
+    try{
+        if(games.has(game_id)){
+            let game = games.get(game_id)
+            let quitter = req.body.player_id
+            if(game.white === quitter){
+                gameEnd(game_id,false,gameInstance.black,gameInstance.white)
+            }else{
+                gameEnd(game_id,false,gameInstance.white,gameInstance.black)
+            }
         }
         let data = []
         data.push( "You successfully left the game!\n "+process.env.LOSS_STARS+" stars have been removed from your profile!");
         data.push( "The opponent has left the game!\n "+process.env.WIN_STARS+" stars have been added to your profile")
         res.status(200).send(data)
+    }catch(err){
+        res.status(500).send({message:"Internal server error while leaving game"})
     }
+
 }
 exports.movePiece = function(req,res){
     let game_id = req.body.game_id
@@ -136,35 +141,44 @@ exports.movePiece = function(req,res){
                 })
             }
         }else{
-            res.status(400).json({error: "Error while making such move, you can try again or select a different move."})
+            res.status(400).send({message: "Error while making such move, you can try again or select a different move."})
         }
     }
 
 }
 
 exports.gameHistory = async function(req,res){
-    res.json(getHistory(req.body.game_id));
+    try{
+        res.status(200).json(getHistory(req.body.game_id));
+    }catch(err){
+        res.status(500).send({message:"Something went wrong while retrieving game history."})
+    }
+
 }
 
 
 
 exports.create_game = function(req,res){
-    let game_id = req.body.game_id
-    let host_id = req.body.host_id
-    let opponent = req.body.opponent
-    var game = new Object();
-    game.white = host_id
-    game.black = opponent
-    game.draughts = new Draughts()
-    game.finished = false;
-    game.last_white_pieces = new Map()
-    game.last_black_pieces = new Map()
-    game.fen = game.draughts.fen()
-    game.winner = ""
-    game.loser = ""
-    game.turn = game.white
-    games.set(game_id,game)
-    res.status(200).json(parseFEN(game_id))
+    try{
+        let game_id = req.body.game_id
+        let host_id = req.body.host_id
+        let opponent = req.body.opponent
+        var game = new Object();
+        game.white = host_id
+        game.black = opponent
+        game.draughts = new Draughts()
+        game.finished = false;
+        game.last_white_pieces = new Map()
+        game.last_black_pieces = new Map()
+        game.fen = game.draughts.fen()
+        game.winner = ""
+        game.loser = ""
+        game.turn = game.white
+        games.set(game_id,game)
+        res.status(200).json(parseFEN(game_id))
+    }catch(err){
+        res.status(500).send({message:"Something went wrong while creating a game"})
+    }
 }
 
 exports.get_old_games = async function(req,res){

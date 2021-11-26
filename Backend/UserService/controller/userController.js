@@ -91,7 +91,7 @@ exports.signup = async function(req,res){
                 res.status(200).send({message:"Sign up completed successfully."})
             }
         }else{
-            res.status(200).send({message:"An existing account has already been associated with this email."})
+            res.status(400).send({message:"An existing account has already been associated with this email."})
         }
     }
 }
@@ -105,8 +105,6 @@ exports.login = async function(req,res){
         const registered_user = await User.findOne({email:email})
         if(registered_user){
             const alleged_password = salt_function(password,registered_user.salt)
-            console.log(alleged_password)
-            console.log(registered_user.password)
             if(alleged_password == registered_user.password){
                 console.log(email+" just logged in")
                 //Will those two lines work?
@@ -125,7 +123,7 @@ exports.login = async function(req,res){
                     }})
             }else{
                 console.log(email+" failed authentication")
-                res.status(200).send({message:"Authentication failed, wrong email and/or password"})
+                res.status(400).send({message:"Authentication failed, wrong email and/or password"})
             }
         }else{
             console.log(email +"failed authentication")
@@ -236,6 +234,6 @@ exports.updatePoints = async function(req,res){
     if(updatedUser){
         res.status(200).json(updatedUser)
     }else{
-        res.status(400).send({message:"Something went wrong while updating your points"})
+        res.status(500).send({message:"Something went wrong while updating your points"})
     }
 }
