@@ -301,7 +301,7 @@ io.on('connection', async client => {
   })
   
   //WILL IT WORK?
-  client.on('accept_invite',function(opp_mail){
+  client.on('accept_invite',async(opp_mail)=>{
     if(invitations.get(opp_mail) === null){
       client.emit('invitation_expired')
     }else{
