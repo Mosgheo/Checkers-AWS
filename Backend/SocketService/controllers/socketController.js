@@ -301,34 +301,47 @@ io.on('connection', async client => {
   })
   
   //WILL IT WORK?
-  client.on('accept_invite',async(opp_mail)=>{
-    if(invitations.get(opp_mail) === null){
-      client.emit('invitation_expired')
-    }else{
-      const user_mail = online_users.get(client.id)
-      //WILL THIS WORK?
-      let opponent = io.sockets.sockets.get(opp_mail);
-      //
-      let lobby_id = build_lobby(opp_mail+"-"+user_mail,opponent,Number.MAX_VALUE)
-      if(join_lobby(lobby_id,client,online_users.get(client.id))){
-        try{
-          const {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:opp_mail,opponent:user_mail})
-          io.to(lobby_id).emit("game_started",board)
-          turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
-        }catch(err){
-          if(err.response.status == 500){
-            client.emit("server_error",err.response.data)
+  client.on('accept_invite',async(token,opp_mail)=>{
+    const user = await user_authenticated(token)
+    if(user[0]){
+      if(invitations.get(opp_mail) === null){
+        client.emit('invitation_expired')
+      }else{
+        const user_mail = online_users.get(client.id)
+        //WILL THIS WORK?
+        let opponent = io.sockets.sockets.get(opp_mail);
+        //
+        let lobby_id = build_lobby(opp_mail+"-"+user_mail,opponent,Number.MAX_VALUE)
+        if(join_lobby(lobby_id,client,online_users.get(client.id))){
+          try{
+            const {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:opp_mail,opponent:user_mail})
+            io.to(lobby_id).emit("game_started",board)
+            turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
+          }catch(err){
+            if(err.response.status == 500){
+              client.emit("server_error",err.response.data)
+            }
           }
         }
       }
+    }else{
+      client.emit("token_error",user[1])
     }
+    
   })
 
-  client.on('decline_invite',function(){
-    const invitation = invitation.get(opp_id)
-    if(invitation === null){
-      io.to(opp_id).emit("invitation_declined")
-      invitation.delete(opp_id)
+  client.on('decline_invite',async(token,opp_id)=>{
+    const user = await user_authenticated(token)
+    if(user[0]){
+      const invitation = invitation.get(opp_id)
+      if(invitation === null){
+        client.emit("invitation_expired")
+      }else{
+        io.to(opp_id).emit("invitation_declined")
+        invitation.delete(opp_id)
+      }
+    }else{
+      client.emit("token_error",user[1])
     }
   })
   /**
