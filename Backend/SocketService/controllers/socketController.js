@@ -13,6 +13,10 @@ const { listeners } = require('../../UserService/models/userModel');
 const online_users = new BiMap()  //{  client_id <-> user_id  }
 const lobbies = new Map(); // { lobby_id -> Lobby }
 const turn_timeouts = new Map(); // {lobby_id -> timoutTimer}
+
+const invitations = new Map() // {host_id -> opponent_id}
+const invitation_timeouts = new Map() // {inv_id -> timeout}
+
 const game_service = process.env.HOSTNAME+":"+process.env.GAME_SERVICE_PORT
 const user_service = process.env.HOSTNAME+":"+process.env.USER_SERVICE_PORT
 let current_id = 0;
@@ -61,7 +65,9 @@ function build_lobby(room_name,client,max_stars){
   const room_id = get_id()
   lobbies.set(room_id,new Lobby(max_stars,room_name,online_users.get(client.id)))
   client.join(room_id)
+  return room_id
 }
+
 function delete_lobby(game_id){
   lobbies.delete(game_id)
   free_ids.push(game_id)
@@ -105,9 +111,12 @@ function get_lobbies(user_stars){
     }
   })*/
 }
+function invitation_timeout(inv_id){
+  invitations.delete(inv_id)
+  io.to(inv_id).emit("invitation_timeout")
+}
 
-function triggered_timeout(lobby_id){
-
+function turn_timeout(lobby_id){
   clearTimeout(turn_timeouts.get(game.id));
   change_turn(lobby_id)
 }
@@ -118,7 +127,7 @@ function change_turn(lobby_id){
   let late_player = lobby.turn
   let next_player = lobbyPlayers.splice(lobbyPlayers.indexOf(late_player),1)
   lobbies.get(lobby_id).turn = next_player 
-  turn_timeouts.set(lobby_id, setTimeout(triggered_timeout(lobby_id),process.env.TIMEOUT))
+  turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
   io.to(lobby_id).emit("turn_change",{next_player:next_player})
 }
 
@@ -232,7 +241,7 @@ io.on('connection', async client => {
             try{
               const {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:host,opponent:player})
               io.to(lobby_id).emit("game_started",board)
-              turn_timeouts.set(lobby_id, setTimeout(triggered_timeout(lobby_id),process.env.TIMEOUT))
+              turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
             }catch(err){
               if(err.response.status == 500){
                 client.emit("server_error",err.response.data)
@@ -268,7 +277,60 @@ io.on('connection', async client => {
       client.emit("token_error",user[1])
     }
   })
+  client.on('invite_opponent',async(token,opponent_mail) =>{
+    const user_mail = online_users.get(client.id)
+    const user = await user_authenticated(token)
+    if(user[0] 
+    && online_users.has(client.id) 
+    && online_users.hasValue(opponent_mail)
+    //THIS WON't WORK
+    && lobbies.filter(lobby => {
+        lobby.hasPlayer(opponent_mail)
+      }) === null 
+    && lobbies.filter(lobby => {
+      lobby.hasPlayer(opponent_mail)
+    }) === null)
+    {
+      const opponent_id = online_users.getKey(opponent_mail)
+      io.to(opponent_id).emit("lobby_invitation",opponent_mail)
+      invitations.set(user_mail,opponent_id)
+      invitation_timeouts.set(user_mail, setTimeout(invitation_timeout(user_mail),process.env.TIMEOUT))
+    }else{
+      client.emit("token_error",user[1])
+    }
+  })
+  
+  //WILL IT WORK?
+  client.on('accept_invite',function(opp_mail){
+    if(invitations.get(opp_mail) === null){
+      client.emit('invitation_expired')
+    }else{
+      const user_mail = online_users.get(client.id)
+      //WILL THIS WORK?
+      let opponent = io.sockets.sockets.get(opp_mail);
+      //
+      let lobby_id = build_lobby(opp_mail+"-"+user_mail,opponent,Number.MAX_VALUE)
+      if(join_lobby(lobby_id,client,online_users.get(client.id))){
+        try{
+          const {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:opp_mail,opponent:user_mail})
+          io.to(lobby_id).emit("game_started",board)
+          turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
+        }catch(err){
+          if(err.response.status == 500){
+            client.emit("server_error",err.response.data)
+          }
+        }
+      }
+    }
+  })
 
+  client.on('decline_invite',function(){
+    const invitation = invitation.get(opp_id)
+    if(invitation === null){
+      io.to(opp_id).emit("invitation_declined")
+      invitation.delete(opp_id)
+    }
+  })
   /**
    * 
    * Game handling

@@ -205,6 +205,8 @@ exports.restart_old_game = async function(req,res){
 function parseFEN(game_id) {
     let data = []
     var game = games.get(game_id).draughts
+    var last_white_pieces = game.last_white_pieces
+    var last_black_pieces = game.last_black_pieces
     let fen = game.fen()
     var fields = fen.split(':')
     data.push(fields[0])
