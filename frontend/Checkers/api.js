@@ -5,6 +5,9 @@ function getToken(){
 }
 
 var api = {
+    /*setSocket(socket){
+        socket1 = socket
+    },*/
     handleError(error,errorHandler){
         if(error){
             errorHandler(error)
@@ -17,15 +20,16 @@ var api = {
     login(socket,email,password){
         socket.emit("login",email,password)
     },
-    build_lobby(name,max_stars){
+    build_lobby(socket,name,max_stars){
         socket.emit("build_lobby",name,max_stars,getToken)
     },
-    get_lobbies(stars){
+    get_lobbies(socket,stars){
         socket.emit("get_lobbies",stars,getToken)
     },
-    join_lobby(lobby_id){
+    join_lobby(socket, lobby_id){
         socket.emit("join_lobby",lobby_id,getToken)
     },
+    //NOT WORKING FROM HERE ON
     delete_lobby(lobby_id) {
         socket.emit("delete_lobby",lobby_id,getToken)
     },
@@ -53,7 +57,7 @@ var api = {
     get_leaderboard(){
         socket.emit("get_profile",getToken)
     },
-    update_profile(params){
+    update_profile(socket,params){
         socket.emit("update_profile",params,getToken)
     },
     get_history(){

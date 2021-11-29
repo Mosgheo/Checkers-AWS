@@ -30,13 +30,14 @@
     </select>
 
     <div class="object-center space-x-2 mt-10">
-      <button class="btn">Salva</button>
+      <button class="btn" @click.prevent="save_profile()">Salva</button>
     </div>
   </div> 
 </template>
 
 <script>
 import store from '@/store'
+import api from '@/../api.js'
 
 var user = null
 
@@ -53,10 +54,34 @@ export default {
       return "Username"
     },
     getMail() {
-      if(user.mail !== "") {
-        return "" + user.mail
+      if(user.email !== "") {
+        return "" + user.email
       }
       return "info@site.com"
+    }
+  },
+  methods:{
+    save_profile(username,first_name,last_name,email){
+      const user = {
+              username : username,
+              firstname : first_name,
+              last_name : last_name,
+              email : email
+      }
+      //TODO UPDATE STATE.USER AND SEND UPDATE TO BACKEND
+      api.update_profile(this.$socket,user)
+    }
+  },
+  sockets:{
+    updated_user(user){
+      //USER UPDATED
+      store.commit('setUser',user)
+    },
+    permit_error(err){
+      //Something went wrong with mongoDB or something unpredictable
+    },
+    socket_error(err){
+      //SOmething went wrong while authenticatig
     }
   }
 
