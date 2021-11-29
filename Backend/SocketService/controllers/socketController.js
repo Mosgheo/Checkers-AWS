@@ -13,6 +13,10 @@ const { listeners } = require('../../UserService/models/userModel');
 const online_users = new BiMap()  //{  client_id <-> user_id  }
 const lobbies = new Map(); // { lobby_id -> Lobby }
 const turn_timeouts = new Map(); // {lobby_id -> timoutTimer}
+
+const invitations = new Map() // {host_id -> opponent_id}
+const invitation_timeouts = new Map() // {inv_id -> timeout}
+
 const game_service = process.env.HOSTNAME+":"+process.env.GAME_SERVICE_PORT
 const user_service = process.env.HOSTNAME+":"+process.env.USER_SERVICE_PORT
 let current_id = 0;
@@ -38,14 +42,33 @@ function get_id(){
     return new_id
   }
 }
+//WILL IT WORK ???
+async function user_authenticated(token){
+  try{
+    const user = await axios.get(user_service+"/authenticate",{
+      headers:{
+        Authorization: "Bearer "+token
+      }
+    })
+    if(user != null){
+      return [true,user]
+    }
+  }catch(err){
+    if(err.response.status == 400){
+      return [false,err.response.data]
+    }
 
+  }
+}
 
 function build_lobby(room_name,client,max_stars){
   const room_id = get_id()
   lobbies.set(room_id,new Lobby(max_stars,room_name,online_users.get(client.id)))
   client.join(room_id)
+  return room_id
 }
-async function delete_lobby(game_id){
+
+function delete_lobby(game_id){
   lobbies.delete(game_id)
   free_ids.push(game_id)
 }
@@ -88,9 +111,12 @@ function get_lobbies(user_stars){
     }
   })*/
 }
+function invitation_timeout(inv_id){
+  invitations.delete(inv_id)
+  io.to(inv_id).emit("invitation_timeout")
+}
 
-function triggered_timeout(lobby_id){
-
+function turn_timeout(lobby_id){
   clearTimeout(turn_timeouts.get(game.id));
   change_turn(lobby_id)
 }
@@ -101,24 +127,30 @@ function change_turn(lobby_id){
   let late_player = lobby.turn
   let next_player = lobbyPlayers.splice(lobbyPlayers.indexOf(late_player),1)
   lobbies.get(lobby_id).turn = next_player 
-  turn_timeouts.set(lobby_id, setTimeout(triggered_timeout(lobby_id),process.env.TIMEOUT))
-  io.to(lobby_id).emit("turn_change",{next_player:next_player,other:late_player})
+  turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
+  io.to(lobby_id).emit("turn_change",{next_player:next_player})
 }
 
 async function updatePoints(player1,points1,player2,points2){
-  let updatedUser = await axios.put(user_service+"/profile/updatePoints",
-  {
-    user_id : player1,
-    stars: points1
-  })
-  if(updatedUser){
-    updatedUser = await axios.put(user_service+"/profile/updatePoints",
+  try{
+    let updatedUser = await axios.put(user_service+"/profile/updatePoints",
     {
-      user_id : player2,
-      stars: points2
+      user_id : player1,
+      stars: points1
     })
-  }
-  return updatedUser
+    if(updatedUser){
+      updatedUser = await axios.put(user_service+"/profile/updatePoints",
+      {
+        user_id : player2,
+        stars: points2
+      })
+    }
+    return updatedUser
+    }catch(err){
+      if(err.response.status == 500){
+        io.to(lobby_id).emit("server_error",error.response.data)
+      }
+    }
 }
 
 
@@ -138,107 +170,96 @@ io.on('connection', async client => {
     //Update user id in online_users
     //TODO maybe should receive mail and
     //search in DB for the corresponding username
-    const user = await axios.post(user_service+"/login",{
+    try{
+      const user = await axios.post(user_service+"/login",{
         mail:mail,
         password:password
-    })
-    if(user.status == 200){
+      })
       online_users.set(client.id,mail)
       client.emit("login_ok",user.data)
-    }else{
-      client.emit("login_error")
+    }catch(err){
+      if(err.response.status == 400){
+        client.emit("login_error",err.response.data)
+      }
     }
+  
 
   })
   client.on('signup',async(email,password,username)=>{
     console.log("a user is trying to sign up")
-    let new_user = await axios.post(user_service+"/signup",{
-        email:email,
-        password:password,
-        username:username
-      })
-    if(new_user.status == 200){
-      client.emit('signup_success',new_user.data)
-    }else{
-      client.emit('signup_error',{message:new_user.data.message})
+    try{
+      let {data:new_user} = await axios.post(user_service+"/signup",{
+          email:email,
+          password:password,
+          username:username
+        })
+        client.emit('signup_success',new_user)
+    }catch(err){
+      if(err.response.status == 400 || err.response.status == 500){
+        client.emit('signup_error',err.response.data)
+      }
     }
-
   })
 
-/**
- * GESTIONE DEGLI ASYNC, FORSE VANNO MESSI SOLO DOVE
- * C'è ACCESSO CONCORRENTE
- */
   /**
    *  
    * Lobby handling 
    * 
    **/
   client.on('build_lobby',async(lobby_name,max_stars,token)=>  {
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
-      }
-    })
-    if(user.status == 200){
+    const user = await user_authenticated(token)
+    if(user[0]){
       console.log("a user built a lobby")
       build_lobby(lobby_name,client,max_stars)
       const {data: lobbies} = get_lobbies()
       client.emit("lobbies",lobbies)
     }else{
-      client.emit("token_error",user)
+      client.emit("token_error",user[1])
     }
-
   })
 
   client.on('get_lobbies',async (stars,token) => {
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
-      }
-    })
-    if(user.status == 200){
+    const user = await user_authenticated(token)
+    if(user[0]){
       console.log("a user requested lobbies")
       const {data: lobbies} = get_lobbies(stars)
       client.emit("lobbies",lobbies)
     }else{
-      client.emit("token_error",user)
+      client.emit("token_error",user[1])
     }
   })
 
   client.on('join_lobby', async(lobby_id,token) => {
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
-      }
-    })
-  if(user.status == 200){
+    const user = await user_authenticated(token)
+    if(user[0]){
       console.log("a user joined a lobby")
       if(online_users.has(client.id)){
         const player = online_users.get(client.id)
         if(lobbies.has(lobby_id)){
           const host = lobbies.get(lobby_id).getPlayers()[0]
           if(join_lobby(lobby_id,client,player)){
-            const {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:host,opponent:player})
-            io.to(lobby_id).emit("game_started",board)
-            turn_timeouts.set(lobby_id, setTimeout(triggered_timeout(lobby_id),process.env.TIMEOUT))
+            try{
+              const {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:host,opponent:player})
+              io.to(lobby_id).emit("game_started",board)
+              turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
+            }catch(err){
+              if(err.response.status == 500){
+                client.emit("server_error",err.response.data)
+              }
+            }
           }else{
             client.emit("join_err")
           }
         }
       }
-  }else{
-    client.emit("token_error",user)
-  }
+    }else{
+      client.emit("token_error",user[1])
+    }
   })
 
   client.on('delete_lobby', async(lobby_id,token) =>{
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
-      }
-    })
-    if(user.status == 200){
+    const user = await user_authenticated(token)
+    if(user[0]){
       console.log("a user deleted a lobby")
       if(online_users.has(client.id) && lobbies.has(lobby_id)){
         const player = online_users.get(client.id)
@@ -253,36 +274,106 @@ io.on('connection', async client => {
         }
       }
     }else{
-      client.emit("token_error",user)
+      client.emit("token_error",user[1])
     }
   })
-
-  /*
-  * Game handling
-  */
-  client.on('move_piece',async (lobby_id,from,to,token) =>{
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer " + token
+  client.on('invite_opponent',async(token,opponent_mail) =>{
+    const user_mail = online_users.get(client.id)
+    const user = await user_authenticated(token)
+    if(user[0] 
+    && online_users.has(client.id) 
+    && online_users.hasValue(opponent_mail)
+    //THIS WON't WORK
+    && lobbies.filter(lobby => {
+        lobby.hasPlayer(opponent_mail)
+      }) === null 
+    && lobbies.filter(lobby => {
+      lobby.hasPlayer(opponent_mail)
+    }) === null)
+    {
+      const opponent_id = online_users.getKey(opponent_mail)
+      io.to(opponent_id).emit("lobby_invitation",opponent_mail)
+      invitations.set(user_mail,opponent_id)
+      invitation_timeouts.set(user_mail, setTimeout(invitation_timeout(user_mail),process.env.TIMEOUT))
+    }else{
+      client.emit("token_error",user[1])
+    }
+  })
+  
+  //WILL IT WORK?
+  client.on('accept_invite',async(token,opp_mail)=>{
+    const user = await user_authenticated(token)
+    if(user[0]){
+      if(invitations.get(opp_mail) === null){
+        client.emit('invitation_expired')
+      }else{
+        const user_mail = online_users.get(client.id)
+        //WILL THIS WORK?
+        let opponent = io.sockets.sockets.get(opp_mail);
+        //
+        let lobby_id = build_lobby(opp_mail+"-"+user_mail,opponent,Number.MAX_VALUE)
+        if(join_lobby(lobby_id,client,online_users.get(client.id))){
+          try{
+            const {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:opp_mail,opponent:user_mail})
+            io.to(lobby_id).emit("game_started",board)
+            turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
+          }catch(err){
+            if(err.response.status == 500){
+              client.emit("server_error",err.response.data)
+            }
+          }
+        }
       }
-    })
-    if(user.status == 200){
+    }else{
+      client.emit("token_error",user[1])
+    }
+    
+  })
+
+  client.on('decline_invite',async(token,opp_id)=>{
+    const user = await user_authenticated(token)
+    if(user[0]){
+      const invitation = invitation.get(opp_id)
+      if(invitation === null){
+        client.emit("invitation_expired")
+      }else{
+        io.to(opp_id).emit("invitation_declined")
+        invitation.delete(opp_id)
+      }
+    }else{
+      client.emit("token_error",user[1])
+    }
+  })
+  /**
+   * 
+   * Game handling
+   * 
+   */
+  client.on('move_piece',async (lobby_id,from,to,token) =>{
+    const user = await user_authenticated(token)
+    if(user[0]){
       console.log("a user moved a piece")  
       if(online_users.has(client.id) && lobbies.has(lobby_id)){
         let player = online_users.get(client.id)
         var lobby = lobbies.get(lobby_id)
         //is == ok down here? ->
         if(lobby.hasPlayer(player) && lobby.turn == player.turn){
-          let {data: data} = await axios.put(game_service+"/game/movePiece",{game_id: lobby_id,from:from,to:to})
-          if(data.winner === ""){
-            io.to(lobby_id).emit("update_board",data.board)
-            change_turn(lobby_id)
-          }else{
-            if(updatePoints(data.winner,process.env.WIN_STARS,data.loser,process.env.LOSS_STARS)){
-              io.to(lobby_id).emit("game_ended",data)
-              delete_lobby(lobby_id)
+          try{
+            let {data: data} = await axios.put(game_service+"/game/movePiece",{game_id: lobby_id,from:from,to:to})
+            if(data.winner === ""){
+              io.to(lobby_id).emit("update_board",data.board)
+              change_turn(lobby_id)
+            }else{
+              if(updatePoints(data.winner,process.env.WIN_STARS,data.loser,process.env.LOSS_STARS)){
+                io.to(lobby_id).emit("game_ended",data)
+                delete_lobby(lobby_id)
+              }
             }
-          }
+          }catch(err){
+            if(err.response.status == 400){
+              client.emit("client_error",err.response.data)
+            }
+          }fi
         }else{
           client.emit("permit_error")
         }
@@ -290,21 +381,24 @@ io.on('connection', async client => {
         client.emit("permit_error")
       }
     }else{
-      client.emit("token_error",user)
+      client.emit("token_error",user[1])
     }
   })
   client.on('leave_game',async(lobby_id,token) => {
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
-      }
-    })
-    if(user.status == 200){
+    const user = await user_authenticated(token)
+    let result = null
+    if(user[0]){
       let player = online_users.get(client.id)
       if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(player)){
-        let {data:result} = await axios.delete(game_service+"/game/leaveGame",{game_id: lobby_id, player_id: player})
+        try{
+          result = await axios.delete(game_service+"/game/leaveGame",{game_id: lobby_id, player_id: player})
+        }catch(err){
+          if(err.response.status == 500){
+            client.emit("server_error",err.response.data)
+          }
+        }
+        result = result.data
         client.emit("left_game",result[0])
-
         let lobby = lobbies.get(lobby_id)
             //will those two lines below work??
         let winner = lobby.getPlayers().splice(lobby.indexOf(player),1)
@@ -313,24 +407,47 @@ io.on('connection', async client => {
         client.emit("permit_error")
       }
     }else{
-      client.emit("token_error",user)
+      client.emit("token_error",user[1])
     }
   })
+
   client.on('tie_game',async(lobby_id,token) =>{
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
-      }
-    })
-    if(user.status == 200){
+    const user = await user_authenticated(token)
+    if(user[0]){
       let player = online_users.get(client.id,token)
       if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(player)){
         let lobby = lobbies.get(lobby_id)
         io.to(lobby_id).emit("tie_proposal",player)
         lobby.tieProposal();
         if(lobby.tie()){
-          let {data:result} = await axios.put(game_service+"/game/tieGame",{game_id: lobby_id})
-          io.to(lobby_id).emit("tie_game",result)
+          try{
+            let {data:result} = await axios.put(game_service+"/game/tieGame",{game_id: lobby_id})
+            io.to(lobby_id).emit("tie_game",result)
+          }catch(err){
+            if(err.response.status == 500){
+              client.emit("server_error",err.response.data)
+            }
+          }
+        }
+      }else{
+        client.emit("permit_error")
+      }
+    }else{
+      client.emit("token_error",user[1])
+    }
+  })
+
+  client.on('game_history',async(lobby_id,token)=>{
+    const user = await user_authenticated(token)
+    if(user[0]){
+      if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(online_users.get(client.id))){
+        try{
+          let history = await axios.get(game_service+"/game/history",{game_id : lobby_id})
+          client.emit("game_history",history)
+        }catch(err){
+          if(err.response.status == 500){
+            client.emit("server_error",err.response.data)
+          }
         }
       }else{
         client.emit("permit_error")
@@ -340,104 +457,87 @@ io.on('connection', async client => {
     }
   })
 
-  client.on('game_history',async(lobby_id,token)=>{
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
-      }
-    })
-    if(user.status == 200){
-      if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(online_users.get(client.id))){
-        let history = await axios.get(game_service+"/game/history",{game_id : lobby_id})
-        client.emit("game_history",history)
-      }else{
-        client.emit("permit_error")
-      }
-    }else{
-      client.emit("token_error",user)
-    }
-  })
-
   /**
+   * 
    * CHAT HANDLING
+   * 
    */
   client.on('global_msg',async(msg,token)=>{
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
-      }
-    })
-    if(user.status == 200){
+    const user = await user_authenticated(token)
+    if(user[0]){
       console.log("a user sent a global-msg")
       if(online_users.has(client.id)){
         io.emit("global_msg",{sender:online_users.get(client.id), message:msg})
       }
     }else{
-      client.emit("token_error",user)
+      client.emit("token_error",user[1])
     }
   })
+
+
   client.on('game_msg',async(lobby_id,msg,token)=>{
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
+    const user = await user_authenticated(token)
+    if(user[0]){
+      console.log("a user sent a game msg")
+      if(online_users.has(client.id) && lobbies.has(lobby_id)
+      && lobbies.get(lobby_id).getPlayers.includes(online_users.get(client.id))){
+        io.to(lobby_id).emit("game_msg",{sender:online_users.get(client.id), message:msg})
       }
-    })
-    if(user.status == 200){
-    console.log("a user sent a game msg")
-    if(online_users.has(client.id) && lobbies.has(lobby_id)
-    && lobbies.get(lobby_id).getPlayers.includes(online_users.get(client.id))){
-      io.to(lobby_id).emit("game_msg",{sender:online_users.get(client.id), message:msg})
-    }
     }else{
-      client.emit("token_error",user)
+      client.emit("token_error",user[1])
     }
   })
 
   /**
+   * 
    * USER PROFILE HANDLING
+   * 
    */
   client.on('get_profile',async(token) =>{
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+ token
-      }
-    })
-    if(user.status == 200){
+    const user = await user_authenticated(token)
+    if(user[0]){
       let user_id = online_users.get(client.id)
-      let user_profile = await axios.get(user_service+"/profile/getProfile",{user_id:user_id})
-      if(!user_profile === null){
-        client.emit("permit_error",user_profile)
-      }else{
-        client.emit("user_profile",user_profile)
+      try{
+        let user_profile = await axios.get(user_service+"/profile/getProfile",{user_id:user_id})
+        if(!user_profile === null){
+          client.emit("permit_error",user_profile)
+        }else{
+          client.emit("user_profile",user_profile)
+        }
+      }catch(err){
+        if(err.response.status == 500 ){
+          client.emit("server_error",err.response.data)
+        }else if(err.response.status == 404){
+          client.emit("client_error",err.response.data)
+        }
       }
     }else{
-      client.emit("token_error",user)
+      client.emit("token_error",user[1])
     }
   })
+
   client.on('get_leaderboard',async(token) =>{
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
+    const user = await user_authenticated(token)
+    if(user[0]){
+      try{
+        let leaderboard = await axios.get(user_service+"/getLeaderboard")
+        if(leaderboard === null){
+          client.emit("permit_error",leaderboard)
+        }else{
+          client.emit("leaderboard",leaderboard)
+        }
+      }catch(err){
+        client.emit("server_error",err.response.data)
       }
-    })
-    if(user.status == 200){
-      let leaderboard = await axios.get(user_service+"/getLeaderboard")
-      if(leaderboard === null){
-        client.emit("permit_error",leaderboard)
-      }else{
-        client.emit("leaderboard",leaderboard)
-      }
+
     }else{
-      client.emit("token_error",user)
+      client.emit("token_error",user[1])
     }
   })
+
   client.on('update_profile',async(params,token) =>{
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
-      }
-    })
-    if(user.status == 200){
+    const user = await user_authenticated(token)
+    if(user[0]){
       const user_id = online_users.get(client.id)
       const updated_user = await axios.put(user_service+"/profile/updateProfile",{user_id:user_id,params:params})
       if(updated_user === null){
@@ -446,17 +546,13 @@ io.on('connection', async client => {
         client.emit("updated_user",updated_user)
       }
     }else{
-      client.emit("token_error",user)
+      client.emit("token_error",user[1])
     }
   })
 
   client.on('get_history', async(token) => {
-    const user = await axios.get(user_service+"/authenticate",{
-      headers:{
-        Authorization: "Bearer "+token
-      }
-    })
-    if(user.status == 200){
+    const user = await user_authenticated(token)
+    if(user[0]){
       let user_id = online_users.get(client.id)
       let user_history = await axios.get(user_service+"/profile/getHistory",{user_id : user_id})
       if(user_history === null){
@@ -465,7 +561,7 @@ io.on('connection', async client => {
         client.emit("user_history",user_history)
       }
     }else{
-      client.emit("token_error",user)
+      client.emit("token_error",user[1])
     }
   })
 });

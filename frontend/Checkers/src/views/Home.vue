@@ -70,6 +70,8 @@ import Checkerboard from '@/components/boardComponents/Checkerboard'
 
 var startingMatchButton = document.getElementsByClassName("accept")[0]
 var onlineModal = document.getElementsByClassName("online-modal")[0]
+//import Chat from '@/components/boardComponents/Chat'
+//import api from '../../api.js'
 
 export default {
   name: 'Home',
