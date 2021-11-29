@@ -35,8 +35,8 @@
 </template>
 
 <script>
-import api from '../../api.js'
-import store from '../store'
+import api from '@/../api.js'
+import store from '@/store'
 export default {
     name: "Login",
     data(){

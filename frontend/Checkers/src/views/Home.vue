@@ -1,7 +1,7 @@
 <template>
 <div>
-  <div class="flex flex-row content-center centralSpace">
-    <Checkerboard class="flex flex-col board"/>
+  <div class="flex flex-row centralSpace">
+    <Checkerboard class="board"/>
 
     <div class="card items-center w-64 flex flex-col rightMenu">
       <h1 class="mt-5">Gioca a Checkers</h1>
@@ -20,7 +20,9 @@
             <option>30min</option>
           </select> 
           <div class="flex flex-row modal-action">
-            <label for="create-lobby-modal" @click="startingMatch" class="accept btn">Avvia ricerca</label> 
+            <router-link to="/inGame"> 
+              <label for="create-lobby-modal" @click="startingMatch" class="accept btn">Avvia ricerca</label> 
+            </router-link>
             <label for="create-lobby-modal" class="btn">Annulla</label>
           </div>
         </div>
@@ -37,7 +39,7 @@
             <option>Difficile</option>
           </select> 
           <div class="modal-action">
-            <label for="cpu-modal" class="btn">Avvia</label> 
+            <router-link to="/inGame"> <label for="cpu-modal" class="btn">Avvia</label> </router-link>
             <label for="cpu-modal" class="btn">Annulla</label>
           </div>
         </div>
@@ -52,7 +54,7 @@
             <input type="text" class="input input-bordered w-min">
           </div>
           <div class="modal-action">
-            <label for="friends-modal" class="btn">Invita</label> 
+            <router-link to="/inGame"> <label for="friends-modal" class="btn">Invita</label> </router-link>
             <label for="friends-modal" class="btn">Annulla</label>
           </div>
         </div>
@@ -65,14 +67,9 @@
 
 <script>
 import Checkerboard from '@/components/boardComponents/Checkerboard'
-<<<<<<< HEAD
 
 var startingMatchButton = document.getElementsByClassName("accept")[0]
 var onlineModal = document.getElementsByClassName("online-modal")[0]
-=======
-import Chat from '@/components/boardComponents/Chat'
-//import api from '../../api.js'
->>>>>>> 2a7fb667e133e4076185744044eef232b3f70420
 
 export default {
   name: 'Home',
@@ -88,13 +85,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .centralSpace{
-  padding: 1em 0em 0.6em 20em
+  padding: 1em 0em 0.6em 11em;
+  margin-left: 10em
 }
+</style>
+
+<style scoped>
 .rightMenu {
   margin-right: 10rem;
-  margin-left: 2em;
   background-color: #1F1E1E;
 }
 .rightMenu #btn-menu:first-child {
@@ -110,18 +110,12 @@ export default {
   background-color: #343232;
 }
 @media (max-width: 1700px) {
+  .rightMenu {
+    margin-left: 2em;
+  }
   .rightMenu #btn-menu {
     min-width: 130px;
     margin-top: 2em;
   }
-  .board {
-    margin-left: 1em;
-  }
 }
-
-@media (max-width: 850px) {
-  .board {
-    margin-left: 0.8em;
-  }
-} 
 </style>

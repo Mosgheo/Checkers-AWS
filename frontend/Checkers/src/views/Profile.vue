@@ -1,24 +1,10 @@
 <template>
   <div class="profile flex flex-col">
-    <div v-if="this.player.length !== 0" class="basic-info card lg:card-side flex flex-row">
+    <div class="basic-info card lg:card-side flex flex-row">
       <img src="https://picsum.photos/id/1005/250" class="mask mask-square p-5">
       <div class="p-3">
         <div class="flex p-2">
-          <h2 class="card-title">{{this.player.username}}</h2>
-          <div class="avatar">
-            <div class="ml-1 rounded-btn w-11 h-11">
-              <img src="http://daisyui.com/tailwind-css-component-profile-1@40w.png">
-            </div>
-          </div>
-        </div> 
-        <p class="text-left p-2">Nome Cognome</p> 
-      </div>
-    </div>
-    <div v-else class="basic-info card lg:card-side flex flex-row">
-      <img src="https://picsum.photos/id/1005/250" class="mask mask-square p-5">
-      <div class="p-3">
-        <div class="flex p-2">
-          <h2 class="card-title">Username</h2>
+          <h2 v-bind:innerText="getUsername" class="card-title"></h2>
           <div class="avatar">
             <div class="ml-1 rounded-btn w-11 h-11">
               <img src="http://daisyui.com/tailwind-css-component-profile-1@40w.png">
@@ -36,7 +22,7 @@
       <div id="content" class="card shadow-lg mt-2">
         <div id="tabDiv" class="card-body">
           <h2 class="card-title">Dati Utente</h2>
-          <DataInfo :user="player" class="info"></DataInfo>
+          <DataInfo class="info"></DataInfo>
         </div>
       </div>
     </div>
@@ -47,7 +33,9 @@
 import DataInfo from "@/components/profileComponents/DataInfo";
 import MatchInfo from "@/components/profileComponents/MatchInfo";
 import { createApp } from 'vue';
+import store from '@/store'
 
+var user = null
 const wrapper = document.getElementsByClassName("info")
 
 export default {
@@ -56,7 +44,18 @@ export default {
     DataInfo
     //MatchInfo
   },
-  data() {
+  setup() {
+    user = store.getters.user
+  },
+  computed: {
+    getUsername() {
+      if(user.username !== "") {
+        return "" + user.username
+      }
+      return "Username"
+    }
+  },
+  /*data() {
     return {
       player: []
     }
@@ -66,7 +65,7 @@ export default {
       this.player = data
       this.player = JSON.parse(JSON.stringify(this.player))[0]
     }
-  },
+  },*/
   methods: {
     dataInfo() {
       const elem = document.getElementById("dataInfo")

@@ -4,7 +4,7 @@
     <label class="label">
       <span class="label-text">Nome utente</span>
     </label> 
-    <input type="text" placeholder="Username" v-bind:value="this.user.username" class="input input-bordered w-13">
+    <input type="text" placeholder="Username" v-bind:value="getUsername" class="input input-bordered w-13">
     
     <label class="label mt-3">
       <span class="label-text">Nome</span>
@@ -20,7 +20,7 @@
     <label class="label mt-3">
       <span class="label-text">Email</span>
     </label> 
-    <input type="text" placeholder="info@site.com" v-bind:value="this.user.mail" class="input input-bordered">
+    <input type="text" placeholder="info@site.com" v-bind:value="getMail" class="input input-bordered">
 
     <select class="select select-bordered w-full max-w-xs mt-10">
       <option disabled="disabled" selected="selected">Selezione Località</option> 
@@ -36,8 +36,30 @@
 </template>
 
 <script>
+import store from '@/store'
+
+var user = null
+
 export default {
-  props: ['user']
+  name: "UserInfo",
+  setup() {
+    user = store.getters.user
+  },
+  computed: {
+    getUsername() {
+      if(user.username !== "") {
+        return "" + user.username
+      }
+      return "Username"
+    },
+    getMail() {
+      if(user.mail !== "") {
+        return "" + user.mail
+      }
+      return "info@site.com"
+    }
+  }
+
 }
 </script>
 

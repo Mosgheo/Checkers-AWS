@@ -5,6 +5,7 @@ import LeaderBooard from "@/views/LeaderBoard";
 import Domande from "@/views/Domande";
 import Login from "@/views/Login";
 import Signup from "@/views/Signup";
+import Game from "@/views/Game";
 
 const routes = [
   {
@@ -36,6 +37,11 @@ const routes = [
     path: '/signup',
     name: 'Signup',
     component: Signup
+  },
+  {
+    path: '/inGame',
+    name: 'Game',
+    component: Game
   }
 ]
 
