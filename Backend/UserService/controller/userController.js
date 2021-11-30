@@ -153,6 +153,7 @@ exports.refresh_token = async function (req,res){
     }
 }
 exports.verify_token = async function(req,res){
+    console.log("veryfing token")
     const b_header = req.headers['authorization']
     if(typeof b_header !== 'undefined'){
         const bearer = b_header.split(' ')
@@ -160,8 +161,10 @@ exports.verify_token = async function(req,res){
         req.token = b_token
         const token = await jwt.verify(req.token,jwt_secret)
         if(token){
+            console.log("token ok")
             res.status(200).json({token:token,user:token.user})
         }else{
+            console.log("token error")
             res.status(400).send({message:"Token verification error"})
         }
     }
@@ -201,7 +204,6 @@ exports.getHistory = async function(req,res){
 }
 //Not sure it'll work
 exports.updateProfile = async function(req,res){
-    console.log("SOMEONE UPDATED PROFILE YEA FUCK YEA")
     //NOT SURE ABOUT THEESE
     const user_mail = req.body.params[0]
     const name = req.body.params[1]
@@ -212,10 +214,16 @@ exports.updateProfile = async function(req,res){
         if(new_user = await User.findOneAndUpdate({"userID": user_mail},
         { $set:{
             username : username,
-            name : name,
-            surname : surname
+            first_name : name,
+            last_name : surname
         }})){
-            res.status(200).json(new_user)
+            res.status(200).json({
+                username: new_user.username,
+                first_name: new_user.first_name,
+                last_name: new_user.last_name,
+                mail: new_user.mail,
+                stars:new_user.stars
+            })
         }else{
             res.status(400).send({message: "Something went wrong while updating a user, please try again"})
         }
@@ -225,10 +233,16 @@ exports.updateProfile = async function(req,res){
             if(new_user = await User.findOneAndUpdate({"userID": user_mail},
             { $set:{
                 username : username,
-                name : name,
-                surname : surname
+                first_name : name,
+                last_surname : surname
             }})){
-                res.status(200).json(new_user)
+                res.status(200).json({
+                    username: new_user.username,
+                    first_name: new_user.first_name,
+                    last_name: new_user.last_name,
+                    mail: new_user.mail,
+                    stars:new_user.stars
+                })
             }else{
                 res.status(400).send({message: "Something went wrong while updating a user, please try again"})
             }
@@ -237,10 +251,20 @@ exports.updateProfile = async function(req,res){
         }
     }
 }
-
+//WILL THIS WORK?
 exports.getLeaderboard = async function(_,res){
     const users = await User.find({}).sort('stars')
     if(users != null){
+        users.map(user => {
+            return {
+                username: user.username,
+                first_name : user.first_name,
+                last_name : user.last_name,
+                stars: user.stars,
+                wins: user.wins,
+                losses: user.losses
+            }
+        })
         res.status(200).json(users);
     }else{
         res.status(500).send({message: "There is no one in the leaderboard."})

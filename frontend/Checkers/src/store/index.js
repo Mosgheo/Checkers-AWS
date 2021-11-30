@@ -4,7 +4,7 @@ export default createStore({
   state: {
     user: {
       username: "",
-      email: "",
+      mail: "",
       stars: 0,
       nationality: "",
       wins: 0,
@@ -27,7 +27,7 @@ export default createStore({
       if(token !== 'null') {
           state.authenticated = true
           state.token = token
-          //localStorage.token = token
+          localStorage.token = token
          // axios.defaults.headers.common['Authorization'] = "bearer " + token;
       }
     },
@@ -35,7 +35,7 @@ export default createStore({
         state.authenticated = false
         state.user = {
           username: "",
-          email: "",
+          mail: "",
           stars: 0,
           nationality: "",
           wins: 0,
@@ -49,7 +49,7 @@ export default createStore({
     },
     setUser(state,user){
       state.user = Object.assign({},user)
-      console.log(user.email)
+      console.log(user.mail)
     },
     setInGame(state,value){
       state.in_game = value

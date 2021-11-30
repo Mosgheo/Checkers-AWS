@@ -54,34 +54,36 @@ export default {
       return "Username"
     },
     getMail() {
-      if(user.email !== "") {
-        return "" + user.email
+      if(user.mail !== "") {
+        return "" + user.mail
       }
       return "info@site.com"
     }
   },
   methods:{
-    save_profile(username,first_name,last_name,email){
+    save_profile(username,first_name,last_name,mail){
       const user = {
               username : username,
               firstname : first_name,
               last_name : last_name,
-              email : email
+              mail : mail
       }
       //TODO UPDATE STATE.USER AND SEND UPDATE TO BACKEND
-      api.update_profile(this.$socket,user)
+      api.update_profile(this.$socket,user,localStorage.token)
     }
   },
   sockets:{
     updated_user(user){
       //USER UPDATED
+      console.log("USRR UPDATED")
+      console.log(user)
       store.commit('setUser',user)
     },
     permit_error(err){
-      //Something went wrong with mongoDB or something unpredictable
+      console.log(err)
     },
     socket_error(err){
-      //SOmething went wrong while authenticatig
+      console.log(err)
     }
   }
 

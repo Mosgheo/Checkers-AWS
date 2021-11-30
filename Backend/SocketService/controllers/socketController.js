@@ -45,9 +45,9 @@ function get_id(){
 //WILL IT WORK ???
 async function user_authenticated(token){
   try{
-    const user = await axios.get(user_service+"/authenticate",{
+    const {data:user} = await axios.get(user_service+"/authenticate",{
       headers:{
-        Authorization: "Bearer "+token
+        Authorization: "Bearer "+ token
       }
     })
     if(user != null){
@@ -57,7 +57,6 @@ async function user_authenticated(token){
     if(err.response.status == 400){
       return [false,err.response.data]
     }
-
   }
 }
 
@@ -163,7 +162,7 @@ io.on('connection', async client => {
   client.on('disconnect', function(){
     console.log('A player disconnected');
     //Remove player from active players
-    online_users.deleteValue(client)
+    online_users.delete(client.id)
     });
 
   client.on('login', async (mail,password) => {
@@ -565,7 +564,7 @@ io.on('connection', async client => {
     const user = await user_authenticated(token)
     if(user[0]){
       const user_mail = online_users.get(client.id)
-      const updated_user = await axios.put(user_service+"/profile/updateProfile",{user_id:user_mail,params:params})
+      const {data:updated_user} = await axios.put(user_service+"/profile/updateProfile",{user_id:user_mail,params:params})
       if(updated_user === null){
         client.emit("permit_error",user_history)
       }else{
