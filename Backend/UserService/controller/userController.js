@@ -109,6 +109,7 @@ exports.login = async function(req,res){
                 console.log(email+" just logged in")
                 //Will those two lines work?
                 const token = await jwt.sign({user:{email:registered_user.email,username:registered_user.username}},jwt_secret,{expiresIn: '1 day'})
+                console.log("HELLO " + email)
                 res.status(200).json({
                     token: token, 
                     message :"Authentication successfull, welcome back "+registered_user.username+"!",
@@ -167,6 +168,7 @@ exports.verify_token = async function(req,res){
 }
 
 exports.getProfile = async function(req,res){
+    //WILL THIS QUERY WORK?
     const mail = req.query.mail
     console.log(mail)
     try {
@@ -174,7 +176,11 @@ exports.getProfile = async function(req,res){
         if(data === null){
             res.status(404).json({error: "Cannot find any player with such ID"})
         }
-        res.json(data)
+        res.json({
+            username: data.username,
+            stars: data.stars,
+            mail:data.mail
+        })
     }catch{
         res.status(500).json({error: "Error while retrieving player profile from DB"})
     }
@@ -195,17 +201,17 @@ exports.getHistory = async function(req,res){
 }
 //Not sure it'll work
 exports.updateProfile = async function(req,res){
-    const user_id = req.body.params[0]
-    const nationality = req.body.params[1]
-    const name = req.body.params[2]
-    const surname = req.body.params[3]
-    const username = req.body.params[4]
-    const used_username = await User.find({username:username})
-    if(used_username === null){
-        if(new_user = await User.findOneAndUpdate({"userID": user_id},
+    console.log("SOMEONE UPDATED PROFILE YEA FUCK YEA")
+    //NOT SURE ABOUT THEESE
+    const user_mail = req.body.params[0]
+    const name = req.body.params[1]
+    const surname = req.body.params[2]
+    const username = req.body.params[3]
+    const mail = req.body.params[4]
+    if(mail === user_mail){
+        if(new_user = await User.findOneAndUpdate({"userID": user_mail},
         { $set:{
             username : username,
-            nationality : nationality,
             name : name,
             surname : surname
         }})){
@@ -214,9 +220,22 @@ exports.updateProfile = async function(req,res){
             res.status(400).send({message: "Something went wrong while updating a user, please try again"})
         }
     }else{
-        res.status(500).json({error: "Username already in use"})
+        const email = await User.find({mail:mail})
+        if(email === null){
+            if(new_user = await User.findOneAndUpdate({"userID": user_mail},
+            { $set:{
+                username : username,
+                name : name,
+                surname : surname
+            }})){
+                res.status(200).json(new_user)
+            }else{
+                res.status(400).send({message: "Something went wrong while updating a user, please try again"})
+            }
+        }else{
+            res.status(500).json({error: "Email already in use"})
+        }
     }
-
 }
 
 exports.getLeaderboard = async function(_,res){

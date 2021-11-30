@@ -4,11 +4,13 @@ export default createStore({
   state: {
     user: {
       username: "",
-      mail: "",
+      email: "",
       stars: 0,
       nationality: "",
       wins: 0,
       losses: 0,
+      first_name: "",
+      last_name: "",
       avatar: "",
     },
     token: "",
@@ -33,10 +35,12 @@ export default createStore({
         state.authenticated = false
         state.user = {
           username: "",
-          mail: "",
+          email: "",
           stars: 0,
           nationality: "",
           wins: 0,
+          first_name:"",
+          last_name: "",
           losses: 0,
           avatar: "",
         };
@@ -44,7 +48,8 @@ export default createStore({
         //axios.defaults.headers.common['Authorization'] = ""
     },
     setUser(state,user){
-      state.user = user
+      state.user = Object.assign({},user)
+      console.log(user.email)
     },
     setInGame(state,value){
       state.in_game = value

@@ -88,16 +88,18 @@ function join_lobby(lobby_id,client,player){
 }
 
 function get_lobbies(user_stars){
-  return Array.from(lobbies.values())
-  .filter(lobby => lobby.isFree() && lobby.max_stars >= user_stars)
-  .map(lobby =>{
-    var tmpLobby = new Object();
-    tmpLobby.id = lobby_id
-    tmpLobby.name = lobby.name
-    tmpLobby.max_stars = lobby.max_stars
-    tmpLobby.host = lobby.getPlayers(0)
-    return tmpLobby
+  let data = []
+  return lobbies.forEach((id,lobby) => {
+    if(lobby.isFree() && lobby.max_stars >= user_stars){
+      data.push({
+        lobby_id : id,
+        name : lobby.name,
+        max_stars : lobby.max_stars,
+        host : lobby.getPlayers(0)
+      })
+    }
   })
+}
   /*lobbies.forEach((lobby_id,lobby)=>{
     //SHould I just return the whole lobby item?
     if(lobby.isFree && lobby.max_stars >= user_stars){
@@ -110,7 +112,6 @@ function get_lobbies(user_stars){
       available_lobbies.push(tmpLobby)
     }
   })*/
-}
 function invitation_timeout(inv_id){
   invitations.delete(inv_id)
   io.to(inv_id).emit("invitation_timeout")
@@ -170,21 +171,24 @@ io.on('connection', async client => {
     //Update user id in online_users
     //TODO maybe should receive mail and
     //search in DB for the corresponding username
-    try{
-      const user = await axios.post(user_service+"/login",{
-        mail:mail,
-        password:password
-      })
-      online_users.set(client.id,mail)
-      client.emit("login_ok",user.data)
-    }catch(err){
-      if(err.response.status == 400){
-        client.emit("login_error",err.response.data)
+    if(online_users.hasValue(mail)){
+      client.emit("login_error","Someone is already logged in with such email")
+    }else{
+      try{
+        const user = await axios.post(user_service+"/login",{
+          mail:mail,
+          password:password
+        })
+        online_users.set(client.id,mail)
+        client.emit("login_ok",user.data)
+      }catch(err){
+        if(err.response.status == 400){
+          client.emit("login_error",err.response.data)
+        }
       }
     }
-  
-
   })
+
   client.on('signup',async(email,password,username)=>{
     console.log("a user is trying to sign up")
     try{
@@ -234,17 +238,39 @@ io.on('connection', async client => {
     if(user[0]){
       console.log("a user joined a lobby")
       if(online_users.has(client.id)){
-        const player = online_users.get(client.id)
+        const opponent = online_users.get(client.id)
         if(lobbies.has(lobby_id)){
+          //HOW SHOULD WE USE GET PARAMS????
+          /*const host = await axios.get(user_service+"/getProfile",{
+            mail:mail,
+          })*/
           const host = lobbies.get(lobby_id).getPlayers()[0]
-          if(join_lobby(lobby_id,client,player)){
+          if(join_lobby(lobby_id,client,opponent)){
             try{
-              const {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:host,opponent:player})
+              let game = []
+              const {data:host_specs} = await axios.post(user_service+"/profile/getProfile",
+              {params:
+                {
+                  mail:host
+                }
+              })
+              const {data:opponent_specs} = await axios.post(user_service+"/profile/getProfile",
+              {params:
+                {
+                  mail:opponent
+                }
+              })
+              const {data: board} = await axios.post(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:host_specs.username,opponent:opponent_specs.username})
+              game.push(host_specs)
+              game.push(opponent_specs)
+              game.push(board)
               io.to(lobby_id).emit("game_started",board)
               turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
             }catch(err){
               if(err.response.status == 500){
                 client.emit("server_error",err.response.data)
+              }else if(err.response.status == 404){
+                client.emit("permit_error",err.response.data)
               }
             }
           }else{
@@ -538,8 +564,8 @@ io.on('connection', async client => {
   client.on('update_profile',async(params,token) =>{
     const user = await user_authenticated(token)
     if(user[0]){
-      const user_id = online_users.get(client.id)
-      const updated_user = await axios.put(user_service+"/profile/updateProfile",{user_id:user_id,params:params})
+      const user_mail = online_users.get(client.id)
+      const updated_user = await axios.put(user_service+"/profile/updateProfile",{user_id:user_mail,params:params})
       if(updated_user === null){
         client.emit("permit_error",user_history)
       }else{
