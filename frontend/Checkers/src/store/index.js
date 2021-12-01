@@ -49,7 +49,6 @@ export default createStore({
     },
     setUser(state,user){
       state.user = Object.assign({},user)
-      console.log(user.mail)
     },
     setInGame(state,value){
       state.in_game = value

@@ -119,7 +119,7 @@ exports.login = async function(req,res){
                     message :"Authentication successfull, welcome back "+registered_user.username+"!",
                     user:{
                         username:registered_user.username,
-                        email:email,
+                        mail:email,
                         stars:registered_user.stars,
                         nationality:registered_user.nationality,
                         wins:registered_user.wins,

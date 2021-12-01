@@ -11,7 +11,7 @@ const { listeners } = require('../../UserService/models/userModel');
 
 //TURN HANDLING 
 const online_users = new BiMap()  //{  client_id <-> user_id  }
-const lobbies = new Map(); // { lobby_id -> Lobby }
+const lobbies = new BiMap(); // { lobby_id -> Lobby }
 const turn_timeouts = new Map(); // {lobby_id -> timoutTimer}
 
 const invitations = new Map() // {host_id -> opponent_id}
@@ -41,6 +41,17 @@ function get_id(){
     current_id++
     return new_id
   }
+}
+function isInLobby(player_mail){
+  for(const [_,lobby] of lobbies.entries()){
+    if(lobby.hasPlayer(player_mail)){
+      return true
+    }
+  }
+  return false
+}
+function isOnline(player_id){
+  return online_users.has(player_id)
 }
 //WILL IT WORK ???
 async function user_authenticated(token){
@@ -88,16 +99,18 @@ function join_lobby(lobby_id,client,player){
 
 function get_lobbies(user_stars){
   let data = []
-  return lobbies.forEach((lobby, id) => {
-    if(lobby.isFree() && lobby.max_stars >= user_stars){
+  const tmp = lobbies.entries()
+  for(const [lobby_id,lobby] of tmp){
+    if(lobby.isFree() && lobby.getStars() >= user_stars){
       data.push({
-        lobby_id : id,
-        name : lobby.name,
-        max_stars : lobby.max_stars,
+        lobby_id : lobby_id,
+        name : lobby.getName(),
+        max_stars : lobby.getStars(),
         host : lobby.getPlayers(0)
       })
     }
-  })
+  }
+  return data
 }
   /*lobbies.forEach((lobby_id,lobby)=>{
     //SHould I just return the whole lobby item?
@@ -159,11 +172,41 @@ io.on('connection', async client => {
   //A new anon user just connected, push it to online_players
   online_users.set(client.id,get_id())
 
-  client.on('disconnect', function(){
+  client.on('disconnect', async()=>{
     console.log('A player disconnected');
     //Remove player from active players
-    online_users.delete(client.id)
-    });
+
+    const player = online_users.get(client.id)
+    if(!isInLobby(player)){
+      online_users.delete(client.id)
+    }else{
+      const lobby = Array.from(lobbies.values()).filter(lobby => lobby.hasPlayer(player))[0]
+      let lobby_id = lobbies.getKey(lobby)
+      if(lobby.isFree()){
+        console.log(online_users.get(client.id)+" just disconnected and his lobby has been deleted")
+        lobbies.delete(lobby_id)
+        online_users.delete(client.id)
+      }else{
+        try{
+          //Player disconnecting is the host
+          if(lobby.getPlayers(0) == online_users.get(client.id)){
+            const {data:game_end} = await axios.post(game_service+"/game/deleteGame",{game_id:lobby_id,winner:lobby.getPlayers(1),forfeiter:lobby.getPlayers(0)})
+            io.to(lobby_id).emit("player_left",game_end)
+          }
+          else{
+            const {data:game_end} = await axios.post(game_service+"/game/deleteGame",{game_id:lobby_id,winner:lobby.getPlayers(0),forfeiter:lobby.getPlayers(1)})
+            io.to(lobby_id)("player_left",game_end)
+          }
+          lobbies.deleteValue(lobby)
+          online_users.delete(client.id)
+        }catch(err){
+          if(err.response.status == 500){
+            io.to(lobby_id).emit("server_error",err.response.data)
+          }
+        }
+      }
+    }
+  });
 
   client.on('login', async (mail,password) => {
     console.log("a user is tryng to log in")
@@ -178,6 +221,7 @@ io.on('connection', async client => {
           mail:mail,
           password:password
         })
+        online_users.delete(client.id)
         online_users.set(client.id,mail)
         client.emit("login_ok",user.data)
       }catch(err){
@@ -211,34 +255,48 @@ io.on('connection', async client => {
    * Lobby handling 
    * 
    **/
-  client.on('build_lobby',async(lobby_name,max_stars,token)=>  {
-    const user = await user_authenticated(token)
-    if(user[0]){
-      console.log("a user built a lobby")
-      build_lobby(lobby_name,client,max_stars)
-      const lobbies = get_lobbies()
-      client.emit("lobbies",lobbies)
+   client.on('build_lobby',async(lobby_name,max_stars,token)=>  {
+    if(isOnline(client.id) && !isInLobby(online_users.get(client.id))){
+      const user = await user_authenticated(token)
+      if(user[0]){
+        console.log("a user built a lobby")
+        const new_lobby_id = build_lobby(lobby_name,client,max_stars)
+        //FIX THIS PARAMTER IN GET LOBBIES
+        const lobbies = get_lobbies(0)
+        client.emit("lobbies",{
+          lobby_id:new_lobby_id,
+          lobbies:lobbies
+        })
+      }else{
+        client.emit("token_error",user[1])
+      }
     }else{
-      client.emit("token_error",user[1])
+      console.log("a user tried bulding a lobby while already has one")
+      client.emit("permit_error")
     }
   })
+
 
   client.on('get_lobbies',async (stars,token) => {
-    const user = await user_authenticated(token)
-    if(user[0]){
-      console.log("a user requested lobbies")
-      const lobbies = get_lobbies(stars)
-      client.emit("lobbies",lobbies)
+    if(isOnline(client.id)){
+      const user = await user_authenticated(token)
+      if(user[0]){
+        console.log("a user requested lobbies")
+        const lobbies = get_lobbies(stars)
+        console.log("LOBBIES "+lobbies)
+        client.emit("lobbies",lobbies)
+      }else{
+        client.emit("token_error",user[1])
+      }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("permit_error")
     }
   })
-
   client.on('join_lobby', async(lobby_id,token) => {
     const user = await user_authenticated(token)
     if(user[0]){
       console.log("a user joined a lobby")
-      if(online_users.has(client.id)){
+      if(isOnline(client.id) && !isInLobby(online_users.get(client.id))){
         const opponent = online_users.get(client.id)
         if(lobbies.has(lobby_id)){
           //HOW SHOULD WE USE GET PARAMS????
@@ -275,9 +333,13 @@ io.on('connection', async client => {
               }
             }
           }else{
-            client.emit("join_err")
+            client.emit("server")
           }
+        }else{
+          client.emit("server_error")
         }
+      }else{
+        client.emit("permit_error")
       }
     }else{
       client.emit("token_error",user[1])

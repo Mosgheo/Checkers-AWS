@@ -95,10 +95,10 @@ exports.tieGame = function(req,res){
 }
 exports.leaveGame = async function(req,res){
     let game_id = req.body.game_id
+    let quitter = req.body.player_id
     try{
         if(games.has(game_id)){
             let game = games.get(game_id)
-            let quitter = req.body.player_id
             if(game.white === quitter){
                 gameEnd(game_id,false,gameInstance.black,gameInstance.white)
             }else{
@@ -113,6 +113,17 @@ exports.leaveGame = async function(req,res){
         res.status(500).send({message:"Internal server error while leaving game"})
     }
 
+}
+}
+exports.deleteGame = function(req,res){
+    const game_id = req.body.game_id
+    const forfeiter = req.body.forfeiter
+    const winner = req.body.winner
+    await gameEnd(game_id,false,winner,forfeiter).then(
+        res.status(200).send({message: forfeiter +"has disconnected from the game,"+winner+" has officially won the game"})
+    ).catch(
+        res.status(500).send({message: "Something went wrong while closing the game."})
+    )
 }
 exports.movePiece = function(req,res){
     let game_id = req.body.game_id
