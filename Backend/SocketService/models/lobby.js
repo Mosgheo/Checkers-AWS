@@ -48,7 +48,6 @@
 }*/
 module.exports = class Lobby{
 
-
     constructor(stars,room_name,turn) {
         this.stars = stars;
         this.room_name = room_name
@@ -58,34 +57,35 @@ module.exports = class Lobby{
     }
     
      addPlayer(id){
-        if (players.size < 2 && !players[0] === id){
-            return players.push(id)
+        if (this.players.size < 2 && !this.players[0] === id){
+            return this.players.push(id)
         }
     }
      removePlayer(id){
-        if(players.length > 0){
-            return players.splice(id,1)
+        if(this.players.length > 0){
+            return this.players.splice(id,1)
         }
     }
-     isFree(){
-        return players.length == 1
+    tieProposal(user_id){
+        if(this.players.includes(user_id) && !this.tie_requests.includes(user_id)){
+            this.tie_requests.push(user_id)
+        }
     }
-     hasPlayer(player){
-        return players.find(p => p === player)
+    hasPlayer(player){
+        return this.players.find(p => p === player)
     }
-     getPlayers(index = -1){
+    get isFree(){
+        return this.players.length == 1
+    }
+    get players(index = -1){
         if(index>=0){
-            return players[index]
+            return this.players[index]
         }else{
-            return players
+            return this.players
         }
     }
-     tieProposal(user_id){
-        if(players.includes(user_id) && !tie_requests.includes(user_id)){
-            tie_requests.push(user_id)
-        }
-    }
-     tie(){
-        return tie_requests.length >= 2
+
+    get tied(){
+        return this.tie_requests.length >= 2
     }
 }
