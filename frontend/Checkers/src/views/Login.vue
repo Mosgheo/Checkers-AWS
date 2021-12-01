@@ -7,14 +7,14 @@
                     <label class="label">
                         <span class="label-text mt-2">Nome utente</span>
                     </label> 
-                    <input type="text" placeholder="Inserisci nome utente" class="input input-bordered w-13">
+                    <input type="text" placeholder="Inserisci nome utente" class="input-username input input-bordered w-13">
                 </div>
 
                 <div class="block">
                     <label class="label">
                         <span class="label-text mt-2">Password</span>
                     </label> 
-                    <input type="password" placeholder="Inserisci la password" class="input input-bordered w-13">
+                    <input type="password" placeholder="Inserisci la password" class="input-password input input-bordered w-13">
                 </div>
 
                 <div class="object-center space-x-2 mt-10">
@@ -37,16 +37,23 @@
 <script>
 import api from '@/../api.js'
 import store from '@/store'
+
+var username = document.getElementsByClassName("input-username")
+var password = document.getElementsByClassName("input-password")
+
 export default {
     name: "Login",
-    data(){
-        return{
+    data() {
+        console.log(username)
+        console.log(password)
+        return {
             email:"manuele.pasini@gmail.com",
             password:"bmzw76ae6JF*"
         }
     },
     methods: {
         login:function() {
+            console.log(username[0].value)
             console.log("LOGGING IN ")
             if(this.email == "" && this.password ==""){
                 console.log("something wrong")

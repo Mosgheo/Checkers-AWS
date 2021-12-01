@@ -1,7 +1,6 @@
 const socket = this
 
 function getToken(){
-    console.log("HEY " + localStorage.token)
     return localStorage.token
 }
 

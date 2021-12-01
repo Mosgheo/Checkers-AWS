@@ -9,21 +9,36 @@
         <img src="@/assets/logo.png" class="mask w-44 h-44 mt-2 p-2">
       </figure> 
 
-      <label for="create-lobby-modal" id="btn-menu" class="btn">Gioca Online</label>
+      <label for="create-lobby-modal" id="btn-menu" class="btn">Crea Lobby</label>
       <input type="checkbox" id="create-lobby-modal" class="modal-toggle"> 
-      <div class="online-modal modal">
+      <div class="modal">
         <div class="modal-box">
-          <h3>Cerca una partita contro un avversario online del tuo livello</h3>
-          <select class="select select-bordered mt-2 select-lg w-full max-w-xs">
-            <option selected="selected">10min</option> 
-            <option>5min</option> 
-            <option>30min</option>
-          </select> 
+          <label class="mt-3">
+            <span>Indica il punteggio massimo che deve avere un giocatore</span>
+          </label> 
+          <input type="text" placeholder="Max Points" class="input-star input input-bordered mt-2 w-13">
           <div class="flex flex-row modal-action">
             <router-link to="/inGame"> 
-              <label for="create-lobby-modal" @click="startingMatch" class="accept btn">Avvia ricerca</label> 
+              <label for="create-lobby-modal" @click="startingMatch" class="accept btn">Avvia creazione</label> 
             </router-link>
             <label for="create-lobby-modal" class="btn">Annulla</label>
+          </div>
+        </div>
+      </div>
+
+      <label for="join-lobby-modal" id="btn-menu" class="btn">Unisciti ad una lobby</label>
+      <input type="checkbox" id="join-lobby-modal" class="modal-toggle"> 
+      <div class="modal">
+        <div class="modal-box items-center">
+          <label class="mt-3">
+            <span>Indica il punteggio massimo delle lobby</span>
+          </label> 
+          <input type="text" placeholder="Max Points" class="input-star2 input input-bordered mt-2 w-13">
+          <div class="flex flex-row modal-action">
+            <!-- <router-link to="/inGame"> -->
+              <label for="join-lobby-modal" @click="lobbyOpened" class="accept btn">Avvia creazione</label> 
+            <!-- </router-link> -->
+            <label for="join-lobby-modal" class="btn">Annulla</label>
           </div>
         </div>
       </div>
@@ -67,11 +82,10 @@
 
 <script>
 import Checkerboard from '@/components/boardComponents/Checkerboard'
+import api from '../../api.js'
 
-var startingMatchButton = document.getElementsByClassName("accept")[0]
-var onlineModal = document.getElementsByClassName("online-modal")[0]
-//import Chat from '@/components/boardComponents/Chat'
-//import api from '../../api.js'
+var starTextBox = document.getElementsByClassName("input-star")
+var starTextBox2 = document.getElementsByClassName("input-star2")
 
 export default {
   name: 'Home',
@@ -80,8 +94,20 @@ export default {
   },
   methods: {
     startingMatch() {
-      startingMatchButton.setAttribute("class", "accept btn loading")
-      onlineModal.setAttribute("class", "online-modal m")
+      console.log(starTextBox[0].value)
+      api.build_lobby(this.$socket, "Nome lobby", starTextBox[0].value)
+    },
+    lobbyOpened() {
+      console.log(starTextBox2[0].value)
+      api.get_lobbies(this.$socket, starTextBox2[0].value)
+    }
+  },
+  sockets: {
+    lobbies(res) {
+      console.log(res)
+    },
+    token_error(error) {
+      console.log(error)
     }
   }
 }

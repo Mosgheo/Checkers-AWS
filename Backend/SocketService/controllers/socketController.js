@@ -88,7 +88,7 @@ function join_lobby(lobby_id,client,player){
 
 function get_lobbies(user_stars){
   let data = []
-  return lobbies.forEach((id,lobby) => {
+  return lobbies.forEach((lobby, id) => {
     if(lobby.isFree() && lobby.max_stars >= user_stars){
       data.push({
         lobby_id : id,
@@ -214,7 +214,7 @@ io.on('connection', async client => {
     if(user[0]){
       console.log("a user built a lobby")
       build_lobby(lobby_name,client,max_stars)
-      const {data: lobbies} = get_lobbies()
+      const lobbies = get_lobbies()
       client.emit("lobbies",lobbies)
     }else{
       client.emit("token_error",user[1])
@@ -225,7 +225,7 @@ io.on('connection', async client => {
     const user = await user_authenticated(token)
     if(user[0]){
       console.log("a user requested lobbies")
-      const {data: lobbies} = get_lobbies(stars)
+      const lobbies = get_lobbies(stars)
       client.emit("lobbies",lobbies)
     }else{
       client.emit("token_error",user[1])
