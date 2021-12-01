@@ -55,6 +55,8 @@ exports.signup = async function(req,res){
 	const username = req.body.username;
 	const email = req.body.email;
 	const password = req.body.password;
+    const first_name = req.body.first_name;
+    const last_name = req.body.last_name;
     console.log(email)
     if(!email_validator.validate(email)){
         console.log("email not valid")
@@ -75,14 +77,16 @@ exports.signup = async function(req,res){
             console.log("Signign up a new user")
              new_user = new User({ 
                 username: username,
-                mail: email,
-                password: hash_psw,
-                salt: salt,
                 stars: 0,
-                nationality: "",
+                first_name: first_name,
+                last_name: last_name,
                 wins: 0,
                 losses: 0,
                 avatar: "",
+                mail: email,
+                password: hash_psw,
+                salt: salt,
+                nationality: "",
             })
             await new_user.save()
             if(new_user === null){
@@ -102,13 +106,13 @@ exports.login = async function(req,res){
     if(email.trim() === "" || password.trim() === ""){
         res.status(400).send({message: "Login parameters can't have empty values"})
     }else{
-        const registered_user = await User.findOne({email:email})
+        const registered_user = await User.findOne({mail:email})
         if(registered_user){
             const alleged_password = salt_function(password,registered_user.salt)
             if(alleged_password == registered_user.password){
                 console.log(email+" just logged in")
                 //Will those two lines work?
-                const token = await jwt.sign({user:{email:registered_user.email,username:registered_user.username}},jwt_secret,{expiresIn: '1 day'})
+                const token = await jwt.sign({user:{email:registered_user.mail,username:registered_user.username}},jwt_secret,{expiresIn: '1 day'})
                 console.log("HELLO " + email)
                 res.status(200).json({
                     token: token, 
@@ -127,7 +131,7 @@ exports.login = async function(req,res){
                 res.status(400).send({message:"Authentication failed, wrong email and/or password"})
             }
         }else{
-            console.log(email +"failed authentication")
+            console.log(email +"this email is not registered")
             res.status(400).send({message:"Authentication failed, wrong email and/or password"})
         }
     }

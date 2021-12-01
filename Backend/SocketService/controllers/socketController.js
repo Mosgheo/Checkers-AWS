@@ -188,13 +188,15 @@ io.on('connection', async client => {
     }
   })
 
-  client.on('signup',async(email,password,username)=>{
+  client.on('signup',async(mail,password,username,first_name,last_name)=>{
     console.log("a user is trying to sign up")
     try{
       let {data:new_user} = await axios.post(user_service+"/signup",{
-          email:email,
-          password:password,
-          username:username
+          first_name: first_name,
+          last_name: last_name,
+          email: mail,
+          password: password,
+          username: username
         })
         client.emit('signup_success',new_user)
     }catch(err){
