@@ -74,10 +74,10 @@ module.exports = class Lobby{
     hasPlayer(player){
         return this.players.find(p => p === player)
     }
-    get isFree(){
+    isFree(){
         return this.players.length == 1
     }
-    get players(index = -1){
+    getPlayers(index = -1){
         if(index>=0){
             return this.players[index]
         }else{
@@ -85,7 +85,7 @@ module.exports = class Lobby{
         }
     }
 
-    get tied(){
+    tie(){
         return this.tie_requests.length >= 2
     }
 }
