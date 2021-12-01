@@ -1,5 +1,6 @@
-const Draughts = require('draughts').draughts
+var draughts = require('./draughts').draughts;
 const Game = require('../models/gameModel')
+
 
 var games = new Map(); // game_id -> game
      /*      game: {
@@ -114,8 +115,8 @@ exports.leaveGame = async function(req,res){
     }
 
 }
-}
-exports.deleteGame = function(req,res){
+
+exports.deleteGame = async function(req,res){
     const game_id = req.body.game_id
     const forfeiter = req.body.forfeiter
     const winner = req.body.winner
@@ -188,6 +189,7 @@ exports.create_game = function(req,res){
         games.set(game_id,game)
         res.status(200).json(parseFEN(game_id))
     }catch(err){
+        console.log(err)
         res.status(500).send({message:"Something went wrong while creating a game"})
     }
 }

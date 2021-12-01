@@ -10,10 +10,13 @@ dotenv.config()
 const app = express()
 app.use(cors())
 // Connect to DB
-const db = "mongodb+srv://admin:eCpqkm1rBQgO3E8U@cluster0.kj7xb.mongodb.net/checkersdb?retryWrites=true&w=majority"
+const db = "mongodb+srv://admin:OrgjZ61qqQ0JuKZh@cluster0.kj7xb.mongodb.net/checkersdb?retryWrites=true&w=majority"
 mongoose.connect(db, {useNewUrlParser: true, 
                     useUnifiedTopology: true})
 
+const connection = mongoose.connection
+connection.on("error", console.error.bind(console, "connection error: ")); 
+connection.once("open", function () {console.log("Connected successfully to MongoDB");});
 // Body Parser
 app.use(express.json());
 

@@ -10,8 +10,11 @@ module.exports = class Lobby{
     }
     
      addPlayer(id){
-        if (this.players.size < 2 && !this.players[0] === id){
-            return this.players.push(id)
+        if (this.players.length >= 2 && this.players[0] === id){
+             return false
+        }else{
+            this.players.push(id)
+            return true
         }
     }
      removePlayer(id){

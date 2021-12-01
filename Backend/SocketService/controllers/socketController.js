@@ -85,14 +85,19 @@ function delete_lobby(game_id){
 
 function join_lobby(lobby_id,client,player){
   if(lobbies.has(lobby_id)){
+    console.log("lobby has id")
     const to_join = lobbies.get(lobby_id)
     if(to_join.isFree()){
+      console.log("lobby is free")
+      console.log(to_join.addPlayer(player))
+        client.join(lobby_id)
         return to_join.addPlayer(player)
-        && client.join(lobby_id)
     }else{
+      console.log("lobby not free")
       return false
     }
   }else{
+    console.log("lobby not has id")
       return false
     }
 }
@@ -305,15 +310,16 @@ io.on('connection', async client => {
           })*/
           const host = lobbies.get(lobby_id).getPlayers()[0]
           if(join_lobby(lobby_id,client,opponent)){
+            console.log("join ok")
             try{
               let game = []
-              const {data:host_specs} = await axios.post(user_service+"/profile/getProfile",
+              const {data:host_specs} = await axios.get(user_service+"/profile/getProfile",
               {params:
                 {
                   mail:host
                 }
               })
-              const {data:opponent_specs} = await axios.post(user_service+"/profile/getProfile",
+              const {data:opponent_specs} = await axios.get(user_service+"/profile/getProfile",
               {params:
                 {
                   mail:opponent
@@ -323,25 +329,33 @@ io.on('connection', async client => {
               game.push(host_specs)
               game.push(opponent_specs)
               game.push(board)
+              console.log("GAME "+game)
               io.to(lobby_id).emit("game_started",board)
               turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
             }catch(err){
+              console.log(err)
               if(err.response.status == 500){
                 client.emit("server_error",err.response.data)
+                console.log("WELA 500")
               }else if(err.response.status == 404){
+                console.log("WELA 404")
                 client.emit("permit_error",err.response.data)
               }
             }
           }else{
+            console.log("error in join lobby")
             client.emit("server")
           }
         }else{
+          console.log("error in join lobby2")
           client.emit("server_error")
         }
       }else{
+        console.log("error in join lobby3")
         client.emit("permit_error")
       }
     }else{
+      console.log("error in join lobby4")
       client.emit("token_error",user[1])
     }
   })

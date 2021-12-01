@@ -10,4 +10,4 @@ const gameSchema = new mongoose.Schema({
     winner:String,
     loser:String
 })
-module.exports = mongoose.model("Game", gameSchema)
+module.exports = mongoose.model("games", gameSchema)
