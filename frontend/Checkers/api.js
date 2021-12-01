@@ -14,8 +14,8 @@ var api = {
         }
         console.log("ERROR" + error)
     },
-    signup(socket,email,password,username){
-        socket.emit("signup",email,password,username)
+    signup(socket,email,password,username,first_name,last_name){
+        socket.emit("signup",email,password,username,first_name,last_name)
     },
     login(socket,email,password){
         socket.emit("login",email,password)

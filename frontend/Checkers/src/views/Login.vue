@@ -5,16 +5,16 @@
 
                 <div class="block">
                     <label class="label">
-                        <span class="label-text mt-2">Nome utente</span>
+                        <span class="label-text mt-2">E-mail</span>
                     </label> 
-                    <input type="text" placeholder="Inserisci nome utente" class="input-username input input-bordered w-13">
+                    <input type="text" placeholder="Inserisci e-mail" class="mail input input-bordered w-13">
                 </div>
 
                 <div class="block">
                     <label class="label">
                         <span class="label-text mt-2">Password</span>
                     </label> 
-                    <input type="password" placeholder="Inserisci la password" class="input-password input input-bordered w-13">
+                    <input type="password" placeholder="Inserisci la password" class="password input input-bordered w-13">
                 </div>
 
                 <div class="object-center space-x-2 mt-10">
@@ -38,28 +38,17 @@
 import api from '@/../api.js'
 import store from '@/store'
 
-var username = document.getElementsByClassName("input-username")
-var password = document.getElementsByClassName("input-password")
-
 export default {
     name: "Login",
-    data() {
-        console.log(username)
-        console.log(password)
-        return {
-            email:"manuele.pasini@gmail.com",
-            password:"bmzw76ae6JF*"
-        }
-    },
     methods: {
         login:function() {
-            console.log(username[0].value)
-            console.log("LOGGING IN ")
-            if(this.email == "" && this.password ==""){
+            var mail = document.getElementsByClassName("mail")[0].value
+            var password = document.getElementsByClassName("password")[0].value
+            console.log("LOGGING IN " + mail + " " + password)
+            if( mail === "" && password === "") {
                 console.log("something wrong")
-            }else{
-                console.log("PSW: "+this.password)
-                api.login(this.$socket,this.email,this.password)
+            } else {
+                api.login(this.$socket,mail,password)
             }
         }
     },
