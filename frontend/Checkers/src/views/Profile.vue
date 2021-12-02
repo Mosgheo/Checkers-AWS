@@ -11,7 +11,7 @@
             </div>
           </div>
         </div> 
-        <p class="text-left p-2">Nome Cognome</p> 
+        <p v-bind:innerText="getFirstLastName" class="text-left p-2">Nome Cognome</p> 
       </div>
     </div>
     <div class="profile-info rounded-xl bordered mt-10">
@@ -46,6 +46,7 @@ export default {
   },
   setup() {
     user = store.getters.user
+    console.log(user)
   },
   computed: {
     getUsername() {
@@ -53,6 +54,12 @@ export default {
         return "" + user.username
       }
       return "Username"
+    },
+    getFirstLastName() {
+      if(user.username !== "") {
+        return "" + user.first_name + " " + user.last_name
+      }
+      return "Nome Cognome"
     }
   },
   /*data() {

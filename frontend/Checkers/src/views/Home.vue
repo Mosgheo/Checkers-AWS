@@ -13,13 +13,19 @@
       <input type="checkbox" id="create-lobby-modal" class="modal-toggle"> 
       <div class="modal">
         <div class="modal-box">
-          <label class="mt-3">
-            <span>Indica il punteggio massimo che deve avere un giocatore</span>
-          </label> 
-          <input type="text" placeholder="Max Points" class="input-star input input-bordered mt-2 w-13">
+          <div class="form-control items-center">
+            <label class="mt-3">
+              <span>Dai un nome alla tua lobby</span>
+            </label> 
+            <input type="text" placeholder="Name" class="input-name input input-bordered mt-2 w-min">
+            <label class="mt-3">
+              <span>Indica il punteggio massimo che deve avere un giocatore</span>
+            </label> 
+            <input type="text" placeholder="Max Points" class="input-star input input-bordered mt-2 w-min">
+          </div>
           <div class="flex flex-row modal-action">
-            <router-link to="/inGame"> 
-              <label for="create-lobby-modal" @click="startingMatch" class="accept btn">Avvia creazione</label> 
+            <router-link to="/inGame" for="create-lobby-modal" @click.prevent="startingMatch" class="accept btn"> 
+              Avvia creazione
             </router-link>
             <label for="create-lobby-modal" class="btn">Annulla</label>
           </div>
@@ -30,14 +36,16 @@
       <input type="checkbox" id="join-lobby-modal" class="modal-toggle"> 
       <div class="modal">
         <div class="modal-box items-center">
-          <label class="mt-3">
-            <span>Indica il punteggio massimo delle lobby</span>
-          </label> 
-          <input type="text" placeholder="Max Points" class="input-star2 input input-bordered mt-2 w-13">
+          <div class="form-control items-center">
+            <label class="mt-3">
+              <span>Indica il punteggio massimo delle lobby</span>
+            </label> 
+            <input type="text" placeholder="Max Points" class="input-star2 input input-bordered mt-2 w-min">
+          </div>
           <div class="flex flex-row modal-action">
-            <!-- <router-link to="/inGame"> -->
-              <label for="join-lobby-modal" @click="lobbyOpened" class="accept btn">Avvia creazione</label> 
-            <!-- </router-link> -->
+            <router-link to="/lobbies"  @click.prevent="lobbyOpened" for="join-lobby-modal" class="accept btn">
+              Cerca lobby
+            </router-link>
             <label for="join-lobby-modal" class="btn">Annulla</label>
           </div>
         </div>
@@ -46,7 +54,7 @@
       <label for="cpu-modal" id="btn-menu" class="btn">Computer</label>
       <input type="checkbox" id="cpu-modal" class="modal-toggle"> 
       <div class="modal">
-        <div class="modal-box"> 
+        <div class="modal-box">
           <h3>Sfida il Computer alla difficoltà che preferisci</h3>
           <select class="select select-bordered mt-2 select-lg w-full max-w-xs">
             <option selected="selected">Facile</option> 
@@ -66,7 +74,7 @@
         <div class="modal-box"> 
           <h3>Inserisci il nickname del tuo amico</h3>
           <div class="form-control items-center mt-2">
-            <input type="text" class="input input-bordered w-min">
+            <input type="text" placeholder="Username" class="input input-bordered w-min">
           </div>
           <div class="modal-action">
             <router-link to="/inGame"> <label for="friends-modal" class="btn">Invita</label> </router-link>
@@ -84,6 +92,7 @@
 import Checkerboard from '@/components/boardComponents/Checkerboard'
 import api from '../../api.js'
 
+var lobbyName = document.getElementsByClassName("input-name")
 var starTextBox = document.getElementsByClassName("input-star")
 var starTextBox2 = document.getElementsByClassName("input-star2")
 
@@ -94,11 +103,10 @@ export default {
   },
   methods: {
     startingMatch() {
-      console.log(starTextBox[0].value)
-      api.build_lobby(this.$socket, "Nome lobby", starTextBox[0].value)
+      api.build_lobby(this.$socket, lobbyName[0].value, starTextBox[0].value)
     },
     lobbyOpened() {
-      console.log(starTextBox2[0].value)
+      console.log("ciao")
       api.get_lobbies(this.$socket, starTextBox2[0].value)
     }
   },
@@ -107,6 +115,9 @@ export default {
       console.log(res)
     },
     token_error(error) {
+      console.log(error)
+    },
+    permit_error(error) {
       console.log(error)
     }
   }

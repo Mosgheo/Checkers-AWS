@@ -6,7 +6,6 @@ var appInstanceGlobalVar = null;
 export default class Piece {
 
 	constructor(options) {
-		console.log("Creating piece")
 		appInstanceGlobalVar = app.config.globalProperties
 		options        = options || {};
 		this.player_id = options.player_id;

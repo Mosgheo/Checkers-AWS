@@ -6,6 +6,7 @@ import Domande from "@/views/Domande";
 import Login from "@/views/Login";
 import Signup from "@/views/Signup";
 import Game from "@/views/Game";
+import Lobbies from "@/views/Lobbies";
 
 const routes = [
   {
@@ -42,6 +43,12 @@ const routes = [
     path: '/inGame',
     name: 'Game',
     component: Game
+  },
+  {
+    path: '/lobbies',
+    name: 'Lobbies',
+    component: Lobbies,
+    props: true
   }
 ]
 

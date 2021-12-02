@@ -20,11 +20,9 @@ export default {
 	// Add players' pieces to each player and to the board
 	addPieces(){
 		
-		console.log("add Pieces")
 		const self = this;
 
 		// Add pieces to each player
-		console.log(""+this.board.size)
 		const number_of_rows = this.board.size / 2 - 1; // Always 2 lines in the middle
 		for(let y = 0; y < number_of_rows; y++) {
 			for(let x = 1 - y%2; x < this.board.size; x += 2) {
