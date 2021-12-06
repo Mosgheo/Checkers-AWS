@@ -108,6 +108,10 @@ export default {
     lobbyOpened() {
       console.log("ciao")
       api.get_lobbies(this.$socket, starTextBox2[0].value)
+    },
+    joinLobby(){
+      console.log("joining_lobby")
+      api.join_lobby(this.$socket,1)
     }
   },
   sockets: {
@@ -116,6 +120,9 @@ export default {
     },
     token_error(error) {
       console.log(error)
+    },
+    game_started(res){
+      console.log("I WON "+res)
     },
     permit_error(error) {
       console.log(error)

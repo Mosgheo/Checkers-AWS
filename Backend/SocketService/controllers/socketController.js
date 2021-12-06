@@ -2,12 +2,8 @@ const BiMap = require('bidirectional-map')
 const { default: axios } = require('axios');
 const socket = require("socket.io")
 require("dotenv").config()
-
 const Lobby = require('../models/lobby');
-const { listeners } = require('../../UserService/models/userModel');
-
-
-
+const Draughts = require('../../GameService/controller/draughts')
 
 //TURN HANDLING 
 const online_users = new BiMap()  //{  client_id <-> user_id  }
@@ -30,6 +26,7 @@ exports.socket = async function(server) {
     })
 
 /**
+ * +
  * Missing:
  * */
  
@@ -102,17 +99,39 @@ function join_lobby(lobby_id,client,player){
     }
 }
 
-function get_lobbies(user_stars){
+async function getUsername(mail){
+  try{
+    console.log(mail)
+    const {data:profile} = await axios.get(user_service+"/profile/getProfile", 
+    {params:
+      {
+        mail:mail
+      }
+    })
+    return profile.username
+  }catch(err){
+    console.log("ERROR WHILE RETRIEVING USERNAME")
+    return null
+  }
+}
+
+async function get_lobbies(user_stars){
   let data = []
   const tmp = lobbies.entries()
   for(const [lobby_id,lobby] of tmp){
+    console.log(lobby)
     if(lobby.isFree() && lobby.getStars() >= user_stars){
-      data.push({
-        lobby_id : lobby_id,
-        name : lobby.getName(),
-        max_stars : lobby.getStars(),
-        host : lobby.getPlayers(0)
-      })
+      const username = await getUsername(lobby.getPlayers(0))
+      if(username === null){
+        console.log("something wrong with username")
+      }else{
+        data.push({
+          lobby_id : lobby_id,
+          name : lobby.getName(),
+          max_stars : lobby.getStars(),
+          host : username
+        })
+      }
     }
   }
   return data
@@ -134,18 +153,22 @@ function invitation_timeout(inv_id){
   io.to(inv_id).emit("invitation_timeout")
 }
 
-function turn_timeout(lobby_id){
-  clearTimeout(turn_timeouts.get(game.id));
-  change_turn(lobby_id)
-}
+/*function turn_timeout(game_id){
+  clearTimeout(turn_timeouts.get(game_id));
+
+}*/
 
 function change_turn(lobby_id){
+  console.log("Changint turns for game "+lobby_id)
   let lobby = lobbies.get(lobby_id)
   let lobbyPlayers = lobby.getPlayers()
   let late_player = lobby.turn
   let next_player = lobbyPlayers.splice(lobbyPlayers.indexOf(late_player),1)
   lobbies.get(lobby_id).turn = next_player 
-  turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
+  turn_timeouts.set(lobby_id, setTimeout(function () {
+    change_turn(lobby_id)
+    console.log("TURN TIMEOUT FOR GAME " + lobby_id)
+  },process.env.TIMEOUT))
   io.to(lobby_id).emit("turn_change",{next_player:next_player})
 }
 
@@ -176,7 +199,6 @@ io.on('connection', async client => {
   console.log("a user connected")
   //A new anon user just connected, push it to online_players
   online_users.set(client.id,get_id())
-
   client.on('disconnect', async()=>{
     console.log('A player disconnected');
     //Remove player from active players
@@ -267,7 +289,7 @@ io.on('connection', async client => {
         console.log("a user built a lobby")
         const new_lobby_id = build_lobby(lobby_name,client,max_stars)
         //FIX THIS PARAMTER IN GET LOBBIES
-        const lobbies = get_lobbies(0)
+        const lobbies = await get_lobbies(0)
         client.emit("lobbies",{
           lobby_id:new_lobby_id,
           lobbies:lobbies
@@ -287,8 +309,8 @@ io.on('connection', async client => {
       const user = await user_authenticated(token)
       if(user[0]){
         console.log("a user requested lobbies")
-        const lobbies = get_lobbies(stars)
-        console.log("LOBBIES "+lobbies)
+        const lobbies = await get_lobbies(stars)
+        console.log("emitting lobbies")
         client.emit("lobbies",lobbies)
       }else{
         client.emit("token_error",user[1])
@@ -297,6 +319,7 @@ io.on('connection', async client => {
       client.emit("permit_error")
     }
   })
+
   client.on('join_lobby', async(lobby_id,token) => {
     const user = await user_authenticated(token)
     if(user[0]){
@@ -331,7 +354,11 @@ io.on('connection', async client => {
               game.push(board)
               console.log("GAME "+game)
               io.to(lobby_id).emit("game_started",board)
-              turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
+              turn_timeouts.set(lobby_id, setTimeout(function(){
+                change_turn(lobby_id)
+                console.log("TURN TIMEOUT FOR GAME " + lobby_id)
+              },process.env.TIMEOUT))
+              console.log("Timeout set for game" + lobby_id)
             }catch(err){
               console.log(err)
               if(err.response.status == 500){
@@ -419,7 +446,10 @@ io.on('connection', async client => {
           try{
             const {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:opp_mail,opponent:user_mail})
             io.to(lobby_id).emit("game_started",board)
-            turn_timeouts.set(lobby_id, setTimeout(turn_timeout(lobby_id),process.env.TIMEOUT))
+            turn_timeouts.set(lobby_id, setTimeout(function(){
+              change_turn(lobby_id)
+              console.log("TURN TIMEOUT FOR GAME " + lobby_id)
+            },process.env.TIMEOUT))
           }catch(err){
             if(err.response.status == 500){
               client.emit("server_error",err.response.data)
@@ -601,7 +631,12 @@ io.on('connection', async client => {
     if(user[0]){
       let user_id = online_users.get(client.id)
       try{
-        let user_profile = await axios.get(user_service+"/profile/getProfile",{user_id:user_id})
+        let user_profile = await axios.get(user_service+"/profile/getProfile",              
+        {params:
+          {
+            mail:user_id
+          }
+        })
         if(!user_profile === null){
           client.emit("permit_error",user_profile)
         }else{

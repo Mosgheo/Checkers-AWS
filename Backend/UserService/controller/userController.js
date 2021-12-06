@@ -125,7 +125,7 @@ exports.login = async function(req,res){
                         wins:registered_user.wins,
                         losses:registered_user.losses,
                         avatar:registered_user.avatar
-                    }})
+                }})
             }else{
                 console.log(email+" failed authentication")
                 res.status(400).send({message:"Authentication failed, wrong email and/or password"})
@@ -177,12 +177,13 @@ exports.verify_token = async function(req,res){
 exports.getProfile = async function(req,res){
     //WILL THIS QUERY WORK?
     const mail = req.query.mail
-    console.log(mail)
+    console.log("I'm in get profile " +mail)
     try {
-        const data = await User.find({mail:mail}).lean()
+        const data = await User.findOne({mail:mail}).lean()
         if(data === null){
             res.status(404).json({error: "Cannot find any player with such ID"})
         }
+        console.log("profile sent")
         res.json({
             username: data.username,
             stars: data.stars,

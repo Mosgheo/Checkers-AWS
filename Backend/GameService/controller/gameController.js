@@ -1,6 +1,6 @@
-var draughts = require('./draughts').draughts;
-const Game = require('../models/gameModel')
 
+const Game = require('../models/gameModel')
+const Draughts = require('./draughts')
 
 var games = new Map(); // game_id -> game
      /*      game: {
@@ -217,9 +217,10 @@ exports.restart_old_game = async function(req,res){
 */
 function parseFEN(game_id) {
     let data = []
-    var game = games.get(game_id).draughts
-    var last_white_pieces = game.last_white_pieces
-    var last_black_pieces = game.last_black_pieces
+    var match = games.get(game_id)
+    var game = match.draughts
+    const last_white_pieces = match.last_white_pieces
+    const last_black_pieces = match.last_black_pieces
     let fen = game.fen()
     var fields = fen.split(':')
     data.push(fields[0])
@@ -238,6 +239,7 @@ function parseFEN(game_id) {
                 last_black_pieces.set(piece,moves)
             }
         }else{
+            let moves = game.getLegalMoves(piece)
             black_pieces_with_moves.set(piece,moves)
             last_black_pieces.set(piece,moves)
         }
@@ -252,6 +254,7 @@ function parseFEN(game_id) {
                 last_white_pieces.set(piece,moves)
             }
         }else{
+            let moves = game.getLegalMoves(piece)
             white_pieces_with_moves.set(piece,moves)
             last_white_pieces.set(piece,moves)
         }
