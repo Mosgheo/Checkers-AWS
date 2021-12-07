@@ -14,7 +14,7 @@
           <td :textContent="lobby.host"></td> 
           <td :textContent="lobby.name"></td> 
           <td :textContent="lobby.max_stars"></td>
-          <td><button class="btn">Join Lobby</button></td>
+          <td><router-link class="join-lobby btn" to="/inGame" @click="joinLobby(lobby.lobby_id)">Join Lobby</router-link></td>
         </tr>
       </tbody>
     </table>
@@ -22,11 +22,23 @@
 </template>
 
 <script>
+import api from '../../api.js'
+
 export default {
   name: "Lobbies",
   data() {
     return {
-      res: []
+      res: [],
+      join: null
+    }
+  },
+  methods: {
+    joinLobby(id) {
+      if(this.res.length > 0) {
+        console.log("There is some lobbies!!!!")
+        console.log(id)
+        api.join_lobby(this.$socket, id)
+      }
     }
   },
   sockets: {
