@@ -122,7 +122,7 @@ export default {
       console.log(error)
     },
     game_started(res){
-      console.log("I WON "+res)
+      console.log("Game started "+res)
     },
     permit_error(error) {
       console.log(error)
