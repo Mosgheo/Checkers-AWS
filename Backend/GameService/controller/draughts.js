@@ -581,6 +581,9 @@ module.exports = class Draughts{
           moveNumber: this.moveNumber
         })
     }
+    history(){
+      return this.getHistory()
+    }
     isInteger (int) {
         var regex = /^\d+$/
         if (regex.test(int)) {

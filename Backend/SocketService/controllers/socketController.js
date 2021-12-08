@@ -139,7 +139,7 @@ async function get_lobbies(user_stars){
   /*lobbies.forEach((lobby_id,lobby)=>{
     //SHould I just return the whole lobby item?
     if(lobby.isFree && lobby.max_stars >= user_stars){
-      var tmpLobby = new Object();
+      let tmpLobby = new Object();
       tmpLobby.id = lobby_id
       tmpLobby.name = lobby.name
       tmpLobby.max_stars = lobby.max_stars
@@ -174,23 +174,20 @@ function change_turn(lobby_id){
 
 async function updatePoints(player1,points1,player2,points2){
   try{
-    let updatedUser = await axios.put(user_service+"/profile/updatePoints",
-    {
-      user_id : player1,
-      stars: points1
-    })
-    if(updatedUser){
-      updatedUser = await axios.put(user_service+"/profile/updatePoints",
+      const {data:updated_one} = await axios.put(user_service+"/profile/updatePoints",
       {
-        user_id : player2,
-        stars: points2
+        user_id : player1,
+        stars: points1
       })
-    }
-    return updatedUser
+      const{data:updated_two} = await axios.put(user_service+"/profile/updatePoints",
+      {
+          user_id : player2,
+          stars: points2
+      })
+     return [updated_one,updated_two]
     }catch(err){
-      if(err.response.status == 500){
-        io.to(lobby_id).emit("server_error",error.response.data)
-      }
+      console.log(err)
+      return []
     }
 }
 
@@ -205,28 +202,46 @@ io.on('connection', async client => {
 
     const player = online_users.get(client.id)
     if(!isInLobby(player)){
+      console.log(player + "just disconnected but wasn't in lobby")
       online_users.delete(client.id)
     }else{
       const lobby = Array.from(lobbies.values()).filter(lobby => lobby.hasPlayer(player))[0]
       let lobby_id = lobbies.getKey(lobby)
+      console.log(player + "from lobby" + lobby_id + " is  trying to disconnect")
       if(lobby.isFree()){
+        console.log("lobby "+lobby_id+ "is free")
         console.log(online_users.get(client.id)+" just disconnected and his lobby has been deleted")
         lobbies.delete(lobby_id)
         online_users.delete(client.id)
       }else{
+        console.log("lobby"+lobby_id +"isn't free")
         try{
+          let opponent = ""
           //Player disconnecting is the host
-          if(lobby.getPlayers(0) == online_users.get(client.id)){
+          if(lobby.getPlayers(0) == player){
             const {data:game_end} = await axios.post(game_service+"/game/deleteGame",{game_id:lobby_id,winner:lobby.getPlayers(1),forfeiter:lobby.getPlayers(0)})
+            opponent = lobby.getPlayers(1)
             io.to(lobby_id).emit("player_left",game_end)
+            console.log(player +" is the host, deleting game")
           }
           else{
+            console.log(player +" isn't the host, deleting game")
             const {data:game_end} = await axios.post(game_service+"/game/deleteGame",{game_id:lobby_id,winner:lobby.getPlayers(0),forfeiter:lobby.getPlayers(1)})
-            io.to(lobby_id)("player_left",game_end)
+            io.to(lobby_id).emit("player_left",game_end)
+            opponent = lobby.getPlayers(0)
+          }
+          const {data:updated_users} = await updatePoints(opponent,process.env.WIN_STARS,player,process.env.LOSS_STARS)
+          if(updated_users){
+            io.to(online_users.getKey(opponent)).emit("user_update",updated_users[0])
+          }else{
+            io.to(lobby_id).emit("server_error",{message:"Something went wrong while updating points"})
           }
           lobbies.deleteValue(lobby)
           online_users.delete(client.id)
+          clearTimeout(turn_timeouts.get(lobby_id))
+          turn_timeouts.delete(lobby_id)
         }catch(err){
+          console.log("something bad occured "+err)
           if(err.response.status == 500){
             io.to(lobby_id).emit("server_error",err.response.data)
           }
@@ -488,7 +503,7 @@ io.on('connection', async client => {
       console.log("a user moved a piece")  
       if(online_users.has(client.id) && lobbies.has(lobby_id)){
         let player = online_users.get(client.id)
-        var lobby = lobbies.get(lobby_id)
+        let lobby = lobbies.get(lobby_id)
         //is == ok down here? ->
         if(lobby.hasPlayer(player) && lobby.turn == player.turn){
           try{
@@ -497,10 +512,18 @@ io.on('connection', async client => {
               io.to(lobby_id).emit("update_board",data.board)
               change_turn(lobby_id)
             }else{
-              if(updatePoints(data.winner,process.env.WIN_STARS,data.loser,process.env.LOSS_STARS)){
+              try{
+                await updatePoints(data.winner,process.env.WIN_STARS,data.loser,process.env.LOSS_STARS)
                 io.to(lobby_id).emit("game_ended",data)
                 delete_lobby(lobby_id)
+                clearTimeout(turn_timeouts.get(lobby_id))
+                turn_timeouts.delete(lobby_id)
+              }catch(err){
+                if(err.response.status == 500){
+                  client.emit("server_error",err.response.data)
+                }
               }
+
             }
           }catch(err){
             if(err.response.status == 400){
@@ -535,7 +558,7 @@ io.on('connection', async client => {
         let lobby = lobbies.get(lobby_id)
             //will those two lines below work??
         let winner = lobby.getPlayers().splice(lobby.indexOf(player),1)
-        io.sockets.get(online_users.getKey(winner)).emit("opponent_left",result[1])
+        io.to(online_users.getKey(winner)).emit("opponent_left",result[1])
       }else{
         client.emit("permit_error")
       }

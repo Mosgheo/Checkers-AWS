@@ -2,11 +2,11 @@ const User = require('../models/userModel')
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const email_validator = require("email-validator");
-var passwordValidator = require('password-validator');
+let passwordValidator = require('password-validator');
 const fs = require('fs');
 /**
  *   refresh_token(succHandler, errorHandler) {
-        var tokenData = JSON.parse(atob(localStorage.token.split('.')[1]));
+        let tokenData = JSON.parse(atob(localStorage.token.split('.')[1]));
         const authHeader = 'bearer '.concat(localStorage.token);
         axiosInstance.get("/users/" + tokenData.user._id + "/token", { headers: { Authorization: authHeader } })
             .then(response => {
@@ -278,10 +278,19 @@ exports.getLeaderboard = async function(_,res){
 exports.updatePoints = async function(req,res){
     const user_id = req.body.user_id
     const stars = req.body.stars
-    const updatedUser = await User.findOneAndUpdate({"user_id":user_id},{$inc: {stars:stars}})
-    if(updatedUser){
-        res.status(200).json(updatedUser)
-    }else{
+    console.log(stars)
+    try{
+        const user = await User.findOneAndUpdate({"user_id":user_id},{$inc: {stars:stars}})
+        console.log("user updated")
+        res.status(200).json({
+            username: user.username,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            mail: user.mail,
+            stars:user.stars
+        })
+    }catch(err){
+        console.log(err)
         res.status(500).send({message:"Something went wrong while updating your points"})
     }
 }

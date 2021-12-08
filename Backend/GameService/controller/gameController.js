@@ -2,7 +2,7 @@
 const Game = require('../models/gameModel')
 const Draughts = require('./draughts')
 
-var games = new Map(); // game_id -> game
+let games = new Map(); // game_id -> game
      /*      game: {
                 white: "",
                 black: "",
@@ -25,7 +25,7 @@ var games = new Map(); // game_id -> game
 
 function winCheck(game_id){
     let gameInstance = games.get(game_id)
-    var game = gameInstance.draughts
+    let game = gameInstance.draughts
     if(game.fen.split(':')[1].split[','].length <= 1){
         game.winner = gameInstance.black
         game.loser = gameInstance.white
@@ -55,34 +55,42 @@ async function gameEnd(game_id,tie,winner,loser){
     let game = games.get(game_id)
     game.winner = winner
     game.loser = loser
-    if(!tie){
-        await new Game({
-            fen: game.draughts.fen(),
-            history:getHistory(game_id),
-            winner: winner,
-            loser: loser 
-        }).save()
-        
-        games.delete(game_id)
-
-        //last_black_pieces.delete(game_id)
-        //last_white_pieces.delete(game_id)
-        //return updatePoints(winner,process.env.WIN_STARS,loser,process.env.LOSS_STARS)
-    }else{
-        await new Game({
-            fen: game.draughts.fen(),
-            history:getHistory(game_id),
-            winner: "Game has been settled with a tie.",
-            loser: game.loser
-        }).save()
-        games.delete(game_id)
-        //last_black_pieces.delete(game_id)
-        //last_white_pieces.delete(game_id)
-        //return updatePoints(game.white,process.env.TIE_STARS,game.black,process.env.TIE_STARS)
+    try{
+        if(!tie){
+            const match = new Game({
+                fen: game.draughts.fen(),
+                history:getHistory(game_id),
+                winner: winner,
+                loser: loser 
+            })
+            await match.save()
+            games.delete(game_id)
+    
+            //last_black_pieces.delete(game_id)
+            //last_white_pieces.delete(game_id)
+            //return updatePoints(winner,process.env.WIN_STARS,loser,process.env.LOSS_STARS)
+        }else{
+            const match = new Game({
+                fen: game.draughts.fen(),
+                history:getHistory(game_id),
+                winner: "Game has been settled with a tie.",
+                loser: game.loser
+            })
+            await match.save()
+            games.delete(game_id)
+            //last_black_pieces.delete(game_id)
+            //last_white_pieces.delete(game_id)
+            //return updatePoints(game.white,process.env.TIE_STARS,game.black,process.env.TIE_STARS)
+        }
+        return true
+    }catch(err){
+        console.log(err)
+        return false
     }
+
 }
 function getHistory(game_id){
-    games.get(game_id).draughts.history({verbose:true});
+    games.get(game_id).draughts.getHistory({verbose:true});
 }
 exports.tieGame = function(req,res){
     //WILL "_" BELOW WORK?
@@ -120,18 +128,19 @@ exports.deleteGame = async function(req,res){
     const game_id = req.body.game_id
     const forfeiter = req.body.forfeiter
     const winner = req.body.winner
-    await gameEnd(game_id,false,winner,forfeiter).then(
+    const game_ended = await gameEnd(game_id,false,winner,forfeiter)
+    if(game_ended){
         res.status(200).send({message: forfeiter +"has disconnected from the game,"+winner+" has officially won the game"})
-    ).catch(
+    }else{
         res.status(500).send({message: "Something went wrong while closing the game."})
-    )
+    }
 }
 exports.movePiece = function(req,res){
     let game_id = req.body.game_id
     if(!games.has(game_id)){
         res.status(400).send({message: "Can't find such game"})
     }else{
-        var game = games.get(game_id).draughts
+        let game = games.get(game_id).draughts
         if(game.move(req.body.from+"-"+req.body.to) != null){
             let data = parseFEN(game_id)
             if(game.game_over()){
@@ -175,7 +184,7 @@ exports.create_game = function(req,res){
         let game_id = req.body.game_id
         let host_id = req.body.host_id
         let opponent = req.body.opponent
-        var game = new Object();
+        let game = new Object();
         game.white = host_id
         game.black = opponent
         game.draughts = new Draughts()
@@ -217,19 +226,19 @@ exports.restart_old_game = async function(req,res){
 */
 function parseFEN(game_id) {
     let data = []
-    var match = games.get(game_id)
-    var game = match.draughts
+    let match = games.get(game_id)
+    let game = match.draughts
     const last_white_pieces = match.last_white_pieces
     const last_black_pieces = match.last_black_pieces
     let fen = game.fen()
-    var fields = fen.split(':')
+    let fields = fen.split(':')
     data.push(fields[0])
-    var white_pieces = fields[1].split(',')
-    var black_pieces = fields[2].split(',')
+    let white_pieces = fields[1].split(',')
+    let black_pieces = fields[2].split(',')
     white_pieces[0] = white_pieces[0].substring(1)
     black_pieces[0] = black_pieces[0].substring(1)
-    var white_pieces_with_moves = new Map()
-    var black_pieces_with_moves = new Map()
+    let white_pieces_with_moves = new Map()
+    let black_pieces_with_moves = new Map()
     for (let i = 0; i < black_pieces.length; i++) {
         let piece = black_pieces[i]
         if(last_black_pieces.has(piece)){
