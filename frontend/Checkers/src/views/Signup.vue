@@ -46,7 +46,15 @@
                 </div>
 
                 <div class="object-center space-x-2 mb-3 mt-10">
-                    <button class="btn" @click.prevent="signup()">Iscriviti</button>
+                    <label class="btn" @click.prevent="signup">Iscriviti</label> 
+                    <div class="signup-modal modal modal-close">
+                        <div class="modal-box">
+                            <p class="msg">Ciao</p> 
+                            <div class="modal-action">
+                                <label class="btn" @click.prevent="close">Accept</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -63,10 +71,14 @@ var mail_input = document.getElementsByClassName("mail")
 var pw_input = document.getElementsByClassName("password")
 var confirm_pw_input = document.getElementsByClassName("confirm_password")*/
 
+var signup_modal = document.getElementsByClassName("signup-modal")
+var msg = document.getElementsByClassName("msg")
+var signup = false
+
 export default {
     name: "Signup",
     methods: {
-        signup:function() {
+        signup() {
             var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
             var username = document.getElementsByClassName("username")[0].value
             var first_name = document.getElementsByClassName("first_name")[0].value
@@ -79,20 +91,30 @@ export default {
                 console.log("" + first_name + " " + last_name + " " + username + " " + mail)
                 api.signup(this.$socket, mail, pw, username, first_name, last_name)
             } else {
-                console.log(pw)
-                console.log(confirm_pw)
-                //api.signup(this.$socket,this.email,this.password,"berlin123")
+                msg[0].textContent = "Insert a valid email and/or check that the passwords are the same"
+                signup_modal[0].setAttribute("class", "signup-modal modal modal-open")
+            }
+        },
+        close() {
+            signup_modal[0].setAttribute("class", "signup-modal modal modal-close")
+            if(signup) {
+                this.$router.push("/login")
             }
         }
     },
     sockets:{
-        signup_success(res){
-            //PRINT SIGNUP RESULT
-            console.log(res.message)
+        signup_success(res) {
+            signup = true
+            msg[0].textContent = res.message
+            signup_modal[0].setAttribute("class", "signup-modal modal modal-open")
         },
-        signup_errror(res){
-            //PRINT SOMETHING
-            console.log(res.message)
+        signup_error(res) {
+            msg[0].textContent = ""
+            res.forEach(elem => {
+                msg[0].textContent = elem.message + "\n"
+            })
+            msg[0].textContent = res[0].message
+            signup_modal[0].setAttribute("class", "signup-modal modal modal-open")
         }
     }
 }

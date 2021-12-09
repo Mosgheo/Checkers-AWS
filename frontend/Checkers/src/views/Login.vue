@@ -18,7 +18,15 @@
                 </div>
 
                 <div class="object-center space-x-2 mt-10">
-                    <button class="btn" @click.prevent="login()">Login</button>
+                    <label class="btn" @click.prevent="login">Login</label> 
+                    <div class="login-fail modal modal-close">
+                        <div class="modal-box">
+                            <p class="msg">Ciao</p> 
+                            <div class="modal-action">
+                                <label class="btn" @click.prevent="close">Accept</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
  
                 <div class="divider"></div> 
@@ -38,32 +46,41 @@
 import api from '@/../api.js'
 import store from '@/store'
 
+var mail = document.getElementsByClassName("mail")
+var password = document.getElementsByClassName("password")
+var login_fail = document.getElementsByClassName("login-fail")
+var msg = document.getElementsByClassName("msg")
+
+
 export default {
     name: "Login",
     methods: {
-        login:function() {
-            var mail = document.getElementsByClassName("mail")[0].value
-            var password = document.getElementsByClassName("password")[0].value
-            console.log("LOGGING IN " + mail + " " + password)
-            if( mail === "" && password === "") {
-                console.log("something wrong")
+        login() {
+            console.log("LOGGING IN " + mail[0].value + " " + password[0].value)
+            if(mail[0].value === "" && password[0].value === "") {
+                msg[0].textContent = "Insert a valid email and/or password"
+                login_fail[0].setAttribute("class", "login-fail modal modal-open")
             } else {
-                api.login(this.$socket,mail,password)
+                api.login(this.$socket, mail[0].value, password[0].value)
             }
+        },
+        close() {
+            login_fail[0].setAttribute("class", "login-fail modal modal-close")
+            mail[0].value = ""
+            password[0].value = ""
         }
     },
     sockets:{
         login_ok(res){
+            console.log(res)
             //EXAMPLE ON HOW TO USE STORE
             store.commit('setToken',res.token)
             store.commit('setUser',res.user)
-            let user = store.getters.user
-            console.log("TEST "+ user.username)
-            //PRINT THAT YOU LOGGED IN
-            console.log(res.message)
+            this.$router.push("/")
         },
         login_error(err){
-            console.log(err)
+            msg[0].textContent = err.message
+            login_fail[0].setAttribute("class", "login-fail modal modal-open")
         }
     }
 }

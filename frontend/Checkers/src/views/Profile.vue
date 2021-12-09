@@ -14,6 +14,7 @@
         <p v-bind:innerText="getFirstLastName" class="text-left p-2">Nome Cognome</p> 
       </div>
     </div>
+
     <div class="profile-info rounded-xl bordered mt-10">
       <div class="tabs tabs-boxed pl-5 mt-5">
         <a v-on:click="dataInfo()" id="dataInfo" class="tab tab-lg tab-active">Dati Utente</a>
@@ -26,6 +27,7 @@
         </div>
       </div>
     </div>
+    
   </div>
 </template>
 
@@ -46,7 +48,6 @@ export default {
   },
   setup() {
     user = store.getters.user
-    console.log(user)
   },
   computed: {
     getUsername() {
@@ -56,23 +57,12 @@ export default {
       return "Username"
     },
     getFirstLastName() {
-      if(user.username !== "") {
+      if(user.name !== undefined) {
         return "" + user.first_name + " " + user.last_name
       }
       return "Nome Cognome"
     }
   },
-  /*data() {
-    return {
-      player: []
-    }
-  },
-  sockets: {
-    player(data) {
-      this.player = data
-      this.player = JSON.parse(JSON.stringify(this.player))[0]
-    }
-  },*/
   methods: {
     dataInfo() {
       const elem = document.getElementById("dataInfo")
