@@ -269,7 +269,8 @@ function parseFEN(game_id) {
         }
     }
 
-    data.push(white_pieces_with_moves)
-    data.push(black_pieces_with_moves)
+    data.push(JSON.stringify(Object.fromEntries(white_pieces_with_moves)))
+    data.push(JSON.stringify(Object.fromEntries(black_pieces_with_moves)))
+    console.log(data)
     return data
 }
