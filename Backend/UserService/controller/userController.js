@@ -113,7 +113,6 @@ exports.login = async function(req,res){
                 console.log(email+" just logged in")
                 //Will those two lines work?
                 const token = await jwt.sign({user:{email:registered_user.mail,username:registered_user.username}},jwt_secret,{expiresIn: '1 day'})
-                console.log(registered_user.last_name)
                 res.status(200).json({
                     token: token, 
                     message :"Authentication successfull, welcome back "+registered_user.username+"!",
@@ -162,19 +161,25 @@ exports.refresh_token = async function (req,res){
 exports.verify_token = async function(req,res){
     console.log("veryfing token")
     const b_header = req.headers['authorization']
-    if(typeof b_header !== 'undefined'){
-        const bearer = b_header.split(' ')
-        const b_token = bearer[1]
-        req.token = b_token
-        const token = await jwt.verify(req.token,jwt_secret)
-        if(token){
-            console.log("token ok")
-            res.status(200).json({token:token,user:token.user})
-        }else{
-            console.log("token error")
-            res.status(400).send({message:"Token verification error"})
+    try{
+        if(typeof b_header !== 'undefined'){
+            const bearer = b_header.split(' ')
+            const b_token = bearer[1]
+            req.token = b_token
+            const token = await jwt.verify(req.token,jwt_secret)
+            if(token){
+                console.log("token ok")
+                res.status(200).json({token:token,user:token.user})
+            }else{
+                console.log("token error")
+                res.status(400).send({message:"Token verification error"})
+            }
         }
+    }catch(err){
+        console.log("Someone is trying to do some nasty illegal things")
+        res.status(400).send({message:"User not authenticated"})
     }
+
 }
 
 exports.getProfile = async function(req,res){
@@ -185,15 +190,16 @@ exports.getProfile = async function(req,res){
         const data = await User.findOne({mail:mail}).lean()
         if(data === null){
             res.status(404).json({error: "Cannot find any player with such ID"})
+        }else{
+            console.log("profile sent")
+            res.json({
+                username: data.username,
+                first_name: data.first_name,
+                last_name: data.last_name,
+                stars: data.stars,
+                mail:data.mail
+            })
         }
-        console.log("profile sent")
-        res.json({
-            username: data.username,
-            first_name: data.first_name,
-            last_name: data.last_name,
-            stars: data.stars,
-            mail:data.mail
-        })
     }catch{
         res.status(500).json({error: "Error while retrieving player profile from DB"})
     }

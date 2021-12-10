@@ -51,7 +51,7 @@ function isOnline(player_id){
   return online_users.has(player_id)
 }
 //WILL IT WORK ???
-async function user_authenticated(token){
+async function user_authenticated(token,client_id){
   try{
     const {data:user} = await axios.get(user_service+"/authenticate",{
       headers:{
@@ -59,6 +59,7 @@ async function user_authenticated(token){
       }
     })
     if(user != null){
+      online_users.set(client_id,user.user.email)
       return [true,user]
     }
   }catch(err){
@@ -295,8 +296,9 @@ io.on('connection', async client => {
    **/
    client.on('build_lobby',async(lobby_name,max_stars,token)=>  {
     if(isOnline(client.id) && !isInLobby(online_users.get(client.id))){
-      const user = await user_authenticated(token)
+      const user = await user_authenticated(token,client.id)
       if(user[0]){
+        console.log("He is actually authenticated lol, how so?")
         console.log("a user built a lobby")
         const new_lobby_id = build_lobby(lobby_name,client,max_stars)
         //FIX THIS PARAMTER IN GET LOBBIES
@@ -306,6 +308,7 @@ io.on('connection', async client => {
           lobbies:lobbies
         })
       }else{
+        console.log("he is damn not authenticated")
         client.emit("token_error",user[1])
       }
     }else{
@@ -317,7 +320,7 @@ io.on('connection', async client => {
 
   client.on('get_lobbies',async (stars,token) => {
     if(isOnline(client.id)){
-      const user = await user_authenticated(token)
+      const user = await user_authenticated(token,client.id)
       if(user[0]){
         console.log("a user requested lobbies")
         const lobbies = await get_lobbies(stars)
@@ -332,7 +335,7 @@ io.on('connection', async client => {
   })
 
   client.on('join_lobby', async(lobby_id,token) => {
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       console.log("a user joined a lobby")
       if(isOnline(client.id) && !isInLobby(online_users.get(client.id))){
@@ -399,7 +402,7 @@ io.on('connection', async client => {
   })
 
   client.on('delete_lobby', async(lobby_id,token) =>{
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       console.log("a user deleted a lobby")
       if(online_users.has(client.id) && lobbies.has(lobby_id)){
@@ -420,7 +423,7 @@ io.on('connection', async client => {
   })
   client.on('invite_opponent',async(token,opponent_mail) =>{
     const user_mail = online_users.get(client.id)
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0] 
     && online_users.has(client.id) 
     && online_users.hasValue(opponent_mail)
@@ -443,7 +446,7 @@ io.on('connection', async client => {
   
   //WILL IT WORK?
   client.on('accept_invite',async(token,opp_mail)=>{
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       if(invitations.get(opp_mail) === null){
         client.emit('invitation_expired')
@@ -475,7 +478,7 @@ io.on('connection', async client => {
   })
 
   client.on('decline_invite',async(token,opp_id)=>{
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       const invitation = invitation.get(opp_id)
       if(invitation === null){
@@ -494,7 +497,7 @@ io.on('connection', async client => {
    * 
    */
   client.on('move_piece',async (lobby_id,from,to,token) =>{
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       console.log("a user moved a piece")  
       if(online_users.has(client.id) && lobbies.has(lobby_id)){
@@ -536,7 +539,7 @@ io.on('connection', async client => {
     }
   })
   client.on('leave_game',async(lobby_id,token) => {
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     let result = null
     if(user[0]){
       let player = online_users.get(client.id)
@@ -563,7 +566,7 @@ io.on('connection', async client => {
   })
 
   client.on('tie_game',async(lobby_id,token) =>{
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       let player = online_users.get(client.id,token)
       if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(player)){
@@ -589,7 +592,7 @@ io.on('connection', async client => {
   })
 
   client.on('game_history',async(lobby_id,token)=>{
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(online_users.get(client.id))){
         try{
@@ -614,7 +617,7 @@ io.on('connection', async client => {
    * 
    */
   client.on('global_msg',async(msg,token)=>{
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       console.log("a user sent a global-msg")
       if(online_users.has(client.id)){
@@ -627,7 +630,7 @@ io.on('connection', async client => {
 
 
   client.on('game_msg',async(lobby_id,msg,token)=>{
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       console.log("a user sent a game msg")
       if(online_users.has(client.id) && lobbies.has(lobby_id)
@@ -645,7 +648,7 @@ io.on('connection', async client => {
    * 
    */
   client.on('get_profile',async(token) =>{
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       let user_id = online_users.get(client.id)
       try{
@@ -673,7 +676,7 @@ io.on('connection', async client => {
   })
 
   client.on('get_leaderboard',async(token) =>{
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       try{
         let leaderboard = await axios.get(user_service+"/getLeaderboard")
@@ -692,7 +695,7 @@ io.on('connection', async client => {
   })
 
   client.on('update_profile',async(params,token) =>{
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       const user_mail = online_users.get(client.id)
       const {data:updated_user} = await axios.put(user_service+"/profile/updateProfile",{mail:user_mail,params:params})
@@ -707,7 +710,7 @@ io.on('connection', async client => {
   })
 
   client.on('get_history', async(token) => {
-    const user = await user_authenticated(token)
+    const user = await user_authenticated(token,client.id)
     if(user[0]){
       let user_id = online_users.get(client.id)
       let user_history = await axios.get(user_service+"/profile/getHistory",{user_id : user_id})
