@@ -122,7 +122,12 @@ export default {
       console.log(error)
     },
     game_started(res){
-      console.log("Game started "+res)
+      var white_moves = JSON.parse(res[1])
+      console.log(white_moves)
+      //var black_moves = new Map(JSON.parse(res[2]))
+      for(let i = 1; i < Object.keys(white_moves).length; i++) {
+        console.log(white_moves[(i+30)])
+      }
     },
     permit_error(error) {
       console.log(error)
