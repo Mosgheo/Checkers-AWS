@@ -153,11 +153,6 @@ function invitation_timeout(inv_id){
   io.to(inv_id).emit("invitation_timeout")
 }
 
-/*function turn_timeout(game_id){
-  clearTimeout(turn_timeouts.get(game_id));
-
-}*/
-
 function change_turn(lobby_id){
   console.log("Changint turns for game "+lobby_id)
   let lobby = lobbies.get(lobby_id)
@@ -165,6 +160,7 @@ function change_turn(lobby_id){
   let late_player = lobby.turn
   let next_player = lobbyPlayers.splice(lobbyPlayers.indexOf(late_player),1)
   lobbies.get(lobby_id).turn = next_player 
+  clearTimeout(turn_timeouts.get(lobby_id))
   turn_timeouts.set(lobby_id, setTimeout(function () {
     change_turn(lobby_id)
     console.log("TURN TIMEOUT FOR GAME " + lobby_id)
@@ -176,12 +172,12 @@ async function updatePoints(player1,points1,player2,points2){
   try{
       const {data:updated_one} = await axios.put(user_service+"/profile/updatePoints",
       {
-        user_id : player1,
+        mail : player1,
         stars: points1
       })
       const{data:updated_two} = await axios.put(user_service+"/profile/updatePoints",
       {
-          user_id : player2,
+          mail : player2,
           stars: points2
       })
      return [updated_one,updated_two]
@@ -368,7 +364,7 @@ io.on('connection', async client => {
               game.push(opponent_specs)
               game.push(board)
               console.log("GAME "+game)
-              io.to(lobby_id).emit("game_started",board)
+              io.to(lobby_id).emit("game_started",game)
               turn_timeouts.set(lobby_id, setTimeout(function(){
                 change_turn(lobby_id)
                 console.log("TURN TIMEOUT FOR GAME " + lobby_id)
@@ -523,7 +519,6 @@ io.on('connection', async client => {
                   client.emit("server_error",err.response.data)
                 }
               }
-
             }
           }catch(err){
             if(err.response.status == 400){
@@ -700,7 +695,7 @@ io.on('connection', async client => {
     const user = await user_authenticated(token)
     if(user[0]){
       const user_mail = online_users.get(client.id)
-      const {data:updated_user} = await axios.put(user_service+"/profile/updateProfile",{user_id:user_mail,params:params})
+      const {data:updated_user} = await axios.put(user_service+"/profile/updateProfile",{mail:user_mail,params:params})
       if(updated_user === null){
         client.emit("permit_error",user_history)
       }else{

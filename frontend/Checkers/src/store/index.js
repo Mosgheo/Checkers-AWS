@@ -27,7 +27,7 @@ export default createStore({
       if(token !== 'null') {
           state.authenticated = true
           state.token = token
-          localStorage.token = token
+          sessionStorage.token = token
          // axios.defaults.headers.common['Authorization'] = "bearer " + token;
       }
     },
@@ -45,6 +45,7 @@ export default createStore({
           avatar: "",
         };
         state.token = ""
+        sessionStorage.removeItem('token')
         //axios.defaults.headers.common['Authorization'] = ""
     },
     setUser(state,user){

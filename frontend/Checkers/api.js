@@ -1,7 +1,7 @@
 const socket = this
 
 function getToken(){
-    return localStorage.token
+    return sessionStorage.token
 }
 
 var api = {

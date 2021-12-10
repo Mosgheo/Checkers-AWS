@@ -113,12 +113,14 @@ exports.login = async function(req,res){
                 console.log(email+" just logged in")
                 //Will those two lines work?
                 const token = await jwt.sign({user:{email:registered_user.mail,username:registered_user.username}},jwt_secret,{expiresIn: '1 day'})
-                console.log("HELLO " + email)
+                console.log(registered_user.last_name)
                 res.status(200).json({
                     token: token, 
                     message :"Authentication successfull, welcome back "+registered_user.username+"!",
                     user:{
                         username:registered_user.username,
+                        first_name: registered_user.first_name,
+                        last_name: registered_user.last_name,
                         mail:email,
                         stars:registered_user.stars,
                         nationality:registered_user.nationality,
@@ -156,6 +158,7 @@ exports.refresh_token = async function (req,res){
         res.status(400).send({message:"Wrong mail"})
     }
 }
+
 exports.verify_token = async function(req,res){
     console.log("veryfing token")
     const b_header = req.headers['authorization']
@@ -186,6 +189,8 @@ exports.getProfile = async function(req,res){
         console.log("profile sent")
         res.json({
             username: data.username,
+            first_name: data.first_name,
+            last_name: data.last_name,
             stars: data.stars,
             mail:data.mail
         })
@@ -207,21 +212,26 @@ exports.getHistory = async function(req,res){
         res.status(500).json({error: "Error while retrieving player profile from DB"})
     }
 }
-//Not sure it'll work
+
 exports.updateProfile = async function(req,res){
     //NOT SURE ABOUT THEESE
-    const user_mail = req.body.params[0]
-    const name = req.body.params[1]
-    const surname = req.body.params[2]
-    const username = req.body.params[3]
-    const mail = req.body.params[4]
+    const user_mail = req.body.mail
+    const name = req.body.params.first_name
+    const surname = req.body.params.last_name
+    const username = req.body.params.username
+    const mail = req.body.params.mail
+    console.log("usermail "+user_mail)
+    console.log("mail to update:"+mail)
     if(mail === user_mail){
-        if(new_user = await User.findOneAndUpdate({"mail": user_mail},
+        console.log("Updating but not mail")
+        try{
+            new_user = await User.findOneAndUpdate({"mail": user_mail},
         { $set:{
             username : username,
             first_name : name,
             last_name : surname
-        }})){
+        }})
+        console.log("HELLO" + new_user)
             res.status(200).json({
                 username: new_user.username,
                 first_name: new_user.first_name,
@@ -229,11 +239,13 @@ exports.updateProfile = async function(req,res){
                 mail: new_user.mail,
                 stars:new_user.stars
             })
-        }else{
+        }catch(err){
+            console.log(err)
             res.status(400).send({message: "Something went wrong while updating a user, please try again"})
         }
     }else{
-        const email = await User.find({mail:mail})
+        console.log("Updating even mail")
+        const email = await User.find({mail:user_mail})
         if(email === null){
             if(new_user = await User.findOneAndUpdate({"mail": user_mail},
             { $set:{
@@ -276,11 +288,11 @@ exports.getLeaderboard = async function(_,res){
     }
 }
 exports.updatePoints = async function(req,res){
-    const user_id = req.body.user_id
+    const mail = req.body.mail
     const stars = req.body.stars
     console.log(stars)
     try{
-        const user = await User.findOneAndUpdate({"user_id":user_id},{$inc: {stars:stars}})
+        const user = await User.findOneAndUpdate({"mail":mail},{$inc: {stars:stars}})
         console.log("user updated")
         res.status(200).json({
             username: user.username,
