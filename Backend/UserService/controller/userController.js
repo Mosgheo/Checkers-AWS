@@ -216,7 +216,7 @@ exports.updateProfile = async function(req,res){
     const username = req.body.params[3]
     const mail = req.body.params[4]
     if(mail === user_mail){
-        if(new_user = await User.findOneAndUpdate({"userID": user_mail},
+        if(new_user = await User.findOneAndUpdate({"mail": user_mail},
         { $set:{
             username : username,
             first_name : name,
@@ -235,7 +235,7 @@ exports.updateProfile = async function(req,res){
     }else{
         const email = await User.find({mail:mail})
         if(email === null){
-            if(new_user = await User.findOneAndUpdate({"userID": user_mail},
+            if(new_user = await User.findOneAndUpdate({"mail": user_mail},
             { $set:{
                 username : username,
                 first_name : name,
