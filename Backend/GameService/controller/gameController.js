@@ -8,8 +8,6 @@ let games = new Map(); // game_id -> game
                 black: "",
                 draughts: null,
                 finished: false,
-                last_white_pieces: { piece -> moves }
-                last_black_pieces: { piece -> moves }
                 winner: "",
                 tick: 0
             }
@@ -65,10 +63,6 @@ async function gameEnd(game_id,tie,winner,loser){
             })
             await match.save()
             games.delete(game_id)
-    
-            //last_black_pieces.delete(game_id)
-            //last_white_pieces.delete(game_id)
-            //return updatePoints(winner,process.env.WIN_STARS,loser,process.env.LOSS_STARS)
         }else{
             const match = new Game({
                 fen: game.draughts.fen(),
@@ -78,9 +72,6 @@ async function gameEnd(game_id,tie,winner,loser){
             })
             await match.save()
             games.delete(game_id)
-            //last_black_pieces.delete(game_id)
-            //last_white_pieces.delete(game_id)
-            //return updatePoints(game.white,process.env.TIE_STARS,game.black,process.env.TIE_STARS)
         }
         return true
     }catch(err){
@@ -100,6 +91,16 @@ exports.tieGame = function(req,res){
         res.status(500).send({message: "Something went wrong while closing the game."})
     )
 
+
+}
+exports.user_history = async function(req,res){
+    console.log("hello i'm here")
+    const mail = req.query.mail
+    try{
+        res.status(200).json(await Game.find({$or:[{'winner':mail},{'loser':mail}]}))
+    }catch(err){
+        res.json(500).send({message:"Something wrong while getting user games history"})
+    }
 
 }
 exports.leaveGame = async function(req,res){
@@ -135,6 +136,7 @@ exports.deleteGame = async function(req,res){
         res.status(500).send({message: "Something went wrong while closing the game."})
     }
 }
+
 exports.movePiece = function(req,res){
     let game_id = req.body.game_id
     if(!games.has(game_id)){
@@ -177,8 +179,6 @@ exports.gameHistory = async function(req,res){
 
 }
 
-
-
 exports.create_game = function(req,res){
     try{
         let game_id = req.body.game_id
@@ -189,8 +189,6 @@ exports.create_game = function(req,res){
         game.black = opponent
         game.draughts = new Draughts()
         game.finished = false;
-        game.last_white_pieces = new Map()
-        game.last_black_pieces = new Map()
         game.fen = game.draughts.fen()
         game.winner = ""
         game.loser = ""
@@ -228,49 +226,30 @@ function parseFEN(game_id) {
     let data = []
     let match = games.get(game_id)
     let game = match.draughts
-    const last_white_pieces = match.last_white_pieces
-    const last_black_pieces = match.last_black_pieces
+
+
     let fen = game.fen()
     let fields = fen.split(':')
     data.push(fields[0])
+
     let white_pieces = fields[1].split(',')
     let black_pieces = fields[2].split(',')
     white_pieces[0] = white_pieces[0].substring(1)
     black_pieces[0] = black_pieces[0].substring(1)
     let white_pieces_with_moves = new Map()
     let black_pieces_with_moves = new Map()
+
     for (let i = 0; i < black_pieces.length; i++) {
         let piece = black_pieces[i]
-        if(last_black_pieces.has(piece)){
-            let moves = game.getLegalMoves(piece)
-            if(JSON.stringify(last_black_pieces.get(piece))!=JSON.stringify(moves)){
-                black_pieces_with_moves.set(piece,moves)
-                last_black_pieces.set(piece,moves)
-            }
-        }else{
-            let moves = game.getLegalMoves(piece)
-            black_pieces_with_moves.set(piece,moves)
-            last_black_pieces.set(piece,moves)
-        }
+        let moves = game.getLegalMoves(piece)
+        black_pieces_with_moves.set(piece,moves)
     }
-
     for (let i = 0; i < white_pieces.length; i++) {
         let piece = white_pieces[i]
-        if(last_white_pieces.has(piece)){
-            let moves = game.getLegalMoves(piece)
-            if(JSON.stringify(last_white_pieces.get(piece))!=JSON.stringify(moves)){
-                white_pieces_with_moves.set(piece,moves)
-                last_white_pieces.set(piece,moves)
-            }
-        }else{
-            let moves = game.getLegalMoves(piece)
-            white_pieces_with_moves.set(piece,moves)
-            last_white_pieces.set(piece,moves)
-        }
+        let moves = game.getLegalMoves(piece)
+        white_pieces_with_moves.set(piece,moves)
     }
-
-    data.push(JSON.stringify(Object.fromEntries(white_pieces_with_moves)))
-    data.push(JSON.stringify(Object.fromEntries(black_pieces_with_moves)))
-    console.log(data)
+    data.push(white_pieces_with_moves)
+    data.push(black_pieces_with_moves)
     return data
 }

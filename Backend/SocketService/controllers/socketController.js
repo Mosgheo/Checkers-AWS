@@ -15,6 +15,7 @@ const invitation_timeouts = new Map() // {inv_id -> timeout}
 
 const game_service = process.env.HOSTNAME+":"+process.env.GAME_SERVICE_PORT
 const user_service = process.env.HOSTNAME+":"+process.env.USER_SERVICE_PORT
+
 let current_id = 0;
 let free_ids = []
 
@@ -137,18 +138,6 @@ async function get_lobbies(user_stars){
   }
   return data
 }
-  /*lobbies.forEach((lobby_id,lobby)=>{
-    //SHould I just return the whole lobby item?
-    if(lobby.isFree && lobby.max_stars >= user_stars){
-      let tmpLobby = new Object();
-      tmpLobby.id = lobby_id
-      tmpLobby.name = lobby.name
-      tmpLobby.max_stars = lobby.max_stars
-      tmpLobby.host = lobby.getPlayers(0)
-      return tmpLobby
-      available_lobbies.push(tmpLobby)
-    }
-  })*/
 function invitation_timeout(inv_id){
   invitations.delete(inv_id)
   io.to(inv_id).emit("invitation_timeout")
@@ -239,8 +228,10 @@ io.on('connection', async client => {
           turn_timeouts.delete(lobby_id)
         }catch(err){
           console.log("something bad occured "+err)
-          if(err.response.status == 500){
-            io.to(lobby_id).emit("server_error",err.response.data)
+          if(err.hasOwnProperty('response')){
+            if(err.response.status == 500){
+              io.to(lobby_id).emit("server_error",err.response.data)
+            }
           }
         }
       }
@@ -264,8 +255,10 @@ io.on('connection', async client => {
         online_users.set(client.id,mail)
         client.emit("login_ok",user.data)
       }catch(err){
-        if(err.response.status == 400){
-          client.emit("login_error",err.response.data)
+        if(err.hasOwnProperty('response')){
+          if(err.response.status == 400){
+            client.emit("login_error",err.response.data)
+          }
         }
       }
     }
@@ -283,9 +276,12 @@ io.on('connection', async client => {
         })
         client.emit('signup_success',new_user)
     }catch(err){
-      if(err.response.status == 400 || err.response.status == 500){
-        client.emit('signup_error',err.response.data)
+      if(err.hasOwnProperty('response')){
+        if(err.response.status == 400 || err.response.status == 500){
+          client.emit('signup_error',err.response.data)
+        }
       }
+      console.log("Signup_err",err)
     }
   })
 
@@ -296,7 +292,7 @@ io.on('connection', async client => {
    **/
    client.on('build_lobby',async(lobby_name,max_stars,token)=>  {
     if(isOnline(client.id) && !isInLobby(online_users.get(client.id))){
-      const user = await user_authenticated(token,client.id)
+        const user = await user_authenticated(token,client.id)
       if(user[0]){
         console.log("He is actually authenticated lol, how so?")
         console.log("a user built a lobby")
@@ -304,16 +300,16 @@ io.on('connection', async client => {
         //FIX THIS PARAMTER IN GET LOBBIES
         const lobbies = await get_lobbies(0)
         client.emit("lobbies",{
-          lobby_id:new_lobby_id,
-          lobbies:lobbies
-        })
+        lobby_id:new_lobby_id,
+        lobbies:lobbies
+      })
       }else{
         console.log("he is damn not authenticated")
         client.emit("token_error",user[1])
       }
     }else{
       console.log("a user tried bulding a lobby while already has one")
-      client.emit("permit_error")
+      client.emit("permit_error",{message:"Player is either online or is already in some lobby."})
     }
   })
 
@@ -330,7 +326,7 @@ io.on('connection', async client => {
         client.emit("token_error",user[1])
       }
     }else{
-      client.emit("permit_error")
+      client.emit("permit_error", {message:"Player is offline in some funny way."})
     }
   })
 
@@ -375,25 +371,27 @@ io.on('connection', async client => {
               console.log("Timeout set for game" + lobby_id)
             }catch(err){
               console.log(err)
-              if(err.response.status == 500){
-                client.emit("server_error",err.response.data)
-                console.log("WELA 500")
-              }else if(err.response.status == 404){
-                console.log("WELA 404")
-                client.emit("permit_error",err.response.data)
+              if(err.hasOwnProperty('response')){
+                if(err.response.status == 500){
+                  client.emit("server_error",err.response.data)
+                  console.log("WELA 500")
+                }else if(err.response.status == 404){
+                  console.log("WELA 404")
+                  client.emit("permit_error",err.response.data)
+                }
               }
             }
           }else{
             console.log("error in join lobby")
-            client.emit("server")
+            client.emit("server_error", {message:"Server error while joining lobby, please try again"})
           }
         }else{
           console.log("error in join lobby2")
-          client.emit("server_error")
+          client.emit("server_error",{message:"Such lobby doesn't exist anymore"})
         }
       }else{
         console.log("error in join lobby3")
-        client.emit("permit_error")
+        client.emit("permit_error",{message:"Player is not online or is already in a lobby"})
       }
     }else{
       console.log("error in join lobby4")
@@ -412,9 +410,9 @@ io.on('connection', async client => {
         && lobby.isFree 
         && delete_lobby(lobby_id)){
           lobbies.delete(lobby_id)
-          client.emit("lobby_deleted")
+          client.emit("lobby_deleted",{message:"Your lobby has been successfully deleted"})
         }else{
-          client.emit("error_deleting")
+          client.emit("server_error",{message:"There has been some problem with the process of deleting a lobby."})
         }
       }
     }else{
@@ -449,7 +447,7 @@ io.on('connection', async client => {
     const user = await user_authenticated(token,client.id)
     if(user[0]){
       if(invitations.get(opp_mail) === null){
-        client.emit('invitation_expired')
+        client.emit('invitation_expired',{message:"Your invitation for this lobby has expired"})
       }else{
         const user_mail = online_users.get(client.id)
         //WILL THIS WORK?
@@ -465,9 +463,12 @@ io.on('connection', async client => {
               console.log("TURN TIMEOUT FOR GAME " + lobby_id)
             },process.env.TIMEOUT))
           }catch(err){
-            if(err.response.status == 500){
-              client.emit("server_error",err.response.data)
+            if(err.hasOwnProperty('response')){
+              if(err.response.status == 500){
+                client.emit("server_error",err.response.data)
+              }
             }
+            console.log(err)
           }
         }
       }
@@ -482,9 +483,9 @@ io.on('connection', async client => {
     if(user[0]){
       const invitation = invitation.get(opp_id)
       if(invitation === null){
-        client.emit("invitation_expired")
+        client.emit("invitation_expired",{message:"Your invitation for this lobby has expired"})
       }else{
-        io.to(opp_id).emit("invitation_declined")
+        io.to(opp_id).emit("invitation_declined",{message:online_users.get(opp_id)+" has just refused your invite, we're so sry. "})
         invitation.delete(opp_id)
       }
     }else{
@@ -518,21 +519,27 @@ io.on('connection', async client => {
                 clearTimeout(turn_timeouts.get(lobby_id))
                 turn_timeouts.delete(lobby_id)
               }catch(err){
-                if(err.response.status == 500){
-                  client.emit("server_error",err.response.data)
+                if(err.hasOwnProperty('response')){
+                  if(err.response.status == 500){
+                    client.emit("server_error",err.response.data)
+                  }
                 }
+                console.log(err)
               }
             }
           }catch(err){
-            if(err.response.status == 400){
-              client.emit("client_error",err.response.data)
+            if(err.hasOwnProperty('response')){
+              if(err.response.status == 400){
+                client.emit("client_error",err.response.data)
+              }
             }
-          }fi
+            console.log(err)
+          }
         }else{
-          client.emit("permit_error")
+          client.emit("permit_error",{message:"It's not your turn or you're not in this lobby, you tell me"})
         }
       }else{
-        client.emit("permit_error")
+        client.emit("permit_error",{message:"Hey pal I don't know who you are nor the lobby you're referring to"})
       }
     }else{
       client.emit("token_error",user[1])
@@ -547,9 +554,12 @@ io.on('connection', async client => {
         try{
           result = await axios.delete(game_service+"/game/leaveGame",{game_id: lobby_id, player_id: player})
         }catch(err){
-          if(err.response.status == 500){
-            client.emit("server_error",err.response.data)
+          if(err.hasOwnProperty('response')){
+            if(err.response.status == 500){
+              client.emit("server_error",err.response.data)
+            }
           }
+          console.log(err)
         }
         result = result.data
         client.emit("left_game",result[0])
@@ -558,7 +568,7 @@ io.on('connection', async client => {
         let winner = lobby.getPlayers().splice(lobby.indexOf(player),1)
         io.to(online_users.getKey(winner)).emit("opponent_left",result[1])
       }else{
-        client.emit("permit_error")
+        client.emit("permit_error",{message:"I don't know which lobby you're referring to and even if I knew you're not in it"})
       }
     }else{
       client.emit("token_error",user[1])
@@ -578,13 +588,16 @@ io.on('connection', async client => {
             let {data:result} = await axios.put(game_service+"/game/tieGame",{game_id: lobby_id})
             io.to(lobby_id).emit("tie_game",result)
           }catch(err){
-            if(err.response.status == 500){
-              client.emit("server_error",err.response.data)
+            if(err.hasOwnProperty('response')){
+              if(err.response.status == 500){
+                client.emit("server_error",err.response.data)
+              }
             }
+            console.log(err)
           }
         }
       }else{
-        client.emit("permit_error")
+        client.emit("permit_error",{message:"I don't know which lobby you're referring to and even if I knew you're not in it"})
       }
     }else{
       client.emit("token_error",user[1])
@@ -599,12 +612,15 @@ io.on('connection', async client => {
           let history = await axios.get(game_service+"/game/history",{game_id : lobby_id})
           client.emit("game_history",history)
         }catch(err){
-          if(err.response.status == 500){
-            client.emit("server_error",err.response.data)
+          if(err.hasOwnProperty('response')){
+            if(err.response.status == 500){
+              client.emit("server_error",err.response.data)
+            }
           }
+          console.log(err)
         }
       }else{
-        client.emit("permit_error")
+        client.emit("permit_error",{message:"I don't know which lobby you're referring to and even if I knew you're not in it"})
       }
     }else{
       client.emit("token_error",user)
@@ -664,11 +680,14 @@ io.on('connection', async client => {
           client.emit("user_profile",user_profile)
         }
       }catch(err){
-        if(err.response.status == 500 ){
-          client.emit("server_error",err.response.data)
-        }else if(err.response.status == 404){
-          client.emit("client_error",err.response.data)
+        if(err.hasOwnProperty('response')){
+          if(err.response.status == 500 ){
+            client.emit("server_error",err.response.data)
+          }else if(err.response.status == 404){
+            client.emit("client_error",err.response.data)
+          }
         }
+        console.log(err)
       }
     }else{
       client.emit("token_error",user[1])
@@ -679,16 +698,17 @@ io.on('connection', async client => {
     const user = await user_authenticated(token,client.id)
     if(user[0]){
       try{
-        let leaderboard = await axios.get(user_service+"/getLeaderboard")
+        console.log("Someone asked for a leaderboard")
+        let {data:leaderboard} = await axios.get(user_service+"/getLeaderboard")
         if(leaderboard === null){
           client.emit("permit_error",leaderboard)
         }else{
           client.emit("leaderboard",leaderboard)
         }
       }catch(err){
+        console.log(err)
         client.emit("server_error",err.response.data)
       }
-
     }else{
       client.emit("token_error",user[1])
     }
@@ -713,7 +733,13 @@ io.on('connection', async client => {
     const user = await user_authenticated(token,client.id)
     if(user[0]){
       let user_id = online_users.get(client.id)
-      let user_history = await axios.get(user_service+"/profile/getHistory",{user_id : user_id})
+      let {data:user_history} = await axios.get(game_service+"/games/userHistory",
+      {params:
+        {
+          mail:user_id
+        }
+      })
+      console.log(user_history)
       if(user_history === null){
         client.emit("permit_error",user_history)
       }else{

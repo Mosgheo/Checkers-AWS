@@ -206,13 +206,16 @@ exports.getProfile = async function(req,res){
 }
 exports.getHistory = async function(req,res){
     try{
-        const user = await User.find({email:req.query.email})
+        console.log("hello welcome to history gegtter "+req.query.mail)
+        const user = await User.find({mail:req.query.mail})
         const data = []
         if(user === null){
+            console.log("user null")
             res.status(404).json({error: "Cannot find any player with such ID"})
         }
+        console.log("hello someone requested this wins:" +user.wins+" losse: "+user.losses)
         data.push(user.wins)
-        data.push(data.losses)
+        data.push(user.losses)
         res.status(200).json(data)
     }catch{
         res.status(500).json({error: "Error while retrieving player profile from DB"})
@@ -276,22 +279,19 @@ exports.updateProfile = async function(req,res){
 }
 //WILL THIS WORK?
 exports.getLeaderboard = async function(_,res){
-    const users = await User.find({}).sort('stars')
-    if(users != null){
-        users.map(user => {
-            return {
-                username: user.username,
-                first_name : user.first_name,
-                last_name : user.last_name,
-                stars: user.stars,
-                wins: user.wins,
-                losses: user.losses
-            }
-        })
-        res.status(200).json(users);
-    }else{
-        res.status(500).send({message: "There is no one in the leaderboard."})
+    try{
+        const users = await User.find({},'username first_name last_name stars wins losses').sort({ stars: 'desc'})
+        if(users != null){
+            console.log(users)
+            res.status(200).json(users);
+        }else{
+            res.status(200).send({message: "There is no one in the leaderboard."})
+        }
+    }catch(err){
+        console.log(err)
+        res.status(500).send({message: "Something went wrong."})
     }
+
 }
 exports.updatePoints = async function(req,res){
     const mail = req.body.mail

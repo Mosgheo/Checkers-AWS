@@ -10,5 +10,6 @@ router
 	.post("/game/lobbies/create_game", gameController.create_game)
 	.put("/game/tieGame", gameController.tieGame)
 	.put("/game/movePiece", gameController.movePiece)
+	.get("/games/userHistory",gameController.user_history)
     
 module.exports = router
