@@ -216,9 +216,11 @@ io.on('connection', async client => {
             io.to(lobby_id).emit("player_left",game_end)
             opponent = lobby.getPlayers(0)
           }
+
           const {data:updated_users} = await updatePoints(opponent,process.env.WIN_STARS,player,process.env.LOSS_STARS)
           if(updated_users){
             io.to(online_users.getKey(opponent)).emit("user_update",updated_users[0])
+            client.emit("user_update",updated_users[1])
           }else{
             io.to(lobby_id).emit("server_error",{message:"Something went wrong while updating points"})
           }
