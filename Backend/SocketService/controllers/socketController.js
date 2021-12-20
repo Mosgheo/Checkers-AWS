@@ -64,8 +64,10 @@ async function user_authenticated(token,client_id){
       return [true,user]
     }
   }catch(err){
-    if(err.response.status == 400){
-      return [false,err.response.data]
+    if(err.hasOwnProperty('response')){
+      if(err.response.status == 400){
+        return [false,err.response.data]
+      }
     }
   }
 }
@@ -509,17 +511,27 @@ io.on('connection', async client => {
         //is == ok down here? ->
         if(lobby.hasPlayer(player) && lobby.turn == player.turn){
           try{
-            let {data: data} = await axios.put(game_service+"/game/movePiece",{game_id: lobby_id,from:from,to:to})
-            if(data.winner === ""){
-              io.to(lobby_id).emit("update_board",data.board)
+            let {data: move_result} = await axios.put(game_service+"/game/movePiece",{game_id: lobby_id,from:from,to:to})
+            if(move_result.winner === ""){
+              io.to(lobby_id).emit("update_board",move_result.board)
               change_turn(lobby_id)
             }else{
               try{
-                await updatePoints(data.winner,process.env.WIN_STARS,data.loser,process.env.LOSS_STARS)
-                io.to(lobby_id).emit("game_ended",data)
-                delete_lobby(lobby_id)
-                clearTimeout(turn_timeouts.get(lobby_id))
-                turn_timeouts.delete(lobby_id)
+                const {data:updated_users} = await updatePoints(move_result.winner,process.env.WIN_STARS,move_result.loser,process.env.LOSS_STARS)
+                if(updated_users){
+                  io.to(lobby_id).emit("game_ended",{
+                    board: move_result.board,
+                    winner: (move_result.winner === updated_users[0] ? updated_users[0] : updated_users[1]),
+                    loser: (move_result.loser === updated_users[0] ? updated_users[0] : updated_users[1])
+                  })
+                  delete_lobby(lobby_id)
+                  clearTimeout(turn_timeouts.get(lobby_id))
+                  turn_timeouts.delete(lobby_id)
+                }else{
+                  console.log("Something wrong while updating points.")
+                  client.emit("server_error",{message:"Something wrong while updating points."})
+                }
+
               }catch(err){
                 if(err.hasOwnProperty('response')){
                   if(err.response.status == 500){

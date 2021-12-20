@@ -172,12 +172,12 @@ exports.verify_token = async function(req,res){
                 res.status(200).json({token:token,user:token.user})
             }else{
                 console.log("token error")
-                res.status(400).send({message:"Token verification error"})
+                res.status(400).send({message:"Token verification error, please log-in again."})
             }
         }
     }catch(err){
         console.log("Someone is trying to do some nasty illegal things")
-        res.status(400).send({message:"User not authenticated"})
+        res.status(400).send({message:"User not authenticated, please log-in again."})
     }
 
 }
