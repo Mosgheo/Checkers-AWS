@@ -1,13 +1,13 @@
 <template>
   <div class="profile flex flex-col">
     <div class="basic-info card lg:card-side flex flex-row">
-      <img v-bind:src="getAvatar()" class="mask mask-square p-5">
+      <img v-bind:src="getAvatar" class="mask mask-square p-5">
       <div class="p-3">
         <div class="flex p-2">
           <h2 v-bind:innerText="getUsername" class="card-title"></h2>
           <div class="avatar">
             <div class="ml-1 rounded-btn w-11 h-11">
-              <img v-bind:src="getAvatar()" class="avatar2">
+              <img v-bind:src="getAvatar" class="avatar2">
             </div>
           </div>
         </div> 
@@ -63,7 +63,13 @@ export default {
         return "" + user.first_name + " " + user.last_name
       }
     },
-
+    getAvatar(){
+      if(user.avatar === ""){
+        return "http://daisyui.com/tailwind-css-component-profile-1@40w.png"
+       }else{
+        return user.avatar
+       } 
+    }
   },
   methods: {
     dataInfo() {
@@ -86,9 +92,6 @@ export default {
         matchInfo.mount(wrapper[0])
       }
     },
-    getAvatar(){
-      return user.avatar === "" ? "http://daisyui.com/tailwind-css-component-profile-1@40w.png" : user.avatar
-    }
   }
 }
 </script>

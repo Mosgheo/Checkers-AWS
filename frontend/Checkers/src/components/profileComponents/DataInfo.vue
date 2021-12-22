@@ -129,7 +129,6 @@ export default {
              ctx.drawImage(image, 0,0, image.width, image.height,
                       centerShift_x,centerShift_y,image.width*ratio, image.height*ratio);  
              var dataurl = canvas.toDataURL(image.type);
-             console.log("HEY "+dataurl)
              avatar = dataurl
              console.log(avatar)
           }
