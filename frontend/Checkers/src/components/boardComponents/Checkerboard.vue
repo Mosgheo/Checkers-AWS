@@ -75,7 +75,7 @@ export default {
     return {
       board: grid,
       lobbyId: null,
-      playerId: null,
+      playerTurn: null,
       moves: [],
       myMoves: [],
       possibleMoves: [],
@@ -108,29 +108,31 @@ export default {
       }
     },
     selectCell(cell) {
-      if(cell === this.clickedCell) {
-        this.clickedCell = null
-        this.counterClick = 0
-        this.release(cell)
-      } else if(this.counterClick === 0) {
-        console.log(cell)
-        this.clickedCell = cell
-        this.counterClick++
-      } else {
-        var cellWithPiece = document.getElementById(this.clickedCell)
-        var cellWithoutPiece = document.getElementById("" + cell)
-        var piece = (cellWithPiece.children)[0]
-        for(let i = 0; i < this.possibleMoves.length; i++) {
-          if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === cell) {
-            cellWithPiece.removeChild(piece)
-            cellWithoutPiece.appendChild(piece)
-            console.log(this.lobbyId)
-            api.move_piece(this.$socket, this.lobbyId, this.clickedCell, cell)
-            break;
+      if(this.playerTurn === user.mail) {
+        if(cell === this.clickedCell) {
+          this.clickedCell = null
+          this.counterClick = 0
+          this.release(cell)
+        } else if(this.counterClick === 0) {
+          console.log(cell)
+          this.clickedCell = cell
+          this.counterClick++
+        } else {
+          var cellWithPiece = document.getElementById(this.clickedCell)
+          var cellWithoutPiece = document.getElementById("" + cell)
+          var piece = (cellWithPiece.children)[0]
+          for(let i = 0; i < this.possibleMoves.length; i++) {
+            if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === cell) {
+              cellWithPiece.removeChild(piece)
+              cellWithoutPiece.appendChild(piece)
+              console.log(this.lobbyId)
+              api.move_piece(this.$socket, this.lobbyId, this.clickedCell, cell)
+              break;
+            }
           }
+          this.clickedCell = null
+          this.counterClick = 0
         }
-        this.clickedCell = null
-        this.counterClick = 0
       }
     }
   },
@@ -139,14 +141,12 @@ export default {
       console.log(error)
     },
     game_started(res) {
-      console.log(res)
       this.player1 = res[0]
       this.player2 = res[1]
       if(this.player1.username === user.username) {
-        this.playerId = 1
+        this.playerTurn = user.mail
         this.myMoves = res[2].board[1]
       } else {
-        this.playerId = 2
         this.myMoves = res[2].board[2]
       }
       this.moves = {...res[2].board[1], ...res[2].board[2]}
@@ -164,6 +164,13 @@ export default {
     },
     permit_error(error) {
       console.log(error)
+    },
+    update_board(res) {
+      console.log(res)
+    },
+    turn_change(res) {
+      console.log(res.next_player[0])
+      this.playerTurn = res.next_player[0]
     }
   }
 }

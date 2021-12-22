@@ -143,8 +143,11 @@ exports.movePiece = function(req,res){
         res.status(400).send({message: "Can't find such game"})
     }else{
         let game = games.get(game_id).draughts
-        if(game.move(req.body.from+"-"+req.body.to) != null){
+        console.log(parseFEN(game_id))
+        if(game.move({from: req.body.from, to: req.body.to }) != false){
             let data = parseFEN(game_id)
+            console.log(data)
+            console.log(req.body.from+"-"+req.body.to)
             if(game.gameOver()){
                 /**HANDLE WIN NOTIFICATION */
                 if(winCheck(game_id)){

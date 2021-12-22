@@ -150,7 +150,9 @@ function change_turn(lobby_id){
   let lobby = lobbies.get(lobby_id)
   let lobbyPlayers = lobby.getPlayers()
   let late_player = lobby.turn
-  let next_player = lobbyPlayers.splice(lobbyPlayers.indexOf(late_player),1)
+  let next_player = lobbyPlayers.filter(player => player !== late_player)[0]
+  console.log(next_player)
+  console.log(late_player)
   lobbies.get(lobby_id).turn = next_player 
   clearTimeout(turn_timeouts.get(lobby_id))
   turn_timeouts.set(lobby_id, setTimeout(function () {

@@ -92,9 +92,9 @@ module.exports = class Draughts{
         // var positions = new Array()
         var externalPosition = this.DEFAULT_POSITION_EXTERNAL
         for (var i = 1; i <= externalPosition.length; i++) {
-          externalPosition = setCharAt(externalPosition, i, 0)
+          externalPosition = this.setCharAt(externalPosition, i, 0)
         }
-        externalPosition = setCharAt(externalPosition, 0, turn)
+        externalPosition = this.setCharAt(externalPosition, 0, turn)
         // TODO refactor
         for (var k = 1; k <= 2; k++) {
           // TODO called twice
@@ -111,11 +111,11 @@ module.exports = class Draughts{
               var from = parseInt(range[0], 10)
               var to = parseInt(range[1], 10)
               for (var j = from; j <= to; j++) {
-                externalPosition = setCharAt(externalPosition, j, (isKing === true ? color.toUpperCase() : color.toLowerCase()))
+                externalPosition = this.setCharAt(externalPosition, j, (isKing === true ? color.toUpperCase() : color.toLowerCase()))
               }
             } else {
               numSquare = parseInt(numSquare, 10)
-              externalPosition = setCharAt(externalPosition, numSquare, (isKing === true ? color.toUpperCase() : color.toLowerCase()))
+              externalPosition = this.setCharAt(externalPosition, numSquare, (isKing === true ? color.toUpperCase() : color.toLowerCase()))
             }
           }
         }
@@ -124,6 +124,9 @@ module.exports = class Draughts{
         this.update_setup(this.generate_fen(this.position))
     
         return true
+    }
+    swap_color (c) {
+      return c === this.WHITE ? this.BLACK : this.WHITE
     }
     validate_fen (fen) {
         var errors = [
@@ -285,9 +288,9 @@ module.exports = class Draughts{
         tempMove.to = parseInt(matches[1], 10)
         var moveType = move.match(/[x|-]/)[0]
         if (moveType === '-') {
-          tempMove.flags = FLAGS.NORMAL
+          tempMove.flags = this.FLAGS.NORMAL
         } else {
-          tempMove.flags = FLAGS.CAPTURE
+          tempMove.flags = this.FLAGS.CAPTURE
         }
         tempMove.piece = position.charAt(this.convertNumber(tempMove.from, 'internal'))
         var moves = this.getLegalMoves(tempMove.from)
@@ -296,7 +299,7 @@ module.exports = class Draughts{
         for (var i = 0; i < moves.length; i += 1) {
           if (tempMove.to === moves[i].to && tempMove.from === moves[i].from) {
             if (moves[i].takes.length > 0) {
-              tempMove.flags = FLAGS.CAPTURE
+              tempMove.flags = this.FLAGS.CAPTURE
               tempMove.captures = moves[i].takes
               tempMove.takes = moves[i].takes
               tempMove.piecesCaptured = moves[i].piecesTaken
@@ -309,27 +312,27 @@ module.exports = class Draughts{
     }
     makeMove (move) {
         move.piece = this.position.charAt(this.convertNumber(move.from, 'internal'))
-        this.position = setCharAt(this.position, this.convertNumber(move.to, 'internal'), move.piece)
-        this.position = setCharAt(this.position, this.convertNumber(move.from, 'internal'), 0)
-        move.flags = FLAGS.NORMAL
+        this.position = this.setCharAt(this.position, this.convertNumber(move.to, 'internal'), move.piece)
+        this.position = this.setCharAt(this.position, this.convertNumber(move.from, 'internal'), 0)
+        move.flags = this.FLAGS.NORMAL
         // TODO refactor to either takes or capture
         if (move.takes && move.takes.length) {
           move.flags = this.FLAGS.CAPTURE
           move.captures = move.takes
           move.piecesCaptured = move.piecesTaken
           for (var i = 0; i < move.takes.length; i++) {
-            this.position = setCharAt(this.position, this.convertNumber(move.takes[i], 'internal'), 0)
+            this.position = this.setCharAt(this.position, this.convertNumber(move.takes[i], 'internal'), 0)
           }
         }
         // Promoting piece here
         if (move.to <= 5 && move.piece === 'w') {
           move.flags = this.FLAGS.PROMOTION
-          this.position = setCharAt(this.position, this.convertNumber(move.to, 'internal'), move.piece.toUpperCase())
+          this.position = this.setCharAt(this.position, this.convertNumber(move.to, 'internal'), move.piece.toUpperCase())
         } else if (move.to >= 46 && move.piece === 'b') {
-            this.position = setCharAt(this.position, this.convertNumber(move.to, 'internal'), move.piece.toUpperCase())
+            this.position = this.setCharAt(this.position, this.convertNumber(move.to, 'internal'), move.piece.toUpperCase())
         }
         this.push(move)
-        if (turn === BLACK) {
+        if (this.turn === this.BLACK) {
             this.moveNumber += 1
         }
         this.turn = this.swap_color(this.turn)
@@ -349,14 +352,14 @@ module.exports = class Draughts{
         if (this.outsideBoard(this.convertNumber(square, 'internal')) === true) {
           return false
         }
-        this.position = setCharAt(this.position, this.convertNumber(square, 'internal'), piece)
+        this.position = this.setCharAt(this.position, this.convertNumber(square, 'internal'), piece)
         this.update_setup(this.generate_fen())
     
         return true
     }
     remove (square) {
         var piece = get(square)
-        this.position = setCharAt(this.position, this.convertNumber(square, 'internal'), 0)
+        this.position = this.setCharAt(this.position, this.convertNumber(square, 'internal'), 0)
         this.update_setup(this.generate_fen())
     
         return piece
@@ -521,8 +524,8 @@ module.exports = class Draughts{
                 var updateState = clone(state)
                 updateState.dirFrom = this.oppositeDir(dir)
                 var pieceCode = updateState.position.charAt(posFrom)
-                updateState.position = setCharAt(updateState.position, posFrom, 0)
-                updateState.position = setCharAt(updateState.position, posTo, pieceCode)
+                updateState.position = this.setCharAt(updateState.position, posFrom, 0)
+                updateState.position = this.setCharAt(updateState.position, posTo, pieceCode)
                 finished = false
                 captureArrayForDir[dir] = this.capturesAtSquare(posTo, updateState, updateCapture)
               }
@@ -550,8 +553,8 @@ module.exports = class Draughts{
                   updateState = clone(state)
                   updateState.dirFrom = this.oppositeDir(dir)
                   pieceCode = updateState.position.charAt(posFrom)
-                  updateState.position = setCharAt(updateState.position, posFrom, 0)
-                  updateState.position = setCharAt(updateState.position, posTo, pieceCode)
+                  updateState.position = this.setCharAt(updateState.position, posFrom, 0)
+                  updateState.position = this.setCharAt(updateState.position, posTo, pieceCode)
                   finished = false
                   var dirIndex = dir + i.toString()
                   captureArrayForDir[dirIndex] = capturesAtSquare(posTo, updateState, updateCapture)
