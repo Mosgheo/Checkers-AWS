@@ -9,12 +9,12 @@
     <label class="label mt-3">
       <span class="label-text">Nome</span>
     </label> 
-    <input type="text" placeholder="Nome" class="first_name input input-bordered">
+    <input type="text" placeholder="Nome" v-bind:value ="getFirstName" class="first_name input input-bordered">
 
     <label class="label mt-3">
       <span class="label-text">Cognome</span>
     </label> 
-    <input type="text" placeholder="Cognome" class="last_name input input-bordered">
+    <input type="text" placeholder="Cognome" v-bind:value="getLastName" class="last_name input input-bordered">
 
     
     <label class="label mt-3">
@@ -22,12 +22,20 @@
     </label> 
     <input type="text" placeholder="info@site.com" v-bind:value="getMail" class="mail input input-bordered">
 
-    <select class="select select-bordered w-full max-w-xs mt-10">
+    <label class="label mt-3">
+      <span class="label-text">Avatar</span>
+    </label> 
+   <input
+      ref="fileInput"
+      type="file"
+      @input="uploadImage"
+      class="avatarrs">
+    <!--<select class="select select-bordered w-full max-w-xs mt-10">
       <option disabled="disabled" selected="selected">Selezione Località</option> 
       <option>Los Angeles</option> 
       <option>New York</option> 
       <option>Bologna</option>
-    </select>
+    </select>-->
 
     <div class="object-center space-x-2 mt-10">
       <label class="btn" @click.prevent="save_profile">Salva</label> 
@@ -51,6 +59,7 @@ import api from '@/../api.js'
 var user = null
 var update_modal = document.getElementsByClassName("update-modal")
 var msg = document.getElementsByClassName("msg")
+var avatar = ""
 
 export default {
   name: "UserInfo",
@@ -69,6 +78,20 @@ export default {
         return "" + user.mail
       }
       return "info@site.com"
+    },
+    getFirstName(){
+      if(user.first_name == ""){
+        return "Nome"
+      }else{
+        return user.first_name
+      }
+    },
+    getLastName(){
+      if(user.last_name == ""){
+        return "Cognome"
+      }else{
+        return user.last_name
+      }
     }
   },
   methods:{
@@ -77,7 +100,8 @@ export default {
           username : document.getElementsByClassName("username")[0].value,
           first_name : document.getElementsByClassName("first_name")[0].value,
           last_name : document.getElementsByClassName("last_name")[0].value,
-          mail : document.getElementsByClassName("mail")[0].value
+          mail : document.getElementsByClassName("mail")[0].value,
+          avatar: avatar
       }
       //TODO UPDATE STATE.USER AND SEND UPDATE TO BACKEND
       api.update_profile(this.$socket, user, localStorage.token)
@@ -85,7 +109,37 @@ export default {
     close() {
         update_modal[0].setAttribute("class", "update-modal modal modal-close")
         this.$forceUpdate()
-    }
+    },
+    uploadImage(){
+        let input = this.$refs.fileInput
+        let file = input.files
+        if (file && file[0]) {
+          var image = new Image()
+          let reader = new FileReader
+          image.onload = function(){
+            var canvas = document.createElement("canvas");
+             var ctx = canvas.getContext("2d");
+             //ctx.drawImage(image, 0, 0, canvas.width,canvas.height);
+             var hRatio = canvas.width / image.width    ;
+             var vRatio = canvas.height / image.height  ;
+             var ratio  = Math.min ( hRatio, vRatio );
+             var centerShift_x = ( canvas.width - image.width*ratio ) / 2;
+             var centerShift_y = ( canvas.height - image.height*ratio ) / 2;  
+             ctx.clearRect(0,0,canvas.width, canvas.height);
+             ctx.drawImage(image, 0,0, image.width, image.height,
+                      centerShift_x,centerShift_y,image.width*ratio, image.height*ratio);  
+             var dataurl = canvas.toDataURL(image.type);
+             console.log("HEY "+dataurl)
+             avatar = dataurl
+             console.log(avatar)
+          }
+
+          reader.onload = e => {
+           console.log(e.target.result)
+            image.src = e.target.result
+          }
+          reader.readAsDataURL(file[0])
+        }}
   },
   sockets:{
     updated_user(user) {
@@ -118,6 +172,10 @@ input {
 }
 .select {
   background-color: #343232;
+}
+.avatarss{
+max-height: 100%; 
+max-width: 100%;
 }
 </style>
 

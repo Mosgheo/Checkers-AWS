@@ -172,12 +172,12 @@ exports.verify_token = async function(req,res){
                 res.status(200).json({token:token,user:token.user})
             }else{
                 console.log("token error")
-                res.status(400).send({message:"Token verification error"})
+                res.status(400).send({message:"Token verification error, please log-in again."})
             }
         }
     }catch(err){
         console.log("Someone is trying to do some nasty illegal things")
-        res.status(400).send({message:"User not authenticated"})
+        res.status(400).send({message:"User not authenticated, please log-in again."})
     }
 
 }
@@ -194,6 +194,7 @@ exports.getProfile = async function(req,res){
             console.log("profile sent")
             res.json({
                 username: data.username,
+                avatar: data.avatar,
                 first_name: data.first_name,
                 last_name: data.last_name,
                 stars: data.stars,
@@ -229,8 +230,7 @@ exports.updateProfile = async function(req,res){
     const surname = req.body.params.last_name
     const username = req.body.params.username
     const mail = req.body.params.mail
-    console.log("usermail "+user_mail)
-    console.log("mail to update:"+mail)
+    const avatar = req.body.params.avatar
     if(mail === user_mail){
         console.log("Updating but not mail")
         try{
@@ -238,15 +238,16 @@ exports.updateProfile = async function(req,res){
         { $set:{
             username : username,
             first_name : name,
-            last_name : surname
+            last_name : surname,
+            avatar:avatar
         }})
-        console.log("HELLO" + new_user)
             res.status(200).json({
                 username: new_user.username,
                 first_name: new_user.first_name,
                 last_name: new_user.last_name,
                 mail: new_user.mail,
-                stars:new_user.stars
+                stars:new_user.stars,
+                avatar:new_user.avatar
             })
         }catch(err){
             console.log(err)
@@ -260,14 +261,16 @@ exports.updateProfile = async function(req,res){
             { $set:{
                 username : username,
                 first_name : name,
-                last_surname : surname
+                last_surname : surname,
+                avatar:avatar
             }})){
                 res.status(200).json({
                     username: new_user.username,
                     first_name: new_user.first_name,
                     last_name: new_user.last_name,
                     mail: new_user.mail,
-                    stars:new_user.stars
+                    stars:new_user.stars,
+                    avatar:new_user.avatar
                 })
             }else{
                 res.status(400).send({message: "Something went wrong while updating a user, please try again"})
