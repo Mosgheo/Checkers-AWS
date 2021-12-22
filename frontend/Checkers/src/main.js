@@ -12,7 +12,7 @@ import '@fortawesome/fontawesome-free/js/all'
 
 export const app = createApp(App)
 app.config.productionTip = false
-app.config.globalProperties.$BOARD_SIZE = 8
+app.config.globalProperties.$BOARD_SIZE = 10
 app.config.globalProperties.$COLOR_TOP = "color-top"
 app.config.globalProperties.$COLOR_BOTTOM ="color-bottom"
 app.config.globalProperties.$PLAYER_ONE = "one"

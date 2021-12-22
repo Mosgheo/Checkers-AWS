@@ -1,7 +1,7 @@
 <template>
 <div>
   <div class="flex flex-row centralSpace">
-    <Checkerboard class="board"/>
+    <!--<Checkerboard class="board" />-->
 
     <div class="card items-center w-64 flex flex-col rightMenu">
       <h1 class="mt-5">Gioca a Checkers</h1>
@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import Checkerboard from '@/components/boardComponents/Checkerboard'
+//import Checkerboard from '@/components/boardComponents/Checkerboard'
 import api from '../../api.js'
 
 var lobbyName = document.getElementsByClassName("input-name")
@@ -99,14 +99,13 @@ var starTextBox2 = document.getElementsByClassName("input-star2")
 export default {
   name: 'Home',
   components: {
-    Checkerboard
+    //Checkerboard
   },
   methods: {
     startingMatch() {
       api.build_lobby(this.$socket, lobbyName[0].value, starTextBox[0].value)
     },
     lobbyOpened() {
-      console.log("ciao")
       api.get_lobbies(this.$socket, starTextBox2[0].value)
     },
     joinLobby(){
@@ -117,20 +116,6 @@ export default {
   sockets: {
     lobbies(res) {
       console.log(res)
-    },
-    token_error(error) {
-      console.log(error)
-    },
-    game_started(res){
-      var white_moves = JSON.parse(res[1])
-      console.log(white_moves)
-      //var black_moves = new Map(JSON.parse(res[2]))
-      for(let i = 1; i < Object.keys(white_moves).length; i++) {
-        console.log(white_moves[(i+30)])
-      }
-    },
-    permit_error(error) {
-      console.log(error)
     }
   }
 }

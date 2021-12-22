@@ -4,14 +4,14 @@
             <img src="https://picsum.photos/id/1005/800" class="profileImg mask mask-square p-0.5">
             <div class="flex-row">
                 <div class="flex flex-row">
-                    <h2 class="card-title ml-1.5" v-bind:innerText="getUsername">Username</h2>
+                    <h2 class="card-title ml-1.5" :innerText="this.player.username">Username</h2>
                     <div class="avatar">
                         <div class="ml-1 rounded-btn">
                             <img class="nationImg" src="http://daisyui.com/tailwind-css-component-profile-1@40w.png">
                         </div>
                     </div>
                 </div> 
-                <h3 class="text-left p-2" v-bind:innerText="getStars">Punteggio</h3> 
+                <h3 class="text-left p-2" :innerText="this.player.stars">Punteggio</h3> 
             </div>
         </div>
     </div>
@@ -23,7 +23,7 @@ import store from '@/store'
 var user = null
 
 export default {
-    name: 'Game',
+    name: 'Player',
     props: ['player'],
     setup() {
         user = store.getters.user

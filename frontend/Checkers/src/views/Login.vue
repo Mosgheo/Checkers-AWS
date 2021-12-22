@@ -56,7 +56,6 @@ export default {
     name: "Login",
     methods: {
         login() {
-            console.log("LOGGING IN " + mail[0].value + " " + password[0].value)
             if(mail[0].value === "" && password[0].value === "") {
                 msg[0].textContent = "Insert a valid email and/or password"
                 login_fail[0].setAttribute("class", "login-fail modal modal-open")
@@ -71,14 +70,13 @@ export default {
         }
     },
     sockets:{
-        login_ok(res){
-            console.log(res)
+        login_ok(res) {
             //EXAMPLE ON HOW TO USE STORE
             store.commit('setToken',res.token)
             store.commit('setUser',res.user)
             this.$router.push("/")
         },
-        login_error(err){
+        login_error(err) {
             msg[0].textContent = err.message
             login_fail[0].setAttribute("class", "login-fail modal modal-open")
         }

@@ -9,11 +9,11 @@
 import Checkerboard from '@/components/boardComponents/Checkerboard'
 import Chat from '@/components/boardComponents/Chat'
 export default {
-    name: "Game",
-    components: {
-        Checkerboard,
-        Chat
-    },
+  name: "Game",
+  components: {
+      Checkerboard,
+      Chat
+  }
 }
 </script>
 

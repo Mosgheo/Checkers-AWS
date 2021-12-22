@@ -1,34 +1,46 @@
 <template>
-	<div
+	<!--<div
 		:class="[piece.player_id, piece.type]"
 		class="piece"
 		@click="selectPiece">
 		<img
 			v-if="isKing"
 			src="@/assets/logo.png">
-	</div>
+	</div>-->
+    <div v-if="this.piece <= 20" @click="selectPiece">
+        B
+        <!--<div class="piece pieceOne">
+            <img v-if="isKing" src="@/assets/logo.png" />
+        </div>-->
+    </div>
+    <div v-else-if="this.piece >= 31" @click="selectPiece">
+        W
+        <!--<div class="piece pieceTwo">
+            <img v-if="isKing" src="@/assets/logo.png" />
+        </div>-->
+    </div>
 </template>
 
 <script>
 import '@/assets/logo.png';
-import { getCurrentInstance } from 'vue'
+//import { getCurrentInstance } from 'vue'
 
-var appInstance = null
+//var appInstance = null
 
 
 export default {
     props: ['piece'],
-    methods: {
-        selectPiece(){
-            this.$emit("selectPiece");
-        }
-    },
     setup() {
-        appInstance = getCurrentInstance().appContext.config.globalProperties
+        //appInstance = getCurrentInstance().appContext.config.globalProperties
     },
     computed: {
-        isKing(){
-            return this.piece.type === appInstance.$PIECE_TYPE_KING;
+        isKing() {
+            return false//this.piece.type === appInstance.$PIECE_TYPE_KING;
+        }
+    },
+    methods: {
+        selectPiece() {
+            this.$emit("selectPiece");
         }
     }
 }
@@ -44,10 +56,10 @@ export default {
     width: 75%;
     height: 75%;
 }
-.piece.one {
+.pieceOne {
     background-color: #D9CAB3;
 }
-.piece.two {
+.pieceTwo {
     background-color: #a30010;
 }
 .piece img {

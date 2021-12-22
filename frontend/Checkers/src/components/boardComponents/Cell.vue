@@ -1,16 +1,27 @@
 <!--<template>
-    <span class="checkerSquare"></span>
-</template>-->
-<template>
 	<div
 		:class="getClasses"
 		class="cell"
 		:style="{flex: size}"
 		@click="selectCell">
-		<template v-if="cell.piece">
+		<template v-if="this.cell !== 0">
 			<Piece
 				:piece="cell.piece"
 				@selectPiece="selectPiece"/>
+		</template>
+	</div>
+</template>-->
+<template>
+	<div
+		:class="getClasses"
+    :id="this.cell"
+		class="cell"
+		:style="{flex: size}"
+		@click="selectCell" 
+    @mouseover="hoverCell"
+    @mouseleave="leaveCell" >
+		<template v-if="this.cell in this.moves">
+			<Piece :piece="this.cell" @selectPiece="selectPiece" />
 		</template>
 	</div>
 </template>
@@ -22,55 +33,53 @@ import { getCurrentInstance } from 'vue'
 var appInstance = null
 
 export default {
-  props: ['cell', 'size', 'x', 'y', 'moves'],
+  props: ['cell', 'size', 'x', 'y', 'moves', 'myMoves'],
   components: {
     Piece
   },
   setup() {
     appInstance = getCurrentInstance()
   },
-  data() {
-    return {
-      //piece: null,
-    }
-  },
   methods: {
-    getColor() {
-      if ((Number(this.row) + Number(this.col)) % 2 == 0) {
-        return 'white';
-      } else {
-        return 'black';
+    selectPiece() {
+      this.$emit("selectPiece", this.cell.piece, this.myMoves);
+    },
+    selectCell() {
+      if(this.cell > 0) {
+        this.$emit("selectCell", this.cell);
       }
     },
-    selectPiece(){
-      this.$emit("selectPiece", this.cell.piece, this.moves);
+    hoverCell() {
+      if(this.cell in this.myMoves && this.myMoves[this.cell].length > 0) {
+        this.$el.style.backgroundColor = "red"
+        this.$emit("hover-cell", this.cell)
+      }
     },
-    selectCell(){
-      if(this.cell.targeted){
-        this.$emit("selectCell", this.x, this.y);
+		leaveCell() {
+      if(this.cell !== 0) {
+        this.$el.style.backgroundColor = "black"
+        this.$emit("release", this.cell)
       }
     }
-		
   },
   computed: {
-    getClasses(){
+    getClasses() {
       const classes = [];
       if((this.x + this.y) % 2) {
         classes.push(appInstance.appContext.config.globalProperties.$COLOR_BOTTOM);
       } else {
         classes.push(appInstance.appContext.config.globalProperties.$COLOR_TOP);
       }
-      if(this.moves && Object.keys(this.moves).length) {
+      /*if(this.myMoves && Object.keys(this.myMoves).length) {
         classes.push('selected');
       }
       if(this.cell.targeted) {
         classes.push('targeted');
-      }
+      }*/
       return classes;
-    }
-    /*style() {
+    },
+    style() {
       return {
-        backgroundColor: this.getColor(),
         width: '50px',
         height: '50px',
         display: 'inline-block',
@@ -78,7 +87,7 @@ export default {
         marginRight: '0px',
         marginTop: '-3px'
       };
-    }*/
+    }
   }
 }
 </script>

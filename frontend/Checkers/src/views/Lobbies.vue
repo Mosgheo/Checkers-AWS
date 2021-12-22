@@ -35,8 +35,6 @@ export default {
   methods: {
     joinLobby(id) {
       if(this.res.length > 0) {
-        console.log("There is some lobbies!!!!")
-        console.log(id)
         api.join_lobby(this.$socket, id)
       }
     }

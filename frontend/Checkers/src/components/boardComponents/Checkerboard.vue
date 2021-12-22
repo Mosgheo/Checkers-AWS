@@ -1,136 +1,163 @@
 <template>
 	<div class="content flex flex-col flex-grow">
-    <appPlayer1 :player="player[1]"/>
-		<!--<app-header @newGame="newGame"/>-->
-		<div class="wrapper" @newGame="newGame">
+    <appPlayer1 :player="this.player2"/>
+		<div class="wrapper">
 			<div class="subwrapper">
 				<div class="grid">
-					<template v-for="(row, y) in game.board.grid">
-						<appCell
-							v-for="(cell, x) in row"
-							:key="x+'-'+y"
-							:x="x"
+          <template v-for="(row, y) in this.board">
+            <appCell 
+              v-for="(cell, x) in row"
+              :key="x+'-'+y"
+              :x="x"
 							:y="y"
-							:cell="cell"
-							:moves="cell.piece ? moves[cell.piece.getKey()] : {}"
-							:size="getSize"
-							@selectPiece="selectPiece"
-							@selectCell="selectCell"/>
-					</template>
+              :cell="cell"
+              :myMoves="this.myMoves"
+              :moves="this.moves"
+              :size="getSize"
+              @hover-cell="checkMoves"
+              @release="release" 
+              @selectCell="selectCell"/>
+          </template>
 				</div>
 			</div>
 		</div>
-    <appPlayer0 :player="player[0]" class="elf-start"/>
+    <appPlayer0 :player="this.player1" class="self-start"/>
 	</div>
 </template>
 
 <script>
-//import Header from 'Components/Header';
 import Cell from '@/components/boardComponents/Cell';
 import Player from '@/components/boardComponents/Player';
-import GameManager from '@/helpers/game_manager'; 
+import { getCurrentInstance } from 'vue'
+import store from '@/store'
+
+var user = null
+
+var appInstance = null
 
 export default {
   components: {
-    //appHeader: Header,
     appCell: Cell,
     appPlayer1: Player,
     appPlayer0: Player
   },
-  data(){
-    GameManager.init();
-    GameManager.addPieces();
+  setup() {
+    appInstance = getCurrentInstance().appContext.config.globalProperties
+    user = store.getters.user
+  },
+  data() {
+    let grid = []
+    var cell = 1
+    for(let i = 0; i < appInstance.$BOARD_SIZE; i++) {
+      let row = []
+      for(let j = 0; j < appInstance.$BOARD_SIZE; j++) {
+        if((i+1) % 2 == 0) {
+          if((j+1) % 2 != 0) {
+            row[j] = cell
+            cell++
+          } else {
+            row[j] = 0
+          }
+        } else {
+          if((j+1) % 2 == 0) {
+            row[j] = cell
+            cell++
+          } else {
+            row[j] = 0
+          }
+        }
+        
+      }
+      grid.push(row)
+    }
 
     return {
-      game           : GameManager,
-      moves          : GameManager.getAllAvailableMoves(),
-      targeted_cells : [],
-      selected_piece : false,
-      available_moves: {},
-      player         : [],
-    }
-  },
-  sockets: {
-    player(data) {
-      this.player = data
+      board: grid,
+      playerId: null,
+      moves: [],
+      myMoves: [],
+      possibleMoves: [],
+      player1: [],
+      player2: [],
+      clickedCell: null,
+      counterClick: 0
     }
   },
   computed: {
     getSize() {
-      return "0 0 " + 100/this.game.board.size + "%";
+      return "0 0 " + 100/appInstance.$BOARD_SIZE + "%";
     }
   },
   methods: {
-    clearTargetedCells() {
-      this.targeted_cells.forEach((key) => {
-        GameManager.board.getCellAt(key[0], key[1]).targeted = false;
-      });
-      this.targeted_cells = [];
-    },
-    selectPiece(piece, moves) {
-      // Untarget previous cells
-      this.clearTargetedCells();
-
-      if(this.selected_piece && this.selected_piece.x === piece.x && this.selected_piece.y === piece.y){
-        // If already selected, just clear selected piece
-        this.selected_piece = false;
-        return;
-      }
-
-      const self           = this;
-      this.available_moves = moves;
-      this.selected_piece  = piece;
-
-      // Target new cell
-      if(moves){
-        Object.keys(moves).forEach((key) => {
-          key = key.split("_");
-          self.targeted_cells.push([key[0], key[1]]);
-          GameManager.board.getCellAt(key[0], key[1]).targeted = true;
-        });
+    checkMoves(cell) {
+      for(let i = 0; i < this.possibleMoves.length; i++) {
+        if(this.possibleMoves[i].from === cell) {
+          var possibleMove = document.getElementById("" + this.possibleMoves[i].to)
+          possibleMove.style.backgroundColor = "red"
+        }
       }
     },
-    selectCell(x, y) {
-      const self  = this;
-      const piece = GameManager.makeMove(this.selected_piece, x, y, this.available_moves[x + "_" + y]);
-
-      const winners = GameManager.checkForVictory(this.moves);
-      if(winners){
-        const message = winners.length > 1 ? "Equality!" : "Player #" + winners[0] + " won the game!";
-        this.$toasted.show(message, {
-          theme   : "outline",
-          icon    : "stars",
-          position: "top-center",
-          duration: 5000,
-          action : {
-          text : 'Play again?',
-            onClick : (e, toastObject) => {
-              toastObject.goAway(0);
-              self.newGame();
-            }
-          },
-        });
-        return;
+    release(cell) {
+      for(let i = 0; i < this.possibleMoves.length; i++) {
+        if(this.possibleMoves[i].from === cell) {
+          var possibleMove = document.getElementById("" + this.possibleMoves[i].to)
+          possibleMove.style.backgroundColor = "black"
+        }
       }
-
-      this.clearTargetedCells();
-      this.moves = GameManager.getAllAvailableMoves();
-      if(piece){
-        this.selected_piece = false;
-        this.selectPiece(piece, this.moves[piece.getKey()]);
+    },
+    selectCell(cell) {
+      if(cell === this.clickedCell) {
+        this.clickedCell = null
+        this.counterClick = 0
+        this.release(cell)
+      } else if(this.counterClick === 0) {
+        console.log(cell)
+        this.clickedCell = cell
+        this.counterClick++
+      } else {
+        var cellWithPiece = document.getElementById(this.clickedCell)
+        var cellWithoutPiece = document.getElementById("" + cell)
+        var piece = (cellWithPiece.children)[0]
+        for(let i = 0; i < this.possibleMoves.length; i++) {
+          if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === cell) {
+            cellWithPiece.removeChild(piece)
+            cellWithoutPiece.appendChild(piece)
+            break;
+          }
+        }
+        this.clickedCell = null
+        this.counterClick = 0
       }
+    }
+  },
+  sockets: {
+    token_error(error) {
+      console.log(error)
+    },
+    game_started(res) {
+      console.log(res)
+      this.player1 = res[0]
+      this.player2 = res[1]
+      if(this.player1.username === user.username) {
+        this.playerId = 1
+        this.myMoves = res[2].board[1]
+      } else {
+        this.playerId = 2
+        this.myMoves = res[2].board[2]
+      }
+      this.moves = {...res[2].board[1], ...res[2].board[2]}
 
+      this.possibleMoves = []
+      for(const [key, value] of Object.entries(this.myMoves)) {
+        if(key && value.length !== 0) {
+          for(let i = 0; i < value.length; i++) {
+            this.possibleMoves.push(value[i])
+          }
+        }
+      }
     },
-    newGame() {
-      console.log("ciao")
-      GameManager.init();
-      GameManager.addPieces();
-      this.moves = GameManager.getAllAvailableMoves();
-    },
-    restore() {
-      GameManager.restore();
-      this.clearTargetedCells();
-      this.moves = GameManager.getAllAvailableMoves();
+    permit_error(error) {
+      console.log(error)
     }
   }
 }
