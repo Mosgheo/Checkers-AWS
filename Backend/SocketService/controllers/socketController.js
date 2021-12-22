@@ -729,6 +729,7 @@ io.on('connection', async client => {
   })
 
   client.on('update_profile',async(params,token) =>{
+    console.log("UPDATING SOME PROFILE YO")
     const user = await user_authenticated(token,client.id)
     if(user[0]){
       const user_mail = online_users.get(client.id)

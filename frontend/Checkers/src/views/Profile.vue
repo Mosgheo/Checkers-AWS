@@ -1,13 +1,13 @@
 <template>
   <div class="profile flex flex-col">
     <div class="basic-info card lg:card-side flex flex-row">
-      <img src="https://picsum.photos/id/1005/250" class="mask mask-square p-5">
+      <img v-bind:src="getAvatar()" class="mask mask-square p-5">
       <div class="p-3">
         <div class="flex p-2">
           <h2 v-bind:innerText="getUsername" class="card-title"></h2>
           <div class="avatar">
             <div class="ml-1 rounded-btn w-11 h-11">
-              <img src="http://daisyui.com/tailwind-css-component-profile-1@40w.png">
+              <img v-bind:src="getAvatar()" class="avatar2">
             </div>
           </div>
         </div> 
@@ -57,11 +57,13 @@ export default {
       return "Username"
     },
     getFirstLastName() {
-      if(user.name !== undefined) {
+      if(user.first_name == "" && user.last_name == "") {
+        return "Nome Cognome"
+      }else{
         return "" + user.first_name + " " + user.last_name
       }
-      return "Nome Cognome"
-    }
+    },
+
   },
   methods: {
     dataInfo() {
@@ -83,6 +85,9 @@ export default {
         ((document.getElementsByClassName("card-title"))[1]).innerHTML = "Storico Partite"
         matchInfo.mount(wrapper[0])
       }
+    },
+    getAvatar(){
+      return user.avatar === "" ? "http://daisyui.com/tailwind-css-component-profile-1@40w.png" : user.avatar
     }
   }
 }
@@ -103,6 +108,11 @@ export default {
 
 .tab {
   color: #A39D8F;
+}
+
+img {
+    max-width: 300px;
+    max-height: 300px;
 }
 
 @media (max-width: 785px) {
