@@ -1,5 +1,3 @@
-const socket = this
-
 function getToken(){
     return sessionStorage.token
 }
@@ -20,7 +18,7 @@ var api = {
     join_lobby(socket, lobby_id){
         socket.emit("join_lobby",lobby_id,getToken())
     },
-    delete_lobby(lobby_id) {
+    delete_lobby(socket, lobby_id) {
         socket.emit("delete_lobby",lobby_id,getToken())
     },
     get_leaderboard(socket){
@@ -37,22 +35,22 @@ var api = {
     },
 
     //Can try
-    leave_game(lobby_id){
+    leave_game(socket, lobby_id){
         socket.emit("leave_game",lobby_id,getToken())
     },
-    tie_game(lobby_id){
+    tie_game(socket, lobby_id){
         socket.emit("tie_game",lobby_id,getToken())
     },
-    game_history(lobby_id){
+    game_history(socket, lobby_id){
         socket.emit("game_history",lobby_id,getToken())
     },
-    move_piece(lobby_id,from,to){
+    move_piece(socket, lobby_id, from, to){
         socket.emit("move_piece",lobby_id,from,to,getToken())
     },
-    global_msg(msg){
+    global_msg(socket, msg){
         socket.emit("global_msg",msg,getToken())
     },
-    game_msg(lobby_id,msg){
+    game_msg(socket, lobby_id, msg){
         socket.emit("game_msg",lobby_id,msg,getToken())
     },
 

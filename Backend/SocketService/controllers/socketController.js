@@ -366,6 +366,7 @@ io.on('connection', async client => {
               game.push(host_specs)
               game.push(opponent_specs)
               game.push(board)
+              game.push(lobby_id)
               console.log("GAME "+game)
               io.to(lobby_id).emit("game_started",game)
               turn_timeouts.set(lobby_id, setTimeout(function(){
@@ -508,8 +509,9 @@ io.on('connection', async client => {
       if(online_users.has(client.id) && lobbies.has(lobby_id)){
         let player = online_users.get(client.id)
         let lobby = lobbies.get(lobby_id)
+        console.log(lobby)
         //is == ok down here? ->
-        if(lobby.hasPlayer(player) && lobby.turn == player.turn){
+        if(lobby.hasPlayer(player) && lobby.turn === player){
           try{
             let {data: move_result} = await axios.put(game_service+"/game/movePiece",{game_id: lobby_id,from:from,to:to})
             if(move_result.winner === ""){

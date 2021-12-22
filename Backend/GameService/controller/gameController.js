@@ -145,7 +145,7 @@ exports.movePiece = function(req,res){
         let game = games.get(game_id).draughts
         if(game.move(req.body.from+"-"+req.body.to) != null){
             let data = parseFEN(game_id)
-            if(game.game_over()){
+            if(game.gameOver()){
                 /**HANDLE WIN NOTIFICATION */
                 if(winCheck(game_id)){
                     gameEnd(game_id,false,game.winner,game.loser)
@@ -194,7 +194,9 @@ exports.create_game = function(req,res){
         game.loser = ""
         game.turn = game.white
         games.set(game_id,game)
-        res.status(200).json(parseFEN(game_id))
+        res.status(200).json({
+            board: parseFEN(game_id)
+        })
     }catch(err){
         console.log(err)
         res.status(500).send({message:"Something went wrong while creating a game"})
@@ -249,7 +251,7 @@ function parseFEN(game_id) {
         let moves = game.getLegalMoves(piece)
         white_pieces_with_moves.set(piece,moves)
     }
-    data.push(white_pieces_with_moves)
-    data.push(black_pieces_with_moves)
+    data.push(Object.fromEntries(white_pieces_with_moves))
+    data.push(Object.fromEntries(black_pieces_with_moves))
     return data
 }

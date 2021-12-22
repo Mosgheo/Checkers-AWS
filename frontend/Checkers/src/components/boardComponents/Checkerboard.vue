@@ -30,6 +30,7 @@ import Cell from '@/components/boardComponents/Cell';
 import Player from '@/components/boardComponents/Player';
 import { getCurrentInstance } from 'vue'
 import store from '@/store'
+import api from '../../../api.js'
 
 var user = null
 
@@ -73,6 +74,7 @@ export default {
 
     return {
       board: grid,
+      lobbyId: null,
       playerId: null,
       moves: [],
       myMoves: [],
@@ -122,6 +124,8 @@ export default {
           if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === cell) {
             cellWithPiece.removeChild(piece)
             cellWithoutPiece.appendChild(piece)
+            console.log(this.lobbyId)
+            api.move_piece(this.$socket, this.lobbyId, this.clickedCell, cell)
             break;
           }
         }
@@ -155,6 +159,8 @@ export default {
           }
         }
       }
+
+      this.lobbyId = res[3]
     },
     permit_error(error) {
       console.log(error)
