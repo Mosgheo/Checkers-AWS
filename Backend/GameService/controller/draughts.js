@@ -457,7 +457,7 @@ module.exports = class Draughts{
               matchArray = str.match(/^[BW]0+/) // e.g. B000, W0
               if (matchArray !== null) {
                 for (var i = 1; i < matchArray[0].length; i++) {
-                  posTo = posFrom + (i * STEPS[dir])
+                  posTo = posFrom + (i * this.STEPS[dir])
                   moveObject = {from: posFrom, to: posTo, takes: [], jumps: []}
                   moves.push(moveObject)
                 }
@@ -510,18 +510,18 @@ module.exports = class Draughts{
             case 'w':
               var matchArray = str.match(/^b[wW]0|^w[bB]0/) // matches: bw0, bW0, wB0, wb0
               if (matchArray !== null) {
-                var posTo = posFrom + (2 * STEPS[dir])
-                var posTake = posFrom + (1 * STEPS[dir])
+                var posTo = posFrom + (2 * this.STEPS[dir])
+                var posTake = posFrom + (1 * this.STEPS[dir])
                 if (capture.takes.indexOf(posTake) > -1) {
                   continue // capturing twice forbidden
                 }
-                var updateCapture = clone(capture)
+                var updateCapture = this.clone(capture)
                 updateCapture.to = posTo
                 updateCapture.jumps.push(posTo)
                 updateCapture.takes.push(posTake)
                 updateCapture.piecesTaken.push(this.position.charAt(posTake))
                 updateCapture.from = posFrom
-                var updateState = clone(state)
+                var updateState = this.clone(state)
                 updateState.dirFrom = this.oppositeDir(dir)
                 var pieceCode = updateState.position.charAt(posFrom)
                 updateState.position = this.setCharAt(updateState.position, posFrom, 0)
@@ -538,19 +538,19 @@ module.exports = class Draughts{
                 var matchArraySubstr = matchStr.match(/[wW]0+$|[bB]0+$/) // matches: w000, B00
                 var matchSubstr = matchArraySubstr[0]
                 var takeIndex = matchStr.length - matchSubstr.length
-                posTake = posFrom + (takeIndex * STEPS[dir])
+                posTake = posFrom + (takeIndex * this.STEPS[dir])
                 if (capture.takes.indexOf(posTake) > -1) {
                   continue
                 }
                 for (var i = 1; i < matchSubstr.length; i++) {
-                  posTo = posFrom + ((takeIndex + i) * STEPS[dir])
-                  updateCapture = clone(capture)
+                  posTo = posFrom + ((takeIndex + i) * this.STEPS[dir])
+                  updateCapture = this.clone(capture)
                   updateCapture.jumps.push(posTo)
                   updateCapture.to = posTo
                   updateCapture.takes.push(posTake)
                   updateCapture.piecesTaken.push(position.charAt(posTake))
                   updateCapture.posFrom = posFrom
-                  updateState = clone(state)
+                  updateState = this.clone(state)
                   updateState.dirFrom = this.oppositeDir(dir)
                   pieceCode = updateState.position.charAt(posFrom)
                   updateState.position = this.setCharAt(updateState.position, posFrom, 0)

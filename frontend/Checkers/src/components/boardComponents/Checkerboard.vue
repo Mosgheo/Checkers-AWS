@@ -26,8 +26,8 @@
 </template>
 
 <script>
-import Cell from '@/components/boardComponents/Cell';
-import Player from '@/components/boardComponents/Player';
+import Cell from '@/components/boardComponents/Cell'
+import Player from '@/components/boardComponents/Player'
 import { getCurrentInstance } from 'vue'
 import store from '@/store'
 import api from '../../../api.js'
@@ -120,12 +120,11 @@ export default {
         } else {
           var cellWithPiece = document.getElementById(this.clickedCell)
           var cellWithoutPiece = document.getElementById("" + cell)
-          var piece = (cellWithPiece.children)[0]
+          var piece = cellWithPiece.innerText
           for(let i = 0; i < this.possibleMoves.length; i++) {
             if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === cell) {
-              cellWithPiece.removeChild(piece)
-              cellWithoutPiece.appendChild(piece)
-              console.log(this.lobbyId)
+              cellWithoutPiece.innerText = piece
+              cellWithPiece.innerText = ""
               api.move_piece(this.$socket, this.lobbyId, this.clickedCell, cell)
               break;
             }
@@ -166,11 +165,46 @@ export default {
       console.log(error)
     },
     update_board(res) {
-      console.log(res)
+      console.log(res[1])
+      console.log(res[2])
+
+      var cells = Array.from((document.getElementsByClassName("grid")[0]).children)
+      for(let i = 0; i < cells.length; i++) {
+        if(cells[i].id in res[2]) {
+          if(cells[i].children.length > 0) {
+            (cells[i].children[0]).remove()
+          }
+          cells[i].innerText = "B"
+        } else if(cells[i].id in res[1]) {
+          if(cells[i].children.length > 0) {
+            (cells[i].children[0]).remove()
+          }
+          cells[i].innerText = "W"
+        } else {
+          if(cells[i].children.length > 0) {
+            (cells[i].children[0]).remove()
+          }
+          cells[i].innerText = ""
+        }
+      }
+
+      if(this.player1.username === user.username) {
+        this.myMoves = res[1]
+      } else {
+        this.myMoves = res[2]
+      }
+
+      this.possibleMoves = []
+      for(const [key, value] of Object.entries(this.myMoves)) {
+        if(key && value.length !== 0) {
+          for(let i = 0; i < value.length; i++) {
+            this.possibleMoves.push(value[i])
+          }
+        }
+      }
     },
     turn_change(res) {
-      console.log(res.next_player[0])
-      this.playerTurn = res.next_player[0]
+      this.playerTurn = res.next_player
     }
   }
 }
