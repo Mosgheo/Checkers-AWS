@@ -133,6 +133,38 @@ export default {
           this.counterClick = 0
         }
       }
+    },
+    checkPossibleEat() {
+      var possibleEat = []
+      for(const [key, value] of Object.entries(this.myMoves)) {
+        if(key && value.length !== 0) {
+          for(let i = 0; i < value.length; i++) {
+            if(value[i].piecesTaken !== undefined) {
+              possibleEat.push(value[i])
+            }
+          }
+        }
+      }
+      return possibleEat
+    },
+    colorCells() {
+      for(const [key] of Object.entries(this.myMoves)) {
+        document.getElementById("" + key).style.backgroundColor = "black"
+      }
+      if(this.playerTurn === user.mail) {
+        var possibleEat = this.checkPossibleEat()
+        if(possibleEat.length > 0) {
+          possibleEat.forEach(move => document.getElementById("" + move.from).style.backgroundColor = "#333333")
+          return
+        }
+        for(const [key, value] of Object.entries(this.myMoves)) {
+          if(key && value.length !== 0) {
+            for(let i = 0; i < value.length; i++) {
+              document.getElementById("" + value[i].from).style.backgroundColor = "#333333"
+            }
+          }
+        }
+      }
     }
   },
   sockets: {
@@ -160,6 +192,8 @@ export default {
       }
 
       this.lobbyId = res[3]
+
+      this.colorCells()
     },
     permit_error(error) {
       console.log(error)
@@ -205,6 +239,7 @@ export default {
     },
     turn_change(res) {
       this.playerTurn = res.next_player
+      this.colorCells()
     }
   }
 }
