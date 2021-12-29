@@ -10,8 +10,8 @@
 </template>
 
 <script>
-import Sidebar from '@/components/sidebarComponents/Sidebar'
-import {sidebarWidth} from '@/components/sidebarComponents/state'
+import Sidebar from '@/components/sidebarComponents/Sidebar.vue'
+import {sidebarWidth} from '@/components/sidebarComponents/state.js'
 
 export default {
   components: {

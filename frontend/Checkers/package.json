@@ -8,13 +8,12 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@auth0/auth0-spa-js": "^1.18.0",
+    "@babel/eslint-parser": "^7.16.5",
     "@fortawesome/fontawesome-free": "^5.15.3",
-    "auth0": "^2.36.2",
     "core-js": "^3.6.5",
     "daisyui": "^1.16.0",
     "sass-loader": "^12.2.0",
-    "socket.io-client": "^4.2.0",
+    "socket.io-client": "^4.4.0",
     "vue": "^3.2.20",
     "vue-3-socket.io": "^1.0.4",
     "vue-router": "^4.0.11",
@@ -22,13 +21,9 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss7-compat": "^2.2.17",
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.0",
     "autoprefixer": "^9.8.8",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
+    "eslint": "^8.5.0",
     "eslint-plugin-vue": "^7.0.0",
     "postcss": "^7.0.39",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17"

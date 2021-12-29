@@ -8,10 +8,9 @@
     <SidebarLink class="leaderboard" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
     <SidebarLink class="domande" to="/domande" icon="fas fa-question">Domande</SidebarLink>
 
-    <div v-if="!$auth.loading.value">
-        <SidebarLink class="login" to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
-        <SidebarLink class="logout" to="" v-if="$auth.isAuthenticated.value" @click="logout">Log out</SidebarLink>
-    </div>
+    <!--<div v-if="!$store.loading.value">-->
+        <SidebarLink class="login" v-if="$store.is_authenticated" to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
+    <!--</div>-->
 
     <!--<span
       class="collapse-icon"
@@ -39,11 +38,6 @@ export default {
       this.$socket.emit("login", "pasottipro@gmail.com")
       //this.$auth.loginWithRedirect();
     },
-    logout() {
-      this.$auth.logout({
-        returnTo: window.location.origin
-      });
-    }
   }
 }
 </script>

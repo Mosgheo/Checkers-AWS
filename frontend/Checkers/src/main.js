@@ -1,11 +1,9 @@
 import { createApp } from 'vue'
-import App from './App'
+import App from './App.vue'
 import router from './router'
 import VueSocketIO from 'vue-3-socket.io'
 import SocketIO from 'socket.io-client'
 import  store  from './store'
-import authConfig from '../auth_config.json'
-import { setupAuth } from './auth'
 import '@/assets/styles/app.css'
 
 import '@fortawesome/fontawesome-free/js/all'
@@ -23,12 +21,14 @@ app.config.globalProperties.$PIECE_TYPE_KING = "king"
 app
 .use(new VueSocketIO({
   connection: SocketIO('http://localhost:3030'),
-  vuex: false,
+  vuex: store,
 }))
 .use(router)
 .use(store)
 
-function callbackRedirect(appState) {
+app.mount('#app')
+
+/*function callbackRedirect(appState) {
   router.push(
     appState && appState.targetUrl
       ? appState.targetUrl
@@ -38,4 +38,4 @@ function callbackRedirect(appState) {
 
 setupAuth(authConfig, callbackRedirect).then((auth) => {
   app.use(auth).mount('#app')
-})
+})*/
