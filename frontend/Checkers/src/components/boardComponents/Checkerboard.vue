@@ -192,6 +192,7 @@ export default {
       }
 
       this.lobbyId = res[3]
+      store.in_game = true
 
       this.colorCells()
     },
@@ -240,6 +241,9 @@ export default {
     turn_change(res) {
       this.playerTurn = res.next_player
       this.colorCells()
+    },
+    left_game(res) {
+      console.log(res)
     }
   }
 }

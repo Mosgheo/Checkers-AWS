@@ -772,7 +772,7 @@ module.exports = class Draughts{
         while (tempHistory.length > 0) {
           var move = tempHistory.shift()
           if (verbose) {
-            moveHistory.push(makePretty(move))
+            moveHistory.push(this.makePretty(move))
           } else {
             moveHistory.push(move.move.from + SIGNS[move.move.flags] + move.move.to)
           }
