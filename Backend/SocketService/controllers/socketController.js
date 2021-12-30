@@ -180,7 +180,60 @@ async function updatePoints(player1,points1,player2,points2){
       return []
     }
 }
+async function handle_disconnection(player){
+  const client_id = online_users.getKey(player)
+  if(!isInLobby(player)){
+    console.log(player + "just disconnected but wasn't in lobby")
+    online_users.delete(client_id)
+  }else{
+    const lobby = Array.from(lobbies.values()).filter(lobby => lobby.hasPlayer(player))[0]
+    let lobby_id = lobbies.getKey(lobby)
+    console.log(player + "from lobby" + lobby_id + " is  trying to disconnect")
+    if(lobby.isFree()){
+      console.log("lobby "+lobby_id+ "is free")
+      console.log(online_users.get(client_id)+" just disconnected and his lobby has been deleted")
+      lobbies.delete(lobby_id)
+      online_users.delete(client_id)
+    }else{
+      console.log("lobby"+lobby_id +"isn't free")
+      try{
+        let opponent = ""
+        //Player disconnecting is the host
+        if(lobby.getPlayers(0) == player){
+          const {data:game_end} = await axios.post(game_service+"/game/deleteGame",{game_id:lobby_id,winner:lobby.getPlayers(1),forfeiter:lobby.getPlayers(0)})
+          opponent = lobby.getPlayers(1)
+          io.to(lobby_id).emit("player_left",game_end)
+          console.log(player +" is the host, deleting game")
+        }
+        else{
+          console.log(player +" isn't the host, deleting game")
+          const {data:game_end} = await axios.post(game_service+"/game/deleteGame",{game_id:lobby_id,winner:lobby.getPlayers(0),forfeiter:lobby.getPlayers(1)})
+          io.to(lobby_id).emit("player_left",game_end)
+          opponent = lobby.getPlayers(0)
+        }
 
+        const {data:updated_users} = await updatePoints(opponent,process.env.WIN_STARS,player,process.env.LOSS_STARS)
+        if(updated_users){
+          io.to(online_users.getKey(opponent)).emit("user_update",updated_users[0])
+          client.emit("user_update",updated_users[1])
+        }else{
+          io.to(lobby_id).emit("server_error",{message:"Something went wrong while updating points"})
+        }
+        lobbies.deleteValue(lobby)
+        online_users.delete(client_id)
+        clearTimeout(turn_timeouts.get(lobby_id))
+        turn_timeouts.delete(lobby_id)
+      }catch(err){
+        console.log("something bad occured "+err)
+        if(err.hasOwnProperty('response')){
+          if(err.response.status == 500){
+            io.to(lobby_id).emit("server_error",err.response.data)
+          }
+        }
+      }
+    }
+  }
+}
 
 io.on('connection', async client => {
   console.log("a user connected")
@@ -189,60 +242,10 @@ io.on('connection', async client => {
   client.on('disconnect', async()=>{
     console.log('A player disconnected');
     //Remove player from active players
-
     const player = online_users.get(client.id)
-    if(!isInLobby(player)){
-      console.log(player + "just disconnected but wasn't in lobby")
-      online_users.delete(client.id)
-    }else{
-      const lobby = Array.from(lobbies.values()).filter(lobby => lobby.hasPlayer(player))[0]
-      let lobby_id = lobbies.getKey(lobby)
-      console.log(player + "from lobby" + lobby_id + " is  trying to disconnect")
-      if(lobby.isFree()){
-        console.log("lobby "+lobby_id+ "is free")
-        console.log(online_users.get(client.id)+" just disconnected and his lobby has been deleted")
-        lobbies.delete(lobby_id)
-        online_users.delete(client.id)
-      }else{
-        console.log("lobby"+lobby_id +"isn't free")
-        try{
-          let opponent = ""
-          //Player disconnecting is the host
-          if(lobby.getPlayers(0) == player){
-            const {data:game_end} = await axios.post(game_service+"/game/deleteGame",{game_id:lobby_id,winner:lobby.getPlayers(1),forfeiter:lobby.getPlayers(0)})
-            opponent = lobby.getPlayers(1)
-            io.to(lobby_id).emit("player_left",game_end)
-            console.log(player +" is the host, deleting game")
-          }
-          else{
-            console.log(player +" isn't the host, deleting game")
-            const {data:game_end} = await axios.post(game_service+"/game/deleteGame",{game_id:lobby_id,winner:lobby.getPlayers(0),forfeiter:lobby.getPlayers(1)})
-            io.to(lobby_id).emit("player_left",game_end)
-            opponent = lobby.getPlayers(0)
-          }
-
-          const {data:updated_users} = await updatePoints(opponent,process.env.WIN_STARS,player,process.env.LOSS_STARS)
-          if(updated_users){
-            io.to(online_users.getKey(opponent)).emit("user_update",updated_users[0])
-            client.emit("user_update",updated_users[1])
-          }else{
-            io.to(lobby_id).emit("server_error",{message:"Something went wrong while updating points"})
-          }
-          lobbies.deleteValue(lobby)
-          online_users.delete(client.id)
-          clearTimeout(turn_timeouts.get(lobby_id))
-          turn_timeouts.delete(lobby_id)
-        }catch(err){
-          console.log("something bad occured "+err)
-          if(err.hasOwnProperty('response')){
-            if(err.response.status == 500){
-              io.to(lobby_id).emit("server_error",err.response.data)
-            }
-          }
-        }
-      }
-    }
+    await handle_disconnection(player)
   });
+  //client.on('logout', await handle_disconnection(online_users.get(client.id)).then(online_users.set(client.id,get_id())));
 
   client.on('login', async (mail,password) => {
     console.log("a user is tryng to log in")
@@ -253,13 +256,13 @@ io.on('connection', async client => {
       client.emit("login_error","Someone is already logged in with such email")
     }else{
       try{
-        const user = await axios.post(user_service+"/login",{
+        const {data:user} = await axios.post(user_service+"/login",{
           mail:mail,
           password:password
         })
         online_users.delete(client.id)
         online_users.set(client.id,mail)
-        client.emit("login_ok",user.data)
+        client.emit("login_ok",user)
       }catch(err){
         if(err.hasOwnProperty('response')){
           if(err.response.status == 400){
@@ -290,7 +293,34 @@ io.on('connection', async client => {
       console.log("Signup_err",err)
     }
   })
+  client.on('refresh_token',async(token)=>{
+    const user = await user_authenticated(token,client.id)
+      if(user[0]){
+        try{
+          const {data:new_token} = await axios.get(user_service+"/refresh_token",
+          {params:
+            {
+              mail: online_users.get(client.id),
+              token:token
+            }
+          })
+          client.emit("token_ok",new_token)
+        }catch(err){
+          console.log(err)
+          if(err.hasOwnProperty('response')){
+            if(err.response.status == 500){
+              client.emit("token_error",err.response.data)
+            }
+            else{
+              client.emit("token_error",{message:"Your token expired, please log-in again"})
+            }
+          }
+        }
 
+      }else{
+        client.emit("client_error",{message:"Your token expired, please log-in again"})
+      }
+  })
   /**
    *  
    * Lobby handling 

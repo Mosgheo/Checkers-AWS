@@ -27,6 +27,7 @@ const password_validator = new passwordValidator()
     .has().digits(2)
     .has().not().spaces()
     .has().symbols(1)
+
 const jsecret_path = './jwt_secret';
 const jwt_secret = load_jwt_secret()
 
@@ -138,15 +139,32 @@ exports.login = async function(req,res){
     }
 }
 exports.refresh_token = async function (req,res){
-    const mail = req.query
-    const token_id = req.authData.user_id
-    if(id === token_id){
-        const user = await User.find({mail:mail})
-        if(user){
+    const mail = req.query.mail
+    const token = req.query.token
+    console.log("hello "+token)
+    var token_mail = JSON.parse(Buffer.from(token.split('.')[1], 'base64')).user.email;
+    console.log("mail token " + token_mail)
+    console.log("mail: "+mail )
+    if(mail === token_mail){
+        const registered_user = await User.findOne({mail:mail})
+        if(registered_user){
             //Check this await
-           const token = await jwt.sign({user:{_id: user._id,email:user.email}},jwt_secret,{expiresIn: '1 day'})
+           const token = await jwt.sign({user:{email:registered_user.mail,username:registered_user.username}},jwt_secret,{expiresIn: '1 day'})
            if(token){
-               res.status(200).json({token:token})
+               res.status(200).json({
+                    token: token, 
+                    user:{
+                        username: registered_user.username,
+                        first_name: registered_user.first_name,
+                        last_name: registered_user.last_name,
+                        mail: registered_user.mail,
+                        stars: registered_user.stars,
+                        nationality: registered_user.nationality,
+                        wins: registered_user.wins,
+                        losses: registered_user.losses,
+                        avatar: registered_user.avatar
+                    }
+                })
            }else{
                res.status(500).send({message:"Error while refreshing token"})
            }

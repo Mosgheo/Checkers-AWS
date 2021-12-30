@@ -53,9 +53,8 @@ var api = {
     game_msg(socket, lobby_id, msg){
         socket.emit("game_msg",lobby_id,msg,getToken())
     },
-
-
-
-
+    refresh_token(socket,token){
+        socket.emit("refresh_token",token)
+    }
 }
 export default api

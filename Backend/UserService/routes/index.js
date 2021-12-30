@@ -13,6 +13,8 @@ router
 
 	.post("/login",userController.login)
 	.post("/signup",userController.signup)
+
 	.get("/authenticate",userController.verify_token)
+	.get("/refresh_token",userController.refresh_token)
 
 module.exports = router

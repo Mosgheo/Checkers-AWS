@@ -9,7 +9,7 @@
     <SidebarLink class="domande" to="/domande" icon="fas fa-question">Domande</SidebarLink>
 
     <!--<div v-if="!$store.loading.value">-->
-        <SidebarLink class="login" v-if="$store.is_authenticated" to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
+        <SidebarLink class="login"  to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
     <!--</div>-->
 
     <!--<span
@@ -36,7 +36,6 @@ export default {
   methods: {
     login() {
       this.$socket.emit("login", "pasottipro@gmail.com")
-      //this.$auth.loginWithRedirect();
     },
   }
 }

@@ -91,7 +91,7 @@
 <script>
 //import Checkerboard from '@/components/boardComponents/Checkerboard'
 import api from '../../api.js'
-
+import store from '../store'
 var lobbyName = document.getElementsByClassName("input-name")
 var starTextBox = document.getElementsByClassName("input-star")
 var starTextBox2 = document.getElementsByClassName("input-star2")
@@ -116,6 +116,19 @@ export default {
   sockets: {
     lobbies(res) {
       console.log(res)
+    },
+    token_ok(res){
+      store.commit('setToken',res.token)
+      sessionStorage.token = res.token
+      store.commit('setUser',res.user)
+      console.log(JSON.stringify(res.user))
+      ///var tokenData = JSON.parse(Buffer.from(res.token.split('.')[1], 'base64'))
+      ///token_timeout(tokenData);
+    },
+    token_error(res){
+      console.log("something wrong with tokens boy")
+      sessionStorage.token = ""
+      store.commit('unsetToken')
     }
   }
 }
