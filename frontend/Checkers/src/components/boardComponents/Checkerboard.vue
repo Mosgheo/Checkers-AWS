@@ -192,7 +192,7 @@ export default {
       }
 
       this.lobbyId = res[3]
-      store.in_game = true
+      store.state.in_game = true
 
       this.colorCells()
     },

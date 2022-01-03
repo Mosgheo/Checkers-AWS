@@ -31,23 +31,38 @@ export default {
       Checkerboard,
       Chat
   },
+  data() {
+    return {
+      lobbyId: this.$route.params.id
+    }
+  },
   methods: {
     closeModal() {
       document.getElementsByClassName("modal-change-location")[0].className = "modal modal-change-location modal-close"
     },
     exitGame() {
-      /*if(store.in_game) {
-        //api.leave_game(this.$socket, lobbyId)
+      console.log(this.lobbyId)
+      if(store.state.in_game) {
+        api.leave_game(this.$socket, this.lobbyId)
+        store.state.in_game = false
       } else {
-        //api.delete_lobby(this.$socket, lobbyId)
-      }*/
+        api.delete_lobby(this.$socket, this.lobbyId)
+      }
       this.$router.push(path)
       changeLocation = true
     }
   },
+  sockets: {
+    lobbies(res) {
+      this.lobbyId = res.lobby_id
+    }
+  },
   beforeRouteLeave(to, from, next) {
-    console.log(this.$.components.Checkerboard)
+    if(this.lobbyId === undefined) {
+      api.get_lobbies(this.$socket, store.state.user.stars)
+    }
     if(changeLocation) {
+      changeLocation = false
       next()
     } else {
       document.getElementsByClassName("modal-change-location")[0].className = "modal modal-change-location modal-open"

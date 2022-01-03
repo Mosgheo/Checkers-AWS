@@ -42,13 +42,13 @@ const routes = [
   {
     path: '/inGame',
     name: 'Game',
-    component: Game
+    component: Game,
+    props: true
   },
   {
     path: '/lobbies',
     name: 'Lobbies',
-    component: Lobbies,
-    props: true
+    component: Lobbies
   }
 ]
 

@@ -1,7 +1,6 @@
 <template>
 <div>
   <div class="flex flex-row centralSpace">
-    <!--<Checkerboard class="board" />-->
 
     <div class="card items-center w-64 flex flex-col rightMenu">
       <h1 class="mt-5">Gioca a Checkers</h1>
@@ -24,9 +23,9 @@
             <input type="text" placeholder="Max Points" class="input-star input input-bordered mt-2 w-min">
           </div>
           <div class="flex flex-row modal-action">
-            <router-link to="/inGame" for="create-lobby-modal" @click.prevent="startingMatch" class="accept btn"> 
+            <label for="create-lobby-modal" @click.prevent="startingMatch" class="accept btn"> 
               Avvia creazione
-            </router-link>
+            </label>
             <label for="create-lobby-modal" class="btn">Annulla</label>
           </div>
         </div>
@@ -43,9 +42,9 @@
             <input type="text" placeholder="Max Points" class="input-star2 input input-bordered mt-2 w-min">
           </div>
           <div class="flex flex-row modal-action">
-            <router-link to="/lobbies"  @click.prevent="lobbyOpened" for="join-lobby-modal" class="accept btn">
+            <label @click.prevent="lobbyOpened" for="join-lobby-modal" class="accept btn">
               Cerca lobby
-            </router-link>
+            </label>
             <label for="join-lobby-modal" class="btn">Annulla</label>
           </div>
         </div>
@@ -103,14 +102,16 @@ export default {
   },
   methods: {
     startingMatch() {
-      api.build_lobby(this.$socket, lobbyName[0].value, starTextBox[0].value)
+      if(store.state.token !== "") {
+        api.build_lobby(this.$socket, lobbyName[0].value, starTextBox[0].value)
+        this.$router.push("/inGame")
+      }
     },
     lobbyOpened() {
-      api.get_lobbies(this.$socket, starTextBox2[0].value)
-    },
-    joinLobby(){
-      console.log("joining_lobby")
-      api.join_lobby(this.$socket,1)
+      if(store.state.token !== "") {
+        api.get_lobbies(this.$socket, starTextBox2[0].value)
+        this.$router.push("/lobbies")
+      }
     }
   },
   sockets: {
