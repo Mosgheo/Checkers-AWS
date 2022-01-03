@@ -244,6 +244,9 @@ export default {
     },
     left_game(res) {
       console.log(res)
+    },
+    opponent_left(msg){
+      console.log(msg)
     }
   }
 }

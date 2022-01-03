@@ -110,9 +110,9 @@ exports.leaveGame = async function(req,res){
         if(games.has(game_id)){
             let game = games.get(game_id)
             if(game.white === quitter){
-                gameEnd(game_id,false,gameInstance.black,gameInstance.white)
+                await gameEnd(game_id,false,gameInstance.black,gameInstance.white)
             }else{
-                gameEnd(game_id,false,gameInstance.white,gameInstance.black)
+                await gameEnd(game_id,false,gameInstance.white,gameInstance.black)
             }
         }
         let data = []
@@ -246,11 +246,19 @@ function parseFEN(game_id) {
 
     for (let i = 0; i < black_pieces.length; i++) {
         let piece = black_pieces[i]
+        if(black_pieces.length == 1){
+            console.log("IT'S FINALLY THE LAST INDEX: " +black_pieces[0])
+        }
         let moves = game.getLegalMoves(piece)
+
         black_pieces_with_moves.set(piece,moves)
+    
     }
     for (let i = 0; i < white_pieces.length; i++) {
         let piece = white_pieces[i]
+        if(white_pieces.length == 1){
+            console.log("IT'S FINALLY THE LAST INDEX: " +piece)
+        }
         let moves = game.getLegalMoves(piece)
         white_pieces_with_moves.set(piece,moves)
     }

@@ -141,10 +141,7 @@ exports.login = async function(req,res){
 exports.refresh_token = async function (req,res){
     const mail = req.query.mail
     const token = req.query.token
-    console.log("hello "+token)
     var token_mail = JSON.parse(Buffer.from(token.split('.')[1], 'base64')).user.email;
-    console.log("mail token " + token_mail)
-    console.log("mail: "+mail )
     if(mail === token_mail){
         const registered_user = await User.findOne({mail:mail})
         if(registered_user){
@@ -301,8 +298,8 @@ exports.updateProfile = async function(req,res){
 //WILL THIS WORK?
 exports.getLeaderboard = async function(_,res){
     try{
-        const users = await User.find({},'username first_name last_name stars wins losses').sort({ stars: 'desc'})
-        if(users != null){
+        const users = await User.find({},'username avatar stars wins losses').sort({ stars: 'desc'})
+        if(users != null){ 
             res.status(200).json(users);
         }else{
             res.status(200).send({message: "There is no one in the leaderboard."})

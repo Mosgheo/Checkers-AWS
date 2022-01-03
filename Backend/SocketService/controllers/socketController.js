@@ -37,7 +37,7 @@ function get_id(){
   }else{
     let new_id = current_id
     current_id++
-    return new_id
+    return new_id.toString()
   }
 }
 function isInLobby(player_mail){
@@ -74,6 +74,7 @@ async function user_authenticated(token,client_id){
 
 function build_lobby(room_name,client,max_stars){
   const room_id = get_id()
+  console.log("JUST BUILT THIS LOBBY "+room_id)
   lobbies.set(room_id,new Lobby(max_stars,room_name,online_users.get(client.id)))
   client.join(room_id)
   return room_id
@@ -90,7 +91,7 @@ function join_lobby(lobby_id,client,player){
     const to_join = lobbies.get(lobby_id)
     if(to_join.isFree()){
       console.log("lobby is free")
-      console.log(to_join.addPlayer(player))
+      console.log("weee" + lobbies.get(lobby_id).getPlayers())
         client.join(lobby_id)
         return to_join.addPlayer(player)
     }else{
@@ -162,17 +163,19 @@ function change_turn(lobby_id){
   io.to(lobby_id).emit("turn_change",{next_player:next_player})
 }
 
-async function updatePoints(player1,points1,player2,points2){
+async function updatePoints(winner,points1,loser,points2){
   try{
       const {data:updated_one} = await axios.put(user_service+"/profile/updatePoints",
       {
-        mail : player1,
-        stars: points1
+        mail : winner,
+        stars: points1,
+        won: true
       })
       const{data:updated_two} = await axios.put(user_service+"/profile/updatePoints",
       {
-          mail : player2,
-          stars: points2
+          mail : loser,
+          stars: points2,
+          won:false
       })
      return [updated_one,updated_two]
     }catch(err){
@@ -401,6 +404,7 @@ io.on('connection', async client => {
               game.push(lobby_id)
               console.log("GAME "+game)
               io.to(lobby_id).emit("game_started",game)
+              console.log("PUTTANA MADONNA" +JSON.stringify(lobbies))
               turn_timeouts.set(lobby_id, setTimeout(function(){
                 change_turn(lobby_id)
                 console.log("TURN TIMEOUT FOR GAME " + lobby_id)
@@ -447,6 +451,7 @@ io.on('connection', async client => {
         && lobby.isFree 
         && delete_lobby(lobby_id)){
           lobbies.delete(lobby_id)
+          console.log("è stata cancellata dia hane")
           client.emit("lobby_deleted",{message:"Your lobby has been successfully deleted"})
         }else{
           client.emit("server_error",{message:"There has been some problem with the process of deleting a lobby."})
@@ -595,10 +600,22 @@ io.on('connection', async client => {
   })
   client.on('leave_game',async(lobby_id,token) => {
     const user = await user_authenticated(token,client.id)
+    console.log("HELLO LOBBY"+lobby_id)
     let result = null
     if(user[0]){
+      let server_id = Array.from(lobbies.keys())[0]
       let player = online_users.get(client.id)
+      console.log("lobby id: " + server_id )
+      console.log("lobby_id: "+lobby_id)
+      console.log("typeof request "+typeof lobby_id)
+      console.log("typeof server "+typeof server_id)
+      console.log("equality === "+server_id === lobby_id)
+      console.log("equality == "+server_id == lobby_id)
+      console.log(lobbies.has(lobby_id))
+      console.log("lobby: "+ lobbies.get(lobby_id))
+
       if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(player)){
+        console.log(player+" is in a lobby")
         try{
           result = await axios.delete(game_service+"/game/leaveGame",{game_id: lobby_id, player_id: player})
         }catch(err){
@@ -612,10 +629,17 @@ io.on('connection', async client => {
         result = result.data
         client.emit("left_game",result[0])
         let lobby = lobbies.get(lobby_id)
-            //will those two lines below work??
-        let winner = lobby.getPlayers().splice(lobby.indexOf(player),1)
+        //will those two lines below work??
+        let winner = lobby.getPlayers().filter(p => p !== player).shift()
+        console.log("lobby players "+ lobby.getPlayers())
+        console.log("quitter: "+online_users.get(client.id))
+        console.log("winner "+ winner)
+        clearTimeout(turn_timeouts.get(lobby_id))
+        turn_timeouts.delete(lobby_id)
+        lobbies.delete(lobby_id)
         io.to(online_users.getKey(winner)).emit("opponent_left",result[1])
       }else{
+        console.log(player+" permit error")
         client.emit("permit_error",{message:"I don't know which lobby you're referring to and even if I knew you're not in it"})
       }
     }else{
