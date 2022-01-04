@@ -12,13 +12,27 @@
 <script>
 import Sidebar from '@/components/sidebarComponents/Sidebar.vue'
 import {sidebarWidth} from '@/components/sidebarComponents/state.js'
-
+import store from './store'
 export default {
   components: {
     Sidebar
   },
   setup() {
     return { sidebarWidth }
+  },
+  sockets:{
+    token_ok(res){
+      store.commit('setToken',res.token)
+      sessionStorage.token = res.token
+      store.commit('setUser',res.user)
+      ///var tokenData = JSON.parse(Buffer.from(res.token.split('.')[1], 'base64'))
+      ///token_timeout(tokenData);
+    },
+    token_error(res){
+      console.log("something wrong with tokens boy")
+      sessionStorage.token = ""
+      store.commit('unsetToken')
+    }
   }
 }
 </script>

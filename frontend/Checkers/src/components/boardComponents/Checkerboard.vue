@@ -247,6 +247,10 @@ export default {
     },
     opponent_left(msg){
       console.log(msg)
+    },
+    game_ended(msg){
+      console.log("HELLO RECEIVED END GAME")
+      console.log(msg)
     }
   }
 }

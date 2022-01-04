@@ -24,12 +24,20 @@ let games = new Map(); // game_id -> game
 function winCheck(game_id){
     let gameInstance = games.get(game_id)
     let game = gameInstance.draughts
-    if(game.fen.split(':')[1].split[','].length <= 1){
+    const xd = game.fen().split(':')[1].split[',']
+    console.log("final fen: "+game.fen())
+    console.log("fen split by ':' "+ game.fen().split(':'))
+    console.log("white_fen: "+game.fen().split(':')[1])
+    console.log("black_fen: "+game.fen().split(':')[2])
+    console.log("white_pieces: "+game.fen().split(':')[1].split[','])
+    console.log("black_pieces: "+game.fen().split(':')[2].split[','])
+
+    if(game.fen().split(':')[1].length <= 1){
         game.winner = gameInstance.black
         game.loser = gameInstance.white
         return true
     }
-    if(game.fen.split(':')[2].split[','].length <= 1 ){
+    else if(game.fen().split(':')[2].length <= 1 ){
         game.winner = gameInstance.white
         game.loser = gameInstance.black
         return true
@@ -149,6 +157,7 @@ exports.movePiece = function(req,res){
             console.log(data)
             console.log(req.body.from+"-"+req.body.to)
             if(game.gameOver()){
+                console.log("It's game over you dumbasses")
                 /**HANDLE WIN NOTIFICATION */
                 if(winCheck(game_id)){
                     gameEnd(game_id,false,game.winner,game.loser)
@@ -161,12 +170,14 @@ exports.movePiece = function(req,res){
                     /**HANDLE WHAT HAPPENS IF GAME OVER BUT NONE WON */
                 }
             }else{
+                console.log("The show must go on fellas")
                 res.json({
                     winner: "",
                     board: data
                 })
             }
         }else{
+            console.log("something so wrong happened to your code")
             res.status(400).send({message: "Error while making such move, you can try again or select a different move."})
         }
     }
@@ -243,24 +254,52 @@ function parseFEN(game_id) {
     black_pieces[0] = black_pieces[0].substring(1)
     let white_pieces_with_moves = new Map()
     let black_pieces_with_moves = new Map()
-
+    console.log("black pieces size: "+black_pieces.length)
+    console.log("white pieces size: "+white_pieces.length)
+    console.log("White pieces " +white_pieces)
+    console.log("black pieces "+black_pieces)
+    console.log("FEN "+fen)
     for (let i = 0; i < black_pieces.length; i++) {
         let piece = black_pieces[i]
         if(black_pieces.length == 1){
-            console.log("IT'S FINALLY THE LAST INDEX: " +black_pieces[0])
+            console.log("IT'S FINALLY THE LAST BLACK INDEX: " +black_pieces[0])
         }
-        let moves = game.getLegalMoves(piece)
 
-        black_pieces_with_moves.set(piece,moves)
-    
+        if(black_pieces.length == 1){
+            console.log("eccoce black"+black_pieces[0])
+        }
+        console.log("Asked moves for black piece "+piece)
+        if(piece !== "" && piece !== null){
+            if(piece.charAt(0) === "K"){
+                console.log("found a king")
+                let moves = game.getLegalMoves(piece.substring(1))
+                black_pieces_with_moves.set(piece,moves)
+            }else{
+                let moves = game.getLegalMoves(piece)
+                black_pieces_with_moves.set(piece,moves)
+            }
+
+        }
     }
     for (let i = 0; i < white_pieces.length; i++) {
         let piece = white_pieces[i]
         if(white_pieces.length == 1){
-            console.log("IT'S FINALLY THE LAST INDEX: " +piece)
+            console.log("IT'S FINALLY THE LAST WHITE INDEX: " +piece)
         }
-        let moves = game.getLegalMoves(piece)
-        white_pieces_with_moves.set(piece,moves)
+
+        if(white_pieces.length == 1){
+            console.log("eccoce white"+white_pieces[0])
+        }
+        if(piece !== "" && piece !== null){
+            if(piece.charAt(0) === "K"){
+                let moves = game.getLegalMoves(piece.substring(1))
+                white_pieces_with_moves.set(piece,moves)
+            }else{
+                let moves = game.getLegalMoves(piece)
+                white_pieces_with_moves.set(piece,moves)
+            }
+        }
+
     }
     data.push(Object.fromEntries(white_pieces_with_moves))
     data.push(Object.fromEntries(black_pieces_with_moves))
