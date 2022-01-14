@@ -22,8 +22,14 @@
       </div>
       <div id="content" class="card shadow-lg mt-2">
         <div id="tabDiv" class="card-body">
-          <h2 class="card-title">Dati Utente</h2>
-          <DataInfo class="info"></DataInfo>
+          <div v-if="this.tabName === 'Dati Utente'" >
+            <h2 class="card-title">{{ this.tabName }}</h2>
+            <DataInfo class="info"></DataInfo>
+          </div>
+          <div v-else>
+            <h2 class="card-title">{{ this.tabName }}</h2>
+            <MatchInfo class="info"></MatchInfo>
+          </div>
         </div>
       </div>
     </div>
@@ -34,7 +40,6 @@
 <script>
 import DataInfo from "@/components/profileComponents/DataInfo";
 import MatchInfo from "@/components/profileComponents/MatchInfo";
-import { createApp } from 'vue';
 import store from '@/store'
 
 var user = null
@@ -43,11 +48,16 @@ const wrapper = document.getElementsByClassName("info")
 export default {
   name: 'Profile',
   components: {
-    DataInfo
-    //MatchInfo
+    DataInfo,
+    MatchInfo
   },
   setup() {
     user = store.getters.user
+  },
+  data() {
+    return {
+      tabName: "Dati Utente"
+    }
   },
   computed: {
     getUsername() {
@@ -75,21 +85,19 @@ export default {
     dataInfo() {
       const elem = document.getElementById("dataInfo")
       if(!elem.getAttribute("class").includes("tab-active")) {
-        const dataInfo = createApp(DataInfo)
+        this.tabName = "Dati Utente"
         elem.setAttribute("class", "tab tab-lg tab-active");
         document.getElementById("matchInfo").setAttribute("class", "tab tab-lg");
-        ((document.getElementsByClassName("card-title"))[1]).innerHTML = "Dati Utente"
-        dataInfo.mount(wrapper[0])
+        ((document.getElementsByClassName("card-title"))[1]).innerHTML = this.tabName
       }
     },
     matchInfo() {
       const elem = document.getElementById("matchInfo")
       if(!elem.getAttribute("class").includes("tab-active")) {
-        const matchInfo = createApp(MatchInfo)
-        document.getElementById("dataInfo").setAttribute("class", "tab tab-lg");
+        this.tabName = "Storico Partite"
         elem.setAttribute("class", "tab tab-lg tab-active");
-        ((document.getElementsByClassName("card-title"))[1]).innerHTML = "Storico Partite"
-        matchInfo.mount(wrapper[0])
+        document.getElementById("dataInfo").setAttribute("class", "tab tab-lg");
+        ((document.getElementsByClassName("card-title"))[1]).innerHTML = this.tabName
       }
     },
   }

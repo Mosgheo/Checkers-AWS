@@ -25,11 +25,13 @@ import api from '../../api.js'
 var changeLocation = false
 var path = null
 
+var modal =  document.getElementsByClassName("modal-change-location")
+
 export default {
   name: "Game",
   components: {
-      Checkerboard,
-      Chat
+    Checkerboard,
+    Chat
   },
   data() {
     return {
@@ -38,7 +40,7 @@ export default {
   },
   methods: {
     closeModal() {
-      document.getElementsByClassName("modal-change-location")[0].className = "modal modal-change-location modal-close"
+      modal[0].className = "modal modal-change-location modal-close"
     },
     exitGame() {
       console.log(this.lobbyId)
@@ -65,7 +67,7 @@ export default {
       changeLocation = false
       next()
     } else {
-      document.getElementsByClassName("modal-change-location")[0].className = "modal modal-change-location modal-open"
+      modal[0].className = "modal modal-change-location modal-open"
       path = to.path
     }
   }
@@ -76,6 +78,9 @@ export default {
 .chat {
   margin-right: 10rem;
   margin-top: 5em;
+}
+.centralSpace {
+  background-color: #343232;
 }
 @media (max-width: 1700px) {
   .chat {

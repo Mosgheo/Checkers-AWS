@@ -22,6 +22,23 @@
 			</div>
 		</div>
     <appPlayer0 :player="this.player1" class="self-start"/>
+
+    <input type="checkbox" id="join-lobby-modal" class="modal-toggle"> 
+    <div class="exit-lobby modal modal-close">
+      <div class="modal-box items-center">
+        <div class="form-control items-center">
+          <label class="mt-3">
+            <span>"The opponent has left the game! Now you will be redirect to Home page and
+                  100 stars have been added to your profile"</span>
+          </label> 
+        </div>
+        <div class="flex flex-row modal-action justify-center">
+          <label @click.prevent="confirmButton" for="join-lobby-modal" class="accept btn">
+            Ok
+          </label>
+        </div>
+      </div>
+    </div>
 	</div>
 </template>
 
@@ -165,6 +182,11 @@ export default {
           }
         }
       }
+    },
+    confirmButton() {
+      var exitLobbyModal = document.getElementsByClassName("exit-lobby")[0]
+      exitLobbyModal.setAttribute("class", "exit-lobby modal modal-close")
+      this.$router.push("/")
     }
   },
   sockets: {
@@ -245,10 +267,13 @@ export default {
     left_game(res) {
       console.log(res)
     },
-    opponent_left(msg){
+    opponent_left(msg) {
       console.log(msg)
+      store.state.in_game = false
+      var exitLobbyModal = document.getElementsByClassName("exit-lobby")[0]
+      exitLobbyModal.setAttribute("class", "exit-lobby modal modal-open")
     },
-    game_ended(msg){
+    game_ended(msg) {
       console.log("HELLO RECEIVED END GAME")
       console.log(msg)
     }

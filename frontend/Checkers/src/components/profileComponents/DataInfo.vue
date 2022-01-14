@@ -38,11 +38,11 @@
     </select>-->
 
     <div class="object-center space-x-2 mt-10">
-      <label class="btn" @click.prevent="save_profile">Salva</label> 
+      <label class="btn" @click.prevent="save_profile">Modifica</label> 
       <div class="update-modal modal modal-close">
           <div class="modal-box">
               <p class="msg">Ciao</p> 
-              <div class="modal-action">
+              <div class="modal-action justify-center">
                   <label class="btn" @click.prevent="close">Accept</label>
               </div>
           </div>
@@ -173,8 +173,8 @@ input {
   background-color: #343232;
 }
 .avatarss{
-max-height: 100%; 
-max-width: 100%;
+  max-height: 100%; 
+  max-width: 100%;
 }
 </style>
 
