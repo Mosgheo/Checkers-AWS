@@ -313,17 +313,27 @@ exports.getLeaderboard = async function(_,res){
 exports.updatePoints = async function(req,res){
     const mail = req.body.mail
     const stars = req.body.stars
-    console.log(stars)
+    const won = req.body.won
+    const single_match = 1
+    let user = null
     try{
-        const user = await User.findOneAndUpdate({"mail":mail},{$inc: {stars:stars}})
-        console.log("user updated")
-        res.status(200).json({
-            username: user.username,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            mail: user.mail,
-            stars:user.stars
-        })
+        if(won){
+             user = await User.findOneAndUpdate({"mail":mail},{$inc: {wins:single_match,stars:stars}})
+        }else{
+             user = await User.findOneAndUpdate({"mail":mail},{$inc: {stars:stars,losses:single_match}})
+        }
+        if(user != null){
+            console.log("user updated "+user )
+            res.status(200).json({
+                username: user.username,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                mail: user.mail,
+                wins:user.wins,
+                losses:user.losses,
+                stars:user.stars
+            })
+        }
     }catch(err){
         console.log(err)
         res.status(500).send({message:"Something went wrong while updating your points"})
