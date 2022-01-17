@@ -146,16 +146,6 @@ export default {
       msg[0].textContent = "Update successful"
       update_modal[0].setAttribute("class", "update-modal modal modal-open")
       store.commit('setUser',user)
-    },
-    permit_error(err) {
-      console.log(err)
-      msg[0].textContent = err
-      update_modal[0].setAttribute("class", "update-modal modal modal-open")
-    },
-    token_error(err) {
-      console.log(err)
-      msg[0].textContent = err
-      update_modal[0].setAttribute("class", "update-modal modal modal-open")
     }
   }
 }

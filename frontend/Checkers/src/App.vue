@@ -32,6 +32,12 @@ export default {
       console.log("something wrong with tokens boy")
       sessionStorage.token = ""
       store.commit('unsetToken')
+    },
+    permit_error(error) {
+      console.log(error)
+    },
+    server_error(error) {
+      console.log(error)
     }
   }
 }
