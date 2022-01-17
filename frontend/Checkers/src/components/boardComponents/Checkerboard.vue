@@ -90,6 +90,8 @@ export default {
     }
 
     return {
+      redPiece: require("@/assets/pieces/Red_Piece.png"),
+      whitePiece: require("@/assets/pieces/White_Piece.png"),
       board: grid,
       lobbyId: null,
       playerTurn: null,
@@ -131,17 +133,11 @@ export default {
           this.counterClick = 0
           this.release(cell)
         } else if(this.counterClick === 0) {
-          console.log(cell)
           this.clickedCell = cell
           this.counterClick++
         } else {
-          var cellWithPiece = document.getElementById(this.clickedCell)
-          var cellWithoutPiece = document.getElementById("" + cell)
-          var piece = cellWithPiece.innerText
           for(let i = 0; i < this.possibleMoves.length; i++) {
             if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === cell) {
-              cellWithoutPiece.innerText = piece
-              cellWithPiece.innerText = ""
               api.move_piece(this.$socket, this.lobbyId, this.clickedCell, cell)
               break;
             }
@@ -190,9 +186,6 @@ export default {
     }
   },
   sockets: {
-    token_error(error) {
-      console.log(error)
-    },
     game_started(res) {
       this.player1 = res[0]
       this.player2 = res[1]
@@ -218,30 +211,30 @@ export default {
 
       this.colorCells()
     },
-    permit_error(error) {
-      console.log(error)
-    },
     update_board(res) {
       console.log(res[1])
       console.log(res[2])
 
-      var cells = Array.from((document.getElementsByClassName("grid")[0]).children)
+      var cells = Array.from((document.getElementsByClassName("grid")[0]).children).filter(el => el.id !== "0")
       for(let i = 0; i < cells.length; i++) {
         if(cells[i].id in res[2]) {
           if(cells[i].children.length > 0) {
             (cells[i].children[0]).remove()
           }
-          cells[i].innerText = "B"
+          var red_piece = document.createElement('img');
+          red_piece.src = this.redPiece;
+          cells[i].appendChild(red_piece)
         } else if(cells[i].id in res[1]) {
           if(cells[i].children.length > 0) {
             (cells[i].children[0]).remove()
           }
-          cells[i].innerText = "W"
+          var white_piece = document.createElement('img');
+          white_piece.src = this.whitePiece;
+          cells[i].appendChild(white_piece)
         } else {
           if(cells[i].children.length > 0) {
             (cells[i].children[0]).remove()
           }
-          cells[i].innerText = ""
         }
       }
 
