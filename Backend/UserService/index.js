@@ -28,5 +28,5 @@ app.use("/", require("./routes/index.js"))
 
 const PORT = process.env.PORT
 app.listen(PORT, function () {
-    console.log('Server started on port ' + PORT)
+    console.log('UserService started on port ' + PORT)
 })

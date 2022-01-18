@@ -142,7 +142,6 @@ export default {
   },
   sockets:{
     updated_user(user) {
-      console.log(user)
       msg[0].textContent = "Update successful"
       update_modal[0].setAttribute("class", "update-modal modal modal-open")
       store.commit('setUser',user)

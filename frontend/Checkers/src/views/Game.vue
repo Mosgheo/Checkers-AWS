@@ -57,7 +57,8 @@ export default {
   sockets: {
     lobbies(res) {
       this.lobbyId = res.lobby_id
-    }
+    },
+
   },
   beforeRouteLeave(to, from, next) {
     if(this.lobbyId === undefined) {

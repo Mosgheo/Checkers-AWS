@@ -19,6 +19,7 @@ app.config.globalProperties.$PLAYER_TWO = "two"
 app.config.globalProperties.$PIECE_TYPE_MAN ="man"
 app.config.globalProperties.$PIECE_TYPE_KING = "king"
 const connection = SocketIO('http://localhost:3030')
+const token_time = 5000
 app
 .use(new VueSocketIO({
   connection: connection,
@@ -36,39 +37,17 @@ async function load_old_token(){
     //sessionStorage.token = ""
     //store.commit('unsetToken')
   }
+  token_timeout(token_time)
   app.mount('#app')
 }
-connection.on("token_ok", function(){
-  console.log("DIO CANE")
-})
 
 
-async function token_timeout() {
+async function token_timeout(time) {
   setTimeout(async function () {
     console.log("refreshing token")
-    const token = await api.refresh_token(SocketIO,sessionStorage.token)
-    if(token !== null){
-      store.commit('setToken',token)
-      sessionStorage.token = token
-      var tokenData = JSON.parse(Buffer.from(token.split('.')[1], 'base64'));
-      token_timeout(tokenData,/*when it should expire*/50000);
-    }else{
-      sessionStorage.token = ""
-      store.commit('unsetToken')
-    }
-  },/*when it should expire*/50000/**FIX */);
+    api.refresh_token(connection,sessionStorage.token)
+    token_timeout(tokenData,time);
+  },time);
 }
 
  load_old_token()
-
-/*function callbackRedirect(appState) {
-  router.push(
-    appState && appState.targetUrl
-      ? appState.targetUrl
-      : '/'
-  );
-}
-
-setupAuth(authConfig, callbackRedirect).then((auth) => {
-  app.use(auth).mount('#app')
-})*/

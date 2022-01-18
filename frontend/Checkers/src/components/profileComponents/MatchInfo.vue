@@ -19,15 +19,15 @@
             <div class="flex items-center space-x-3">
               <div class="avatar">
                 <div class="w-12 h-12 mask mask-squircle">
-                  <img src="https://picsum.photos/id/1005/400/250" alt="Avatar Tailwind CSS Component">
+                  <img v-bind:src="getAvatar(user.winner)" alt="Avatar Tailwind CSS Component">
                 </div>
               </div> 
               <div>
                   <div class="font-bold">
-                      {{ user.winner }}
+                      {{ user.winner.username }}
                   </div> 
                   <div class="text-sm opacity-50">
-                      Nazione
+                      {{ user.winner.mail }}
                   </div>
               </div>
             </div>
@@ -36,15 +36,15 @@
             <div class="flex items-center space-x-3">
               <div class="avatar">
                 <div class="w-12 h-12 mask mask-squircle">
-                  <img src="https://picsum.photos/id/1005/400/250" alt="Avatar Tailwind CSS Component">
+                  <img v-bind:src="getAvatar(user.loser)" alt="Avatar Tailwind CSS Component">
                 </div>
               </div> 
               <div>
                   <div class="font-bold">
-                      {{ user.loser }}
+                      {{ user.loser.username }}
                   </div> 
                   <div class="text-sm opacity-50">
-                      Nazione
+                       {{ user.loser.mail }}
                   </div>
               </div>
             </div>
@@ -74,6 +74,15 @@ export default {
   sockets: {
     user_history(res) {
       this.history = res
+    }
+  },
+  methods:{
+    getAvatar(user){
+      if(user.avatar == ""){
+        return "http://daisyui.com/tailwind-css-component-profile-1@40w.png"
+      }else{
+        return user.avatar
+      } 
     }
   }
 }

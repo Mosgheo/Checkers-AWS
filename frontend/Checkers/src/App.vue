@@ -25,6 +25,7 @@ export default {
       store.commit('setToken',res.token)
       sessionStorage.token = res.token
       store.commit('setUser',res.user)
+      console.log("got a fresh new token for ya")
       ///var tokenData = JSON.parse(Buffer.from(res.token.split('.')[1], 'base64'))
       ///token_timeout(tokenData);
     },
