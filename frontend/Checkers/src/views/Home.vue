@@ -113,11 +113,6 @@ export default {
         this.$router.push("/lobbies")
       }
     }
-  },
-  sockets: {
-    lobbies(res) {
-      console.log(res)
-    }
   }
 }
 </script>
