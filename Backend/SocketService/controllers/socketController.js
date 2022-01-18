@@ -63,11 +63,7 @@ async function user_authenticated(token,client_id){
       return [true,user]
     }
   }catch(err){
-    if(err.hasOwnProperty('response')){
-      if(err.response.status == 400){
         return [false,err.response.data]
-      }
-    }
   }
 }
 
@@ -228,7 +224,7 @@ async function handle_disconnection(player){
         io.in(lobby_id).socketsLeave(lobby_id)
       }catch(err){
         console.log("something bad occured "+err)
-        if(err.hasOwnProperty('response')){
+        if('response' in err){
           if(err.response.status == 500){
             io.to(lobby_id).emit("server_error",err.response.data)
           }
@@ -267,7 +263,8 @@ io.on('connection', async client => {
         online_users.set(client.id,mail)
         client.emit("login_ok",user)
       }catch(err){
-        if(err.hasOwnProperty('response')){
+        console.log(err)
+        if('response' in err){
           if(err.response.status == 400){
             client.emit("login_error",err.response.data)
           }
@@ -288,7 +285,7 @@ io.on('connection', async client => {
         })
         client.emit('signup_success',new_user)
     }catch(err){
-      if(err.hasOwnProperty('response')){
+      if('response' in err){
         if(err.response.status == 400 || err.response.status == 500){
           client.emit('signup_error',err.response.data)
         }
@@ -310,7 +307,7 @@ io.on('connection', async client => {
           client.emit("token_ok",new_token)
         }catch(err){
           console.log(err)
-          if(err.hasOwnProperty('response')){
+          if('response' in err){
             if(err.response.status == 500){
               client.emit("token_error",err.response.data)
             }
@@ -412,7 +409,7 @@ io.on('connection', async client => {
               console.log("Timeout set for game" + lobby_id)
             }catch(err){
               console.log(err)
-              if(err.hasOwnProperty('response')){
+              if('response' in err){
                 if(err.response.status == 500){
                   client.emit("server_error",err.response.data)
                   console.log("WELA 500")
@@ -505,7 +502,7 @@ io.on('connection', async client => {
               console.log("TURN TIMEOUT FOR GAME " + lobby_id)
             },process.env.TIMEOUT))
           }catch(err){
-            if(err.hasOwnProperty('response')){
+            if('response' in err){
               if(err.response.status == 500){
                 client.emit("server_error",err.response.data)
               }
@@ -560,12 +557,12 @@ io.on('connection', async client => {
                 console.log("loser: "+move_result.loser)
                 const updated_users = await updatePoints(move_result.winner,process.env.WIN_STARS,move_result.loser,process.env.LOSS_STARS)
                 if(updated_users.length !== 0){
+                  io.to(lobby_id).emit("update_board",move_result.board)
                   io.to(lobby_id).emit("game_ended",{
-                    board: move_result.board,
                     winner: (move_result.winner === updated_users[0].mail ? updated_users[0] : updated_users[1]),
                     loser: (move_result.loser === updated_users[0].mail ? updated_users[0] : updated_users[1])
                   })
-                  console.log("Successfully sent everything")
+                  console.log("Successfully sent end_game")
                   delete_lobby(lobby_id)
                   io.in(lobby_id).socketsLeave(lobby_id);
                 }else{
@@ -574,7 +571,7 @@ io.on('connection', async client => {
                 }
 
               }catch(err){
-                if(err.hasOwnProperty('response')){
+                if('response' in err){
                   if(err.response.status == 500){
                     client.emit("server_error",err.response.data)
                   }
@@ -583,7 +580,7 @@ io.on('connection', async client => {
               }
             }
           }catch(err){
-            if(err.hasOwnProperty('response')){
+            if('response' in err){
               if(err.response.status == 400){
                 client.emit("client_error",err.response.data)
               }
@@ -628,7 +625,7 @@ io.on('connection', async client => {
           })
           io.in(lobby_id).socketsLeave(lobby_id);
         }catch(err){
-          if(err.hasOwnProperty('response')){
+          if('response' in err){
             if(err.response.status == 500){
               client.emit("server_error",err.response.data)
             }
@@ -657,7 +654,7 @@ io.on('connection', async client => {
             let {data:result} = await axios.put(game_service+"/game/tieGame",{game_id: lobby_id})
             io.to(lobby_id).emit("tie_game",result)
           }catch(err){
-            if(err.hasOwnProperty('response')){
+            if('response' in err){
               if(err.response.status == 500){
                 client.emit("server_error",err.response.data)
               }
@@ -681,7 +678,7 @@ io.on('connection', async client => {
           let history = await axios.get(game_service+"/game/history",{game_id : lobby_id})
           client.emit("game_history",history)
         }catch(err){
-          if(err.hasOwnProperty('response')){
+          if('response' in err){
             if(err.response.status == 500){
               client.emit("server_error",err.response.data)
             }
@@ -749,7 +746,7 @@ io.on('connection', async client => {
           client.emit("user_profile",user_profile)
         }
       }catch(err){
-        if(err.hasOwnProperty('response')){
+        if('response' in err){
           if(err.response.status == 500 ){
             client.emit("server_error",err.response.data)
           }else if(err.response.status == 404){
@@ -801,6 +798,9 @@ io.on('connection', async client => {
 
   client.on('get_history', async(token) => {
     const user = await user_authenticated(token,client.id)
+    const users_avatar = new Map()
+    const data = []
+
     if(user[0]){
       let user_id = online_users.get(client.id)
       let {data:user_history} = await axios.get(game_service+"/games/userHistory",
@@ -809,11 +809,63 @@ io.on('connection', async client => {
           mail:user_id
         }
       })
-      console.log(user_history)
+      console.log(typeof user_history)
+      for( const game  of user_history) {
+        let winner_profile = ""
+        let loser_profile = ""
+        if(!users_avatar.has(game.winner)){
+          console.log("havent' got winner "+game.winner)
+          try{
+            winner_profile = await axios.get(user_service+"/profile/getProfile",              
+            {params:
+              {
+                mail:game.winner
+              }
+            })
+          }catch(err){
+            console.log(err)
+            console.log("Something went wrong while requesting avatar for user history")
+          }
+          users_avatar.set(game.winner,{
+            avatar: winner_profile.data.avatar,
+            username:winner_profile.data.username})
+        }
+        if(!users_avatar.has(game.loser)){
+          console.log("haven't got loser "+ game.loser)
+          try{
+            loser_profile = await axios.get(user_service+"/profile/getProfile",              
+            {params:
+              {
+                mail:game.loser
+              }
+            })
+          }catch(err){
+            console.log("Something went wrong while requesting avatar for user history")
+          }
+          users_avatar.set(game.loser,{
+             avatar:loser_profile.data.avatar,
+             username:loser_profile.data.username
+            })
+        }
+        data.push({
+          winner: {
+            mail: game.winner,
+            username:  users_avatar.get(game.winner).username,
+            avatar: users_avatar.get(game.winner).avatar
+          },
+          loser:{
+            mail: game.loser,
+            username: users_avatar.get(game.loser).username,
+            avatar: users_avatar.get(game.loser).avatar
+          },
+          fen:game.fen,
+          history:game.history
+        })
+      };
       if(user_history === null){
         client.emit("permit_error",user_history)
       }else{
-        client.emit("user_history",user_history)
+        client.emit("user_history",data)
       }
     }else{
       client.emit("token_error",user[1])
