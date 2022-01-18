@@ -14,7 +14,7 @@
           <td :textContent="lobby.host"></td> 
           <td :textContent="lobby.name"></td> 
           <td :textContent="lobby.max_stars"></td>
-          <td><router-link class="join-lobby btn" :to="{ name: 'Game', params: { id: lobby.lobby_id }}" @click="joinLobby(lobby.lobby_id)">Join Lobby</router-link></td>
+          <td><router-link class="join-lobby btn" :to="{ name: 'Game', params: { lobbyId: lobby.lobby_id }}" @click="joinLobby(lobby.lobby_id)">Join Lobby</router-link></td>
         </tr>
       </tbody>
     </table>

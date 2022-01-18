@@ -8,13 +8,13 @@
 			src="@/assets/logo.png">
 	</div>-->
     <div v-if="this.piece <= 20" @click="selectPiece">
-        <img src="@/assets/pieces/White_Piece.png" />
+        <img src="@/assets/pieces/Red_Piece.png" />
         <!--<div class="piece pieceOne">
             <img v-if="isKing" src="@/assets/logo.png" />
         </div>-->
     </div>
     <div v-else-if="this.piece >= 31" @click="selectPiece">
-        <img src="@/assets/pieces/Red_Piece.png" />
+        <img src="@/assets/pieces/White_Piece.png" />
         <!--<div class="piece pieceTwo">
             <img v-if="isKing" src="@/assets/logo.png" />
         </div>-->

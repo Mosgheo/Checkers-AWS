@@ -5,7 +5,7 @@
 
       <div class="modal modal-change-location">
         <div class="modal-box">
-          <p>Sei sicuro di voler abbandonare la partita? In caso affernativo ti verrà assegnata una sconfitta a tavolino</p> 
+          <p id="exit-game-msg">Sei sicuro di voler abbandonare la partita? In caso affernativo ti verrà assegnata una sconfitta a tavolino</p> 
           <div class="modal-action">
             <label for="my-modal-2" @click="exitGame" class="btn">Accept</label> 
             <label for="my-modal-2" @click="closeModal" class="btn">Close</label>
@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      lobbyId: this.$route.params.id
+      lobbyId: this.$route.params.lobbyId
     }
   },
   methods: {
@@ -67,6 +67,9 @@ export default {
       changeLocation = false
       next()
     } else {
+      if(!store.state.in_game) {
+        document.getElementById("exit-game-msg").innerHTML = "Sei sicuro di uscire? In caso affermativo la lobby verrà eliminata"
+      }
       modal[0].className = "modal modal-change-location modal-open"
       path = to.path
     }

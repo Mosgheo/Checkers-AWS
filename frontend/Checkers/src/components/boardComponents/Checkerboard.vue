@@ -23,7 +23,7 @@
 		</div>
     <appPlayer0 :player="this.player1" class="self-start"/>
 
-    <input type="checkbox" id="join-lobby-modal" class="modal-toggle"> 
+    <input type="checkbox" id="exit-lobby-modal" class="modal-toggle"> 
     <div class="exit-lobby modal modal-close">
       <div class="modal-box items-center">
         <div class="form-control items-center">
@@ -33,12 +33,31 @@
           </label> 
         </div>
         <div class="flex flex-row modal-action justify-center">
-          <label @click.prevent="confirmButton" for="join-lobby-modal" class="accept btn">
+          <label @click.prevent="confirmButton" for="exit-lobby-modal" class="accept btn">
             Ok
           </label>
         </div>
       </div>
     </div>
+
+    <input type="checkbox" id="game-end-modal" class="modal-toggle"> 
+    <div class="game-end modal modal-close">
+      <div class="modal-box items-center">
+        <div class="form-control items-center">
+          <label class="mt-3">
+            <span id="game-end-msg">"The opponent has left the game! Now you will be redirect to Home page and
+                  100 stars have been added to your profile"</span>
+          </label> 
+        </div>
+        <div class="flex flex-row modal-action justify-center">
+          <label @click.prevent="gameEndButton" for="game-end-modal" class="accept btn">
+            Ok
+          </label>
+        </div>
+      </div>
+    </div>
+
+    
 	</div>
 </template>
 
@@ -92,6 +111,8 @@ export default {
     return {
       redPiece: require("@/assets/pieces/Red_Piece.png"),
       whitePiece: require("@/assets/pieces/White_Piece.png"),
+      redKingPiece: require("@/assets/pieces/KRed_Piece.png"),
+      whiteKingPiece: require("@/assets/pieces/KWhite_Piece.png"),
       board: grid,
       lobbyId: null,
       playerTurn: null,
@@ -111,20 +132,42 @@ export default {
   },
   methods: {
     checkMoves(cell) {
+      document.getElementById(""+cell).style.backgroundColor = "red"
       for(let i = 0; i < this.possibleMoves.length; i++) {
         if(this.possibleMoves[i].from === cell) {
-          var possibleMove = document.getElementById("" + this.possibleMoves[i].to)
-          possibleMove.style.backgroundColor = "red"
+          document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
+        } else if((""+this.possibleMoves[i].from).includes("K")) {
+          if((""+this.possibleMoves[i].from).substring(1) === this.cell) {
+            if((""+this.possibleMoves[i].to).includes("K")) {
+              document.getElementById(("" + this.possibleMoves[i].to).substring(1)).style.backgroundColor = "red"
+            } else {
+              document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
+            }
+          }
         }
       }
     },
     release(cell) {
+      var releaseCell = document.getElementById(""+cell)
+      if(releaseCell.style.backgroundColor === "red" && this.playerTurn === user.mail) {
+        releaseCell.style.backgroundColor = "#333333"
+      } else {
+        releaseCell.style.backgroundColor = "black"
+      }
       for(let i = 0; i < this.possibleMoves.length; i++) {
         if(this.possibleMoves[i].from === cell) {
-          var possibleMove = document.getElementById("" + this.possibleMoves[i].to)
-          possibleMove.style.backgroundColor = "black"
+          document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "black"
+        } else if((""+this.possibleMoves[i].from).includes("K")) {
+          if((""+this.possibleMoves[i].from).substring(1) === this.cell) {
+            if((""+this.possibleMoves[i].to).includes("K")) {
+              document.getElementById(("" + this.possibleMoves[i].to).substring(1)).style.backgroundColor = "black"
+            } else {
+              document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "black"
+            }
+          }
         }
       }
+      
     },
     selectCell(cell) {
       if(this.playerTurn === user.mail) {
@@ -137,11 +180,18 @@ export default {
           this.counterClick++
         } else {
           for(let i = 0; i < this.possibleMoves.length; i++) {
-            if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === cell) {
+            if(this.possibleMoves[i].from === "K"+this.clickedCell && this.possibleMoves[i].to === cell) {
+              api.move_piece(this.$socket, this.lobbyId, "K"+this.clickedCell, cell)
+              break;
+            } else if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === "K"+cell) {
+              api.move_piece(this.$socket, this.lobbyId, this.clickedCell, "K"+cell)
+              break;
+            } else if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === cell) {
               api.move_piece(this.$socket, this.lobbyId, this.clickedCell, cell)
               break;
             }
           }
+          document.getElementById("" + this.clickedCell).style.backgroundColor = "black"
           this.clickedCell = null
           this.counterClick = 0
         }
@@ -162,12 +212,22 @@ export default {
     },
     colorCells() {
       for(const [key] of Object.entries(this.myMoves)) {
-        document.getElementById("" + key).style.backgroundColor = "black"
+        if(key.toString().includes("K")) {
+          document.getElementById("" + key.substring(1)).style.backgroundColor = "black"
+        } else {
+          document.getElementById("" + key).style.backgroundColor = "black"
+        }
       }
       if(this.playerTurn === user.mail) {
         var possibleEat = this.checkPossibleEat()
         if(possibleEat.length > 0) {
-          possibleEat.forEach(move => document.getElementById("" + move.from).style.backgroundColor = "#333333")
+          for(let i = 0; i < possibleEat.length; i++) {
+            if((""+possibleEat[i].from).includes("K")) {
+              document.getElementById("" + possibleEat[i].from.substring(1)).style.backgroundColor = "#333333"
+            } else {
+              document.getElementById("" + possibleEat[i].from).style.backgroundColor = "#333333"
+            }
+          }
           return
         }
         for(const [key, value] of Object.entries(this.myMoves)) {
@@ -182,6 +242,11 @@ export default {
     confirmButton() {
       var exitLobbyModal = document.getElementsByClassName("exit-lobby")[0]
       exitLobbyModal.setAttribute("class", "exit-lobby modal modal-close")
+      this.$router.push("/")
+    },
+    gameEndButton() {
+      var gameEndModal = document.getElementsByClassName("game-end")[0]
+      gameEndModal.setAttribute("class", "game-end modal modal-close")
       this.$router.push("/")
     }
   },
@@ -217,24 +282,22 @@ export default {
 
       var cells = Array.from((document.getElementsByClassName("grid")[0]).children).filter(el => el.id !== "0")
       for(let i = 0; i < cells.length; i++) {
-        if(cells[i].id in res[2]) {
-          if(cells[i].children.length > 0) {
-            (cells[i].children[0]).remove()
-          }
-          var red_piece = document.createElement('img');
-          red_piece.src = this.redPiece;
-          cells[i].appendChild(red_piece)
+        if(cells[i].children.length > 0) {
+          (cells[i].children[0]).remove()
+        }
+        var piece = document.createElement('img');
+        if(("K"+cells[i].id) in res[2]) {
+          piece.src = this.redKingPiece
+          cells[i].appendChild(piece)
+        } else if(cells[i].id in res[2]) {
+          piece.src = this.redPiece;
+          cells[i].appendChild(piece)
+        } else if(("K"+cells[i].id) in res[1]) {
+          piece.src = this.whiteKingPiece
+          cells[i].appendChild(piece)
         } else if(cells[i].id in res[1]) {
-          if(cells[i].children.length > 0) {
-            (cells[i].children[0]).remove()
-          }
-          var white_piece = document.createElement('img');
-          white_piece.src = this.whitePiece;
-          cells[i].appendChild(white_piece)
-        } else {
-          if(cells[i].children.length > 0) {
-            (cells[i].children[0]).remove()
-          }
+          piece.src = this.whitePiece;
+          cells[i].appendChild(piece)
         }
       }
 
@@ -269,6 +332,14 @@ export default {
     game_ended(msg) {
       console.log("HELLO RECEIVED END GAME")
       console.log(msg)
+      var gameEndModal = document.getElementsByClassName("game-end")[0]
+      var spanMsg = document.getElementById("game-end-msg")
+      if(user.mail === msg.winner.mail) {
+        spanMsg.innerHTML = "HAI VINTOOOOOOO !!!!"
+      } else {
+        spanMsg.innerHTML = "HAI PERSOOOOOOO !!!!"
+      }
+      gameEndModal.setAttribute("class", "game-end modal modal-open")
     }
   }
 }
