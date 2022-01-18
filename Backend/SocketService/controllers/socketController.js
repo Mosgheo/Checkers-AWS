@@ -445,9 +445,8 @@ io.on('connection', async client => {
         const player = online_users.get(client.id)
         const lobby = lobbies.get(lobby_id)
         if(lobby.hasPlayer(player) 
-        && lobby.isFree 
-        && delete_lobby(lobby_id)){
-          lobbies.delete(lobby_id)
+        && lobby.isFree ){
+          delete_lobby(lobby_id)
           console.log("è stata cancellata dia hane")
           client.emit("lobby_deleted",{message:"Your lobby has been successfully deleted"})
         }else{
