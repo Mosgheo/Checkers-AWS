@@ -471,7 +471,7 @@ io.on('connection', async client => {
       }).length == 0)
     {
       const opponent_id = online_users.getKey(opponent_mail)
-      io.to(opponent_id).emit("lobby_invitation",opponent_mail)
+      io.to(opponent_id).emit("lobby_invitation",user_mail)
       invitations.set(user_mail,opponent_id)
       invitation_timeouts.set(user_mail, function(){
         invitations.delete(user_mail)
@@ -494,7 +494,6 @@ io.on('connection', async client => {
         const user_mail = online_users.get(client.id)
         //WILL THIS WORK?
         let opponent = io.sockets.sockets.get(opp_mail);
-        //
         let lobby_id = build_lobby(opp_mail+"-"+user_mail,opponent,Number.MAX_VALUE)
         if(join_lobby(lobby_id,client,online_users.get(client.id))){
           try{
