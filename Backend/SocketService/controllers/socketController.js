@@ -139,8 +139,7 @@ async function get_lobbies(user_stars){
   return data
 }
 function invitation_timeout(inv_id){
-  invitations.delete(inv_id)
-  io.to(inv_id).emit("invitation_timeout")
+
 }
 
 function change_turn(lobby_id){
@@ -474,7 +473,12 @@ io.on('connection', async client => {
       const opponent_id = online_users.getKey(opponent_mail)
       io.to(opponent_id).emit("lobby_invitation",opponent_mail)
       invitations.set(user_mail,opponent_id)
-      invitation_timeouts.set(user_mail, setTimeout(invitation_timeout(user_mail),process.env.TIMEOUT))
+      invitation_timeouts.set(user_mail, function(){
+        invitations.delete(inv_id)
+        client.emit("invitation_timeout")
+        io.to(opponent_id).emit("invitation_timeout")
+        invitation_timeouts.delete(user_mail)
+      },process.env.TIMEOUT)
     }else{
       client.emit("token_error",user[1])
     }
@@ -496,6 +500,11 @@ io.on('connection', async client => {
           try{
             const {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:opp_mail,opponent:user_mail})
             io.to(lobby_id).emit("game_started",board)
+
+            invitations.delete(opp_mail)
+            clearTimeout(invitation_timeouts.get(opp_mail))
+            invitation_timeouts.delete(opp_mail)
+
             turn_timeouts.set(lobby_id, setTimeout(function(){
               change_turn(lobby_id)
               console.log("TURN TIMEOUT FOR GAME " + lobby_id)
@@ -516,15 +525,17 @@ io.on('connection', async client => {
     
   })
 
-  client.on('decline_invite',async(token,opp_id)=>{
+  client.on('decline_invite',async(token,opp_mail)=>{
     const user = await user_authenticated(token,client.id)
     if(user[0]){
-      const invitation = invitation.get(opp_id)
+      const invitation = invitation.get(opp_mail)
       if(invitation === null){
         client.emit("invitation_expired",{message:"Your invitation for this lobby has expired"})
       }else{
-        io.to(opp_id).emit("invitation_declined",{message:online_users.get(opp_id)+" has just refused your invite, we're so sry. "})
-        invitation.delete(opp_id)
+        io.to(opp_mail).emit("invitation_declined",{message:online_users.get(opp_mail)+" has just refused your invite, we're so sry. "})
+        invitations.delete(opp_mail)
+        clearTimeout(invitation_timeouts.get(opp_mail))
+        invitation_timeouts.delete(opp_mail)
       }
     }else{
       client.emit("token_error",user[1])
