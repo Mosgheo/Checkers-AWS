@@ -22,42 +22,6 @@
 			</div>
 		</div>
     <appPlayer0 :player="this.player1" class="self-start"/>
-
-    <input type="checkbox" id="exit-lobby-modal" class="modal-toggle"> 
-    <div class="exit-lobby modal modal-close">
-      <div class="modal-box items-center">
-        <div class="form-control items-center">
-          <label class="mt-3">
-            <span>"The opponent has left the game! Now you will be redirect to Home page and
-                  100 stars have been added to your profile"</span>
-          </label> 
-        </div>
-        <div class="flex flex-row modal-action justify-center">
-          <label @click.prevent="confirmButton" for="exit-lobby-modal" class="accept btn">
-            Ok
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <input type="checkbox" id="game-end-modal" class="modal-toggle"> 
-    <div class="game-end modal modal-close">
-      <div class="modal-box items-center">
-        <div class="form-control items-center">
-          <label class="mt-3">
-            <span id="game-end-msg">"The opponent has left the game! Now you will be redirect to Home page and
-                  100 stars have been added to your profile"</span>
-          </label> 
-        </div>
-        <div class="flex flex-row modal-action justify-center">
-          <label @click.prevent="gameEndButton" for="game-end-modal" class="accept btn">
-            Ok
-          </label>
-        </div>
-      </div>
-    </div>
-
-    
 	</div>
 </template>
 
@@ -238,16 +202,6 @@ export default {
           }
         }
       }
-    },
-    confirmButton() {
-      var exitLobbyModal = document.getElementsByClassName("exit-lobby")[0]
-      exitLobbyModal.setAttribute("class", "exit-lobby modal modal-close")
-      this.$router.push("/")
-    },
-    gameEndButton() {
-      var gameEndModal = document.getElementsByClassName("game-end")[0]
-      gameEndModal.setAttribute("class", "game-end modal modal-close")
-      this.$router.push("/")
     }
   },
   sockets: {
@@ -277,9 +231,6 @@ export default {
       this.colorCells()
     },
     update_board(res) {
-      console.log(res[1])
-      console.log(res[2])
-
       var cells = Array.from((document.getElementsByClassName("grid")[0]).children).filter(el => el.id !== "0")
       for(let i = 0; i < cells.length; i++) {
         if(cells[i].children.length > 0) {
@@ -319,27 +270,6 @@ export default {
     turn_change(res) {
       this.playerTurn = res.next_player
       this.colorCells()
-    },
-    left_game(res) {
-      console.log(res)
-    },
-    opponent_left(msg) {
-      console.log(msg)
-      store.state.in_game = false
-      var exitLobbyModal = document.getElementsByClassName("exit-lobby")[0]
-      exitLobbyModal.setAttribute("class", "exit-lobby modal modal-open")
-    },
-    game_ended(msg) {
-      console.log("HELLO RECEIVED END GAME")
-      console.log(msg)
-      var gameEndModal = document.getElementsByClassName("game-end")[0]
-      var spanMsg = document.getElementById("game-end-msg")
-      if(user.mail === msg.winner.mail) {
-        spanMsg.innerHTML = "HAI VINTOOOOOOO !!!!"
-      } else {
-        spanMsg.innerHTML = "HAI PERSOOOOOOO !!!!"
-      }
-      gameEndModal.setAttribute("class", "game-end modal modal-open")
     }
   }
 }
