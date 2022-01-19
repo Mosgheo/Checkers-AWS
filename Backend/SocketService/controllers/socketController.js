@@ -462,17 +462,14 @@ io.on('connection', async client => {
   client.on('invite_opponent',async(token,opponent_mail) =>{
     const user_mail = online_users.get(client.id)
     const user = await user_authenticated(token,client.id)
-    const lobby_list = Array.from(lobbies.values())
+    const lobby_list = lobbies.values()
     if(user[0] 
     && online_users.has(client.id) 
     && online_users.hasValue(opponent_mail)
     //THIS WON't WORK
     && lobby_list.filter(lobby => {
         lobby.hasPlayer(opponent_mail)
-      }) === null 
-    && lobby_list.filter(lobby => {
-      lobby.hasPlayer(opponent_mail)
-    }) === null)
+      }).length == 0)
     {
       const opponent_id = online_users.getKey(opponent_mail)
       io.to(opponent_id).emit("lobby_invitation",opponent_mail)
