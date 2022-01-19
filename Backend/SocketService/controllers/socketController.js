@@ -474,7 +474,7 @@ io.on('connection', async client => {
       io.to(opponent_id).emit("lobby_invitation",opponent_mail)
       invitations.set(user_mail,opponent_id)
       invitation_timeouts.set(user_mail, function(){
-        invitations.delete(inv_id)
+        invitations.delete(user_mail)
         client.emit("invitation_timeout")
         io.to(opponent_id).emit("invitation_timeout")
         invitation_timeouts.delete(user_mail)
