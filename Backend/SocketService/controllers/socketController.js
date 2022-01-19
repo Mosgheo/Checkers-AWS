@@ -497,7 +497,24 @@ io.on('connection', async client => {
         let lobby_id = build_lobby(opp_mail+"-"+user_mail,opponent,Number.MAX_VALUE)
         if(join_lobby(lobby_id,client,online_users.get(client.id))){
           try{
-            const {data: board} = await axios.put(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:opp_mail,opponent:user_mail})
+            let game = []
+            const {data:host_specs} = await axios.get(user_service+"/profile/getProfile",
+            {params:
+              {
+                mail:opponent_mail
+              }
+            })
+            const {data:opponent_specs} = await axios.get(user_service+"/profile/getProfile",
+            {params:
+              {
+                mail:user_mail
+              }
+            })
+            const {data: board} = await axios.post(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:host_specs.mail,opponent:opponent_specs.mail})
+            game.push(host_specs)
+            game.push(opponent_specs)
+            game.push(board)
+            game.push(lobby_id)
             io.to(lobby_id).emit("game_started",board)
 
             invitations.delete(opp_mail)
