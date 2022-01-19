@@ -42,6 +42,9 @@ export default {
     },
     lobby_deleted(msg) {
       console.log(msg)
+    },
+    lobby_invitation(msg) {
+      console.log(msg)
     }
   }
 }

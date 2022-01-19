@@ -1,18 +1,33 @@
 <template>
     <div class="flex flex-col form-control">
         <textarea class="chat textarea textarea-bordered" placeholder="Chat di gioco"></textarea>
-        <textarea class="message textarea textarea-bordered" v-on:keyup.enter="onEnter()" placeholder="Type here..."></textarea>
+        <textarea class="message textarea textarea-bordered normal-case" v-on:keyup.enter="onEnter()" placeholder="Type here..."></textarea>
     </div>
 </template>
 
 <script>
+import store from '@/store'
+import api from '../../../api.js'
+
 var message = document.getElementsByClassName("message");
 var chat = document.getElementsByClassName("chat")
 export default {
+    name: "GameChat",
+    props: ['lobbyId'],
     methods: {
         onEnter() {
-            chat[1].value += message[0].value
+            var msg = store.state.user.username + " => " +  message[0].value
+            chat[1].value += msg
             message[0].value = ""
+            api.game_msg(this.$socket, this.lobbyId, msg)
+        }
+    },
+    sockets: {
+        game_msg(msg) {
+            if(msg.sender !== store.getters.user.mail) {
+                chat[1].value += msg.message
+            }
+            console.log(msg)
         }
     }
 }

@@ -718,8 +718,9 @@ io.on('connection', async client => {
     const user = await user_authenticated(token,client.id)
     if(user[0]){
       console.log("a user sent a game msg")
+      console.log(online_users)
       if(online_users.has(client.id) && lobbies.has(lobby_id)
-      && lobbies.get(lobby_id).getPlayers.includes(online_users.get(client.id))){
+      && lobbies.get(lobby_id).getPlayers().includes(online_users.get(client.id))){
         io.to(lobby_id).emit("game_msg",{sender:online_users.get(client.id), message:msg})
       }
     }else{
