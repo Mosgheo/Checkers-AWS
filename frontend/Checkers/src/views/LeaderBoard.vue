@@ -66,7 +66,7 @@ export default {
     api.get_leaderboard(this.$socket)
 
     return {
-      leaderboard: null,
+      leaderboard: [],
       currentPage: [],
       perPage: 12,
       page: 1

@@ -50,14 +50,13 @@ export default {
       }
     },
     hoverCell() {
-      if(this.cell in this.myMoves && this.myMoves[this.cell].length > 0) {
-        this.$el.style.backgroundColor = "red"
+      if(("K"+this.cell in this.myMoves && this.myMoves["K"+this.cell].length > 0)
+          || (this.cell in this.myMoves && this.myMoves[this.cell].length > 0)) {
         this.$emit("hover-cell", this.cell)
       }
     },
 		leaveCell() {
       if(this.cell !== 0) {
-        this.$el.style.backgroundColor = "black"
         this.$emit("release", this.cell)
       }
     }

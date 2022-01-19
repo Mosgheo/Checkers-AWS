@@ -88,7 +88,6 @@
 </template>
 
 <script>
-//import Checkerboard from '@/components/boardComponents/Checkerboard'
 import api from '../../api.js'
 import store from '../store'
 var lobbyName = document.getElementsByClassName("input-name")
@@ -97,9 +96,6 @@ var starTextBox2 = document.getElementsByClassName("input-star2")
 
 export default {
   name: 'Home',
-  components: {
-    //Checkerboard
-  },
   methods: {
     startingMatch() {
       if(store.state.token !== "") {

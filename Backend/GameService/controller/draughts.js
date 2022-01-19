@@ -548,7 +548,7 @@ module.exports = class Draughts{
                   updateCapture.jumps.push(posTo)
                   updateCapture.to = posTo
                   updateCapture.takes.push(posTake)
-                  updateCapture.piecesTaken.push(position.charAt(posTake))
+                  updateCapture.piecesTaken.push(this.position.charAt(posTake))
                   updateCapture.posFrom = posFrom
                   updateState = this.clone(state)
                   updateState.dirFrom = this.oppositeDir(dir)
@@ -557,7 +557,7 @@ module.exports = class Draughts{
                   updateState.position = this.setCharAt(updateState.position, posTo, pieceCode)
                   finished = false
                   var dirIndex = dir + i.toString()
-                  captureArrayForDir[dirIndex] = capturesAtSquare(posTo, updateState, updateCapture)
+                  captureArrayForDir[dirIndex] = this.capturesAtSquare(posTo, updateState, updateCapture)
                 }
               }
               break

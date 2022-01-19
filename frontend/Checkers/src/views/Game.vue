@@ -5,7 +5,7 @@
 
       <div class="modal modal-change-location">
         <div class="modal-box">
-          <p>Sei sicuro di voler abbandonare la partita? In caso affernativo ti verrà assegnata una sconfitta a tavolino</p> 
+          <p id="exit-game-msg"></p> 
           <div class="modal-action">
             <label for="my-modal-2" @click="exitGame" class="btn">Accept</label> 
             <label for="my-modal-2" @click="closeModal" class="btn">Close</label>
@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      lobbyId: this.$route.params.id
+      lobbyId: this.$route.params.lobbyId
     }
   },
   methods: {
@@ -44,27 +44,52 @@ export default {
     },
     exitGame() {
       console.log(this.lobbyId)
-      if(store.state.in_game) {
+      if(store.state.in_game && changeLocation === false) {
         api.leave_game(this.$socket, this.lobbyId)
-        store.state.in_game = false
-      } else {
+        document.getElementById("exit-game-msg").innerHTML = "Sei sicuro di voler abbandonare la partita? In caso affernativo ti verrà assegnata una sconfitta a tavolino"
+        changeLocation = true
+      } else if(changeLocation === false) {
         api.delete_lobby(this.$socket, this.lobbyId)
+        document.getElementById("exit-game-msg").innerHTML = "La lobby verrà eliminata, confermare per uscire dalla lobby"
+        changeLocation = true
       }
       this.$router.push(path)
-      changeLocation = true
-    }
+    },
   },
   sockets: {
     lobbies(res) {
       this.lobbyId = res.lobby_id
     },
-
+    left_game(res) {
+      console.log(res)
+    },
+    opponent_left(msg) {
+      console.log(msg)
+      changeLocation = true
+      path = "/"
+      document.getElementById("exit-game-msg").innerHTML = "L'avversario ha abbandonato la partita, ti verranno assegnati dei punti per vittoria a tavolino"
+      modal[0].className = "modal modal-change-location modal-open"
+    },
+    game_ended(msg) {
+      console.log("HELLO RECEIVED END GAME")
+      console.log(msg)
+      changeLocation = true
+      path = "/"
+      var gameEndModal = document.getElementsByClassName("modal")[0]
+      if(store.getters.user.mail === msg.winner.mail) {
+        document.getElementById("exit-game-msg").innerHTML = "HAI VINTOOOOOOO !!!!"
+      } else {
+        document.getElementById("exit-game-msg").innerHTML = "HAI PERSOOOOOOO !!!!"
+      }
+      gameEndModal.setAttribute("class", "modal modal-change-location modal-open")
+    }
   },
   beforeRouteLeave(to, from, next) {
     if(this.lobbyId === undefined) {
       api.get_lobbies(this.$socket, store.state.user.stars)
     }
     if(changeLocation) {
+      store.state.in_game = false
       changeLocation = false
       next()
     } else {

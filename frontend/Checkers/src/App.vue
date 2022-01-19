@@ -39,6 +39,9 @@ export default {
     },
     server_error(error) {
       console.log(error)
+    },
+    lobby_deleted(msg) {
+      console.log(msg)
     }
   }
 }
