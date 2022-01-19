@@ -462,7 +462,7 @@ io.on('connection', async client => {
   client.on('invite_opponent',async(token,opponent_mail) =>{
     const user_mail = online_users.get(client.id)
     const user = await user_authenticated(token,client.id)
-    const lobby_list = lobbies.values()
+    const lobby_list = Array.from(lobbies.values())
     if(user[0] 
     && online_users.has(client.id) 
     && online_users.hasValue(opponent_mail)
