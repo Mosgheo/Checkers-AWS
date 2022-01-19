@@ -12,8 +12,8 @@ const turn_timeouts = new Map(); // {lobby_id -> timoutTimer}
 const invitations = new Map() // {host_id -> opponent_id}
 const invitation_timeouts = new Map() // {inv_id -> timeout}
 
-const game_service = process.env.HOSTNAME+":"+process.env.GAME_SERVICE_PORT
-const user_service = process.env.HOSTNAME+":"+process.env.USER_SERVICE_PORT
+const game_service = process.env.GAME_SERVICE
+const user_service =process.env.USER_SERVICE
 
 let current_id = 0;
 let free_ids = []

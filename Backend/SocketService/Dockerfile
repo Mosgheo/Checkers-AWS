@@ -1,0 +1,7 @@
+FROM node:latest
+RUN mkdir -p /app/SocketService
+WORKDIR /app/SocketService
+COPY . /app/SocketService
+RUN npm install --unsafe-perm
+EXPOSE 3030
+CMD npm run deploy

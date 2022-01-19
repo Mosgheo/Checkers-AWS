@@ -1,7 +1,0 @@
-FROM node:latest
-RUN mkdir -p /app
-WORKDIR /app
-COPY . /app
-RUN npm install --unsafe-perm
-EXPOSE 3030 3031 3032
-CMD npm run deploy
