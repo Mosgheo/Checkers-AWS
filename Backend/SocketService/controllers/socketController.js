@@ -194,6 +194,7 @@ async function handle_disconnection(player){
       console.log(online_users.get(client_id)+" just disconnected and his lobby has been deleted")
       lobbies.delete(lobby_id)
       online_users.delete(client_id)
+      
     }else{
       console.log("lobby"+lobby_id +"isn't free")
       try{
@@ -449,6 +450,7 @@ io.on('connection', async client => {
           delete_lobby(lobby_id)
           console.log("è stata cancellata dia hane")
           client.emit("lobby_deleted",{message:"Your lobby has been successfully deleted"})
+          client.leave(lobby_id)
         }else{
           client.emit("server_error",{message:"There has been some problem with the process of deleting a lobby."})
         }
@@ -460,14 +462,15 @@ io.on('connection', async client => {
   client.on('invite_opponent',async(token,opponent_mail) =>{
     const user_mail = online_users.get(client.id)
     const user = await user_authenticated(token,client.id)
+    const lobby_list = Array.from(lobbies.values())
     if(user[0] 
     && online_users.has(client.id) 
     && online_users.hasValue(opponent_mail)
     //THIS WON't WORK
-    && lobbies.filter(lobby => {
+    && lobby_list.filter(lobby => {
         lobby.hasPlayer(opponent_mail)
       }) === null 
-    && lobbies.filter(lobby => {
+    && lobby_list.filter(lobby => {
       lobby.hasPlayer(opponent_mail)
     }) === null)
     {
@@ -563,7 +566,9 @@ io.on('connection', async client => {
                   })
                   console.log("Successfully sent end_game")
                   delete_lobby(lobby_id)
-                  io.in(lobby_id).socketsLeave(lobby_id);
+                  io.sockets.clients(lobby_id).forEach(function(socket){
+                    socket.leave(lobby_id);
+                  });
                 }else{
                   console.log("Something wrong while updating points.")
                   client.emit("server_error",{message:"Something wrong while updating points."})
@@ -622,7 +627,9 @@ io.on('connection', async client => {
             message: result[1],
             user: updated_users[1]
           })
-          io.in(lobby_id).socketsLeave(lobby_id);
+          io.sockets.clients(lobby_id).forEach(function(socket){
+            socket.leave(lobby_id);
+          });
         }catch(err){
           if('response' in err){
             if(err.response.status == 500){

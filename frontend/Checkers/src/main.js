@@ -19,7 +19,7 @@ app.config.globalProperties.$PLAYER_TWO = "two"
 app.config.globalProperties.$PIECE_TYPE_MAN ="man"
 app.config.globalProperties.$PIECE_TYPE_KING = "king"
 const connection = SocketIO('http://localhost:3030')
-const token_time = 5000
+const token_time = 86400000
 app
 .use(new VueSocketIO({
   connection: connection,
@@ -46,7 +46,7 @@ async function token_timeout(time) {
   setTimeout(async function () {
     console.log("refreshing token")
     api.refresh_token(connection,sessionStorage.token)
-    token_timeout(tokenData,time);
+    token_timeout(time);
   },time);
 }
 
