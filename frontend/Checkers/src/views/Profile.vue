@@ -17,8 +17,8 @@
 
     <div class="profile-info rounded-xl bordered mt-10">
       <div class="tabs tabs-boxed pl-5 mt-5">
-        <a v-on:click="dataInfo()" id="dataInfo" class="tab tab-lg tab-active">Dati Utente</a>
-        <a v-on:click="matchInfo()" id="matchInfo" class="tab tab-lg ">Partite</a>
+        <a @click="dataInfo" id="dataInfo" class="tab tab-lg tab-active">Dati Utente</a>
+        <a @click="matchInfo" id="matchInfo" class="tab tab-lg ">Partite</a>
       </div>
       <div id="content" class="card shadow-lg mt-2">
         <div id="tabDiv" class="card-body">

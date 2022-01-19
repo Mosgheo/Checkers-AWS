@@ -19,7 +19,7 @@ app.config.globalProperties.$PLAYER_TWO = "two"
 app.config.globalProperties.$PIECE_TYPE_MAN ="man"
 app.config.globalProperties.$PIECE_TYPE_KING = "king"
 const connection = SocketIO('http://localhost:3030')
-const token_time = 5000
+const token_time = 600000
 app
 .use(new VueSocketIO({
   connection: connection,

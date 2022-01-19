@@ -50,33 +50,16 @@
         </div>
       </div>
 
-      <label for="cpu-modal" id="btn-menu" class="btn">Computer</label>
-      <input type="checkbox" id="cpu-modal" class="modal-toggle"> 
-      <div class="modal">
-        <div class="modal-box">
-          <h3>Sfida il Computer alla difficoltà che preferisci</h3>
-          <select class="select select-bordered mt-2 select-lg w-full max-w-xs">
-            <option selected="selected">Facile</option> 
-            <option>Medio</option> 
-            <option>Difficile</option>
-          </select> 
-          <div class="modal-action">
-            <router-link to="/inGame"> <label for="cpu-modal" class="btn">Avvia</label> </router-link>
-            <label for="cpu-modal" class="btn">Annulla</label>
-          </div>
-        </div>
-      </div>
-
       <label for="friends-modal" id="btn-menu" class="btn">Sfida un amico</label>
       <input type="checkbox" id="friends-modal" class="modal-toggle"> 
       <div class="modal">
         <div class="modal-box"> 
           <h3>Inserisci il nickname del tuo amico</h3>
           <div class="form-control items-center mt-2">
-            <input type="text" placeholder="Username" class="input input-bordered w-min">
+            <input type="text" placeholder="Username" class="opponent-mail input input-bordered w-min">
           </div>
           <div class="modal-action">
-            <router-link to="/inGame"> <label for="friends-modal" class="btn">Invita</label> </router-link>
+            <label @click.prevent="invitePlayer" for="friends-modal" class="btn">Invita</label>
             <label for="friends-modal" class="btn">Annulla</label>
           </div>
         </div>
@@ -93,7 +76,7 @@ import store from '../store'
 var lobbyName = document.getElementsByClassName("input-name")
 var starTextBox = document.getElementsByClassName("input-star")
 var starTextBox2 = document.getElementsByClassName("input-star2")
-
+var opponent = document.getElementsByClassName("opponent-mail")
 export default {
   name: 'Home',
   methods: {
@@ -107,6 +90,12 @@ export default {
       if(store.state.token !== "") {
         api.get_lobbies(this.$socket, starTextBox2[0].value)
         this.$router.push("/lobbies")
+      }
+    },
+    invitePlayer() {
+      if(store.state.token !== "") {
+        console.log("ciao")
+        api.invite_opponent(this.$socket, opponent[0].value)
       }
     }
   }

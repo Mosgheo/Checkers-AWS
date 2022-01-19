@@ -1,3 +1,5 @@
+import { socket } from "../../Backend/SocketService/controllers/socketController"
+
 function getToken(){
     return sessionStorage.token
 }
@@ -21,6 +23,15 @@ var api = {
     delete_lobby(socket, lobby_id) {
         socket.emit("delete_lobby",lobby_id,getToken())
     },
+    invite_opponent(socket, opponent_mail) {
+        socket.emit("invite_opponent", getToken(), opponent_mail)
+    },
+    accept_invite(socket, opponent_mail) {
+        socket.emit("accept_invite", getToken(), opponent_mail)
+    },
+    decline_invite(socket, opponent_mail) {
+        socket.emit("decline_invite", getToken(), opponent_mail)
+    },
     get_leaderboard(socket){
         socket.emit("get_leaderboard",getToken())
     },
@@ -33,8 +44,6 @@ var api = {
     update_profile(socket,params){
         socket.emit("update_profile",params,getToken())
     },
-
-    //Can try
     leave_game(socket, lobby_id){
         socket.emit("leave_game",lobby_id,getToken())
     },

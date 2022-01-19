@@ -117,6 +117,13 @@ export default {
       if(button.path[1].children[1].className.includes("disabled")) {
         button.path[1].children[1].setAttribute("class", "btn btn-outline btn-wide")
       }
+    },
+    getAvatar(user){
+      if(user.avatar == ""){
+        return "http://daisyui.com/tailwind-css-component-profile-1@40w.png"
+      }else{
+        return user.avatar
+      } 
     }
   },
   sockets: {
@@ -129,15 +136,6 @@ export default {
         }
         this.currentPage.push(this.history[i])
       }
-    }
-  },
-  methods:{
-    getAvatar(user){
-      if(user.avatar == ""){
-        return "http://daisyui.com/tailwind-css-component-profile-1@40w.png"
-      }else{
-        return user.avatar
-      } 
     }
   }
 }

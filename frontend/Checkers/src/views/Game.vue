@@ -1,7 +1,7 @@
 <template>
     <div class="centralSpace flex flex-row">
       <Checkerboard class="board flex flex-col"/>
-      <Chat class="chat"/>
+      <Chat :lobbyId="this.lobbyId" class="chat"/>
 
       <div class="modal modal-change-location">
         <div class="modal-box">
@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      lobbyId: this.$route.params.lobbyId
+      lobbyId: this.$route.params.lobbyId === undefined ? api.get_lobbies(this.$socket, store.state.user.stars) : this.$route.params.lobbyId
     }
   },
   methods: {
@@ -85,14 +85,16 @@ export default {
     }
   },
   beforeRouteLeave(to, from, next) {
-    if(this.lobbyId === undefined) {
-      api.get_lobbies(this.$socket, store.state.user.stars)
-    }
     if(changeLocation) {
       store.state.in_game = false
       changeLocation = false
       next()
     } else {
+      if(store.state.in_game && changeLocation === false) {
+        document.getElementById("exit-game-msg").innerHTML = "Sei sicuro di voler abbandonare la partita? In caso affernativo ti verrà assegnata una sconfitta a tavolino"
+      } else if(changeLocation === false) {
+        document.getElementById("exit-game-msg").innerHTML = "La lobby verrà eliminata, confermare per uscire dalla lobby"
+      }
       modal[0].className = "modal modal-change-location modal-open"
       path = to.path
     }

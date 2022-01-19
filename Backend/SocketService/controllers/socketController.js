@@ -461,15 +461,11 @@ io.on('connection', async client => {
     const user_mail = online_users.get(client.id)
     const user = await user_authenticated(token,client.id)
     if(user[0] 
-    && online_users.has(client.id) 
-    && online_users.hasValue(opponent_mail)
-    //THIS WON't WORK
-    && lobbies.filter(lobby => {
-        lobby.hasPlayer(opponent_mail)
-      }) === null 
-    && lobbies.filter(lobby => {
-      lobby.hasPlayer(opponent_mail)
-    }) === null)
+      && online_users.has(client.id) 
+      && online_users.hasValue(opponent_mail)
+      //THIS WON't WORK
+      && lobbies.filter(lobby => lobby.hasPlayer(opponent_mail)) === null 
+      && lobbies.filter(lobby => lobby.hasPlayer(opponent_mail)) === null)
     {
       const opponent_id = online_users.getKey(opponent_mail)
       io.to(opponent_id).emit("lobby_invitation",opponent_mail)
@@ -714,8 +710,9 @@ io.on('connection', async client => {
     const user = await user_authenticated(token,client.id)
     if(user[0]){
       console.log("a user sent a game msg")
+      console.log(online_users)
       if(online_users.has(client.id) && lobbies.has(lobby_id)
-      && lobbies.get(lobby_id).getPlayers.includes(online_users.get(client.id))){
+      && lobbies.get(lobby_id).getPlayers().includes(online_users.get(client.id))){
         io.to(lobby_id).emit("game_msg",{sender:online_users.get(client.id), message:msg})
       }
     }else{
