@@ -2,6 +2,8 @@
 <div>
   <div class="flex flex-row centralSpace">
 
+    <img src="@/assets/checkers.png" class="w-auto mask mask-squircle">
+
     <div class="card items-center w-64 flex flex-col rightMenu">
       <h1 class="mt-5">Gioca a Checkers</h1>
       <figure>
@@ -52,14 +54,14 @@
 
       <label for="friends-modal" id="btn-menu" class="btn">Sfida un amico</label>
       <input type="checkbox" id="friends-modal" class="modal-toggle"> 
-      <div class="modal">
-        <div class="modal-box"> 
+      <div class="modal modal-invite">
+        <div class="modal-box items-center"> 
           <h3>Inserisci il nickname del tuo amico</h3>
           <div class="form-control items-center mt-2">
             <input type="text" placeholder="Username" class="opponent-mail input input-bordered w-min">
           </div>
-          <div class="modal-action">
-            <label @click.prevent="invitePlayer" for="friends-modal" class="btn">Invita</label>
+          <div class="flex flex-row modal-action">
+            <label @click.prevent="invitePlayer" for="friends-modal" class="accept btn">Invita</label>
             <label for="friends-modal" class="btn">Annulla</label>
           </div>
         </div>
@@ -77,6 +79,7 @@ var lobbyName = document.getElementsByClassName("input-name")
 var starTextBox = document.getElementsByClassName("input-star")
 var starTextBox2 = document.getElementsByClassName("input-star2")
 var opponent = document.getElementsByClassName("opponent-mail")
+
 export default {
   name: 'Home',
   methods: {
@@ -94,9 +97,9 @@ export default {
     },
     invitePlayer() {
       if(store.state.token !== "") {
-        console.log("ciao")
         api.invite_opponent(this.$socket, opponent[0].value)
       }
+      this.$router.push("/profile")
     }
   }
 }

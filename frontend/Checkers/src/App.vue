@@ -6,6 +6,17 @@
         <router-view />
       </div>
     </div>
+
+    <div class="modal modal-notifications">
+      <div class="modal-box">
+        <p class="notification-msg"></p> 
+        <div class="modal-action">
+          <label for="my-modal-2" @click="accept" class="btn">Accept</label> 
+          <label for="my-modal-2" @click="decline" class="btn">Close</label>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -13,6 +24,11 @@
 import Sidebar from '@/components/sidebarComponents/Sidebar.vue'
 import {sidebarWidth} from '@/components/sidebarComponents/state.js'
 import store from './store'
+import api from '../api.js'
+
+var message = document.getElementsByClassName("notification-msg")
+var modal = document.getElementsByClassName("modal-notifications")
+
 export default {
   components: {
     Sidebar
@@ -20,7 +36,23 @@ export default {
   setup() {
     return { sidebarWidth }
   },
-  sockets:{
+  data() {
+    return {
+      opponent_mail: null
+    }
+  },
+  methods: {
+    accept() {
+      api.accept_invite(this.$socket, this.opponent_mail)
+      modal[0].className = "modal modal-notifications modal-close"
+      this.$router.push("/inGame")
+    },
+    decline() {
+      api.decline_invite(this.$socket, this.opponent_mail)
+      modal[0].className = "modal modal-notifications modal-close"
+    },
+  },
+  sockets: {
     token_ok(res){
       store.commit('setToken',res.token)
       sessionStorage.token = res.token
@@ -44,6 +76,16 @@ export default {
       console.log(msg)
     },
     lobby_invitation(msg) {
+      console.log(msg)
+      this.opponent_mail = msg
+      message[0].innerHTML = "Hai ricevuto una sfida da parte di: "
+      modal[0].className = "modal modal-notifications modal-open"
+    },
+    invite_accepted() {
+      console.log("Invite accepated")
+      this.$router.push("/inGame")
+    },
+    invitation_declined(msg) {
       console.log(msg)
     }
   }

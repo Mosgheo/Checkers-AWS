@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      lobbyId: this.$route.params.lobbyId === undefined ? api.get_lobbies(this.$socket, store.state.user.stars) : this.$route.params.lobbyId
+      lobbyId: null
     }
   },
   methods: {
@@ -43,7 +43,9 @@ export default {
       modal[0].className = "modal modal-change-location modal-close"
     },
     exitGame() {
-      console.log(this.lobbyId)
+      if(this.lobbyId === null || this.lobbyId === undefined) {
+        api.get_lobbies(this.$socket, store.state.user.stars)
+      }
       if(store.state.in_game && changeLocation === false) {
         api.leave_game(this.$socket, this.lobbyId)
         document.getElementById("exit-game-msg").innerHTML = "Sei sicuro di voler abbandonare la partita? In caso affernativo ti verrà assegnata una sconfitta a tavolino"
@@ -58,7 +60,9 @@ export default {
   },
   sockets: {
     lobbies(res) {
-      this.lobbyId = res.lobby_id
+      if(this.lobbyId === null || this.lobbyId === undefined) {
+        this.lobbyId = res.lobby_id
+      }
     },
     left_game(res) {
       console.log(res)
@@ -82,6 +86,9 @@ export default {
         document.getElementById("exit-game-msg").innerHTML = "HAI PERSOOOOOOO !!!!"
       }
       gameEndModal.setAttribute("class", "modal modal-change-location modal-open")
+    },
+    game_started(res) {
+      this.lobbyId = res[3]
     }
   },
   beforeRouteLeave(to, from, next) {

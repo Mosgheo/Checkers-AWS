@@ -493,7 +493,7 @@ io.on('connection', async client => {
       }else{
         const user_mail = online_users.get(client.id)
         //WILL THIS WORK?
-        let opponent = io.sockets.sockets.get(opp_mail);
+        let opponent = io.sockets.sockets.get(online_users.getKey(opp_mail))
         let lobby_id = build_lobby(opp_mail+"-"+user_mail,opponent,Number.MAX_VALUE)
         if(join_lobby(lobby_id,client,online_users.get(client.id))){
           try{
@@ -501,13 +501,13 @@ io.on('connection', async client => {
             const {data:host_specs} = await axios.get(user_service+"/profile/getProfile",
             {params:
               {
-                mail:opponent_mail
+                mail: opp_mail
               }
             })
             const {data:opponent_specs} = await axios.get(user_service+"/profile/getProfile",
             {params:
               {
-                mail:user_mail
+                mail: user_mail
               }
             })
             const {data: board} = await axios.post(game_service+"/game/lobbies/create_game",{game_id: lobby_id,host_id:host_specs.mail,opponent:opponent_specs.mail})
@@ -515,7 +515,8 @@ io.on('connection', async client => {
             game.push(opponent_specs)
             game.push(board)
             game.push(lobby_id)
-            io.to(lobby_id).emit("game_started",board)
+            io.to(online_users.getKey(opp_mail)).emit("invite_accepted")
+            io.to(lobby_id).emit("game_started",game)
 
             invitations.delete(opp_mail)
             clearTimeout(invitation_timeouts.get(opp_mail))
@@ -651,9 +652,11 @@ io.on('connection', async client => {
             message: result[1],
             user: updated_users[1]
           })
-          io.sockets.clients(lobby_id).forEach(function(socket){
+          console.log(io.sockets.adapter.rooms.get(lobby_id))
+          io.sockets.adapter.rooms.get(lobby_id).clear()/*forEach(function(socket) {
+            console.log(socket)
             socket.leave(lobby_id);
-          });
+          });*/
         }catch(err){
           if('response' in err){
             if(err.response.status == 500){
