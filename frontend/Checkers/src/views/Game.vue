@@ -1,5 +1,5 @@
 <template>
-    <div class="centralSpace flex flex-row">
+    <div class="centralSpace flex flex-row justify-center">
       <Checkerboard class="board flex flex-col"/>
       <Chat :lobbyId="this.lobbyId" class="chat"/>
 

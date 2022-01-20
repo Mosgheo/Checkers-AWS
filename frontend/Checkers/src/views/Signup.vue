@@ -1,6 +1,10 @@
 <template>
-    <div class="card shadow-lg">
-        <div class="card-body items-center">
+<div class="flex flex-col min-h-screen justify-center">
+    <div class="pt-20">
+        <h1>Accedi a Checkers</h1>
+    </div>
+    <div class="card">
+        <div class="card-body items-center justify-center">
             <div class="form-control rounded-lg items-center">
 
                 <div class="block">
@@ -59,6 +63,7 @@
             </div>
         </div>
     </div>
+</div>
 </template>
 
 <script>

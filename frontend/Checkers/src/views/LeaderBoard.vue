@@ -1,58 +1,64 @@
 <template>
-<div class="leaderboard overflow-x-auto">
-  <table class="table w-full shadow">
-
-    <thead>
-      <tr>
-        <th>Pos</th> 
-        <th>Nome</th> 
-        <th>Punti</th> 
-        <th>Partite giocate</th> 
-        <th>Vittorie</th> 
-        <th>Sconfitte</th> 
-      </tr>
-    </thead>
-
-    <tbody>
-      <template v-for="(user, i) in this.currentPage" :key="i">
-        <tr>
-          <th :textContent="'#' + ((this.leaderboard.indexOf(this.currentPage[i]))+1)"></th>
-          <td>
-            <div class="flex items-center space-x-3">
-              <div class="avatar">
-                <div class="w-12 h-12 mask mask-squircle">
-                  <img src="https://picsum.photos/id/1005/400/250" alt="Avatar Tailwind CSS Component">
-                </div>
-              </div> 
-              <div>
-                  <div class="font-bold">
-                      {{ user.username }}
-                  </div> 
-                  <div class="text-sm opacity-50">
-                      Nazione
-                  </div>
-              </div>
-            </div>
-          </td>
-          <td>
-              {{ user.stars }}
-            <br>
-          </td> 
-          <td>{{ user.losses + user.wins }}</td>
-          <td>{{ user.wins }}</td>
-          <td>{{ user.losses }}</td>
-        </tr>
-      </template>
-    </tbody> 
-  </table>
-
-  <div v-if="this.leaderboard.length > this.perPage" class="btn-group mt-4">
-    <button @click="previousPage($event)" class="btn btn-disabled btn-outline btn-wide">Previous</button> 
-    <button @click="nextPage($event)" class="btn btn-outline btn-wide">Next</button>
+<div class="flex flex-col justify-center">
+  <div class="mt-5">
+    <h1>Classifica globale</h1>
   </div>
-  <div v-else class="btn-group mt-4">
-    <button @click="previousPage($event)" class="btn btn-disabled btn-outline btn-wide">Previous</button> 
-    <button @click="nextPage($event)" class="btn btn-disabled btn-outline btn-wide">Next</button>
+  <div class="leaderboard overflow-hidden">
+    <table class="table table-compact w-full shadow">
+
+      <thead>
+        <tr>
+          <th>Pos</th> 
+          <th>Nome</th> 
+          <th>Punti</th> 
+          <th>Partite giocate</th> 
+          <th>Vittorie</th> 
+          <th>Sconfitte</th> 
+        </tr>
+      </thead>
+
+      <tbody>
+        <template v-for="(user, i) in this.currentPage" :key="i">
+          <tr>
+            <th :textContent="'#' + ((this.leaderboard.indexOf(this.currentPage[i]))+1)"></th>
+            <td>
+              <div class="flex items-center space-x-3">
+                <div class="avatar">
+                  <div class="w-12 h-12 mask mask-squircle">
+                    <img src="https://picsum.photos/id/1005/400/250" alt="Avatar Tailwind CSS Component">
+                  </div>
+                </div> 
+                <div>
+                    <div class="font-bold">
+                        {{ user.username }}
+                    </div> 
+                    <div class="text-sm opacity-50">
+                        Nazione
+                    </div>
+                </div>
+              </div>
+            </td>
+            <td>
+                {{ user.stars }}
+              <br>
+            </td> 
+            <td>{{ user.losses + user.wins }}</td>
+            <td>{{ user.wins }}</td>
+            <td>{{ user.losses }}</td>
+          </tr>
+        </template>
+      </tbody> 
+    </table>
+
+    <div v-if="this.leaderboard.length > this.perPage" class="flex mt-3 justify-center">
+      <button @click="previousPage($event)" class="btn mr-5 btn-disabled">Previous</button> 
+      <button @click="nextPage($event)" class="btn">Next</button>
+    </div>
+    <div v-else class="btn-group mt-4">
+      <button @click="previousPage($event)" class="btn mr-5 btn-disabled ">Previous</button> 
+      <button @click="nextPage($event)" class="btn btn-disabled">Next</button>
+    </div>
+
   </div>
 </div>
 </template>
@@ -68,7 +74,7 @@ export default {
     return {
       leaderboard: [],
       currentPage: [],
-      perPage: 12,
+      perPage: 15,
       page: 1
     }
   },
@@ -83,10 +89,10 @@ export default {
       }
       this.page++
       if(this.leaderboard.at(-1) === this.currentPage.at(-1)) {
-        button.path[1].children[1].setAttribute("class", "btn btn-disabled btn-outline btn-wide")
+        button.path[1].children[1].setAttribute("class", "btn btn-disabled")
       }
       if(button.path[1].children[0].className.includes("disabled")) {
-        button.path[1].children[0].setAttribute("class", "btn btn-outline btn-wide")
+        button.path[1].children[0].setAttribute("class", "btn mr-5")
       }
     },
     previousPage(button) {
@@ -100,10 +106,10 @@ export default {
       }
       this.page--
       if(this.leaderboard[0] === this.currentPage[0]) {
-        button.path[1].children[0].setAttribute("class", "btn btn-disabled btn-outline btn-wide")
+        button.path[1].children[0].setAttribute("class", "btn mr-5 btn-disabled")
       }
       if(button.path[1].children[1].className.includes("disabled")) {
-        button.path[1].children[1].setAttribute("class", "btn btn-outline btn-wide")
+        button.path[1].children[1].setAttribute("class", "btn")
       }
     }
   },
@@ -124,5 +130,9 @@ export default {
 <style scoped>
 .leaderboard {
   padding: 3.8em 3.8em 2em 15em
+}
+button {
+  color: white;
+  background-color: #1F1E1E;
 }
 </style>

@@ -1,13 +1,13 @@
 <template>
 <div>
-  <div class="flex flex-row centralSpace">
+  <div class="flex justify-center flex-row centralSpace my-10">
 
-    <img src="@/assets/checkers.png" class="w-auto mask mask-squircle">
+    <img src="@/assets/checkers.png" class="mask max-w-screen-lg mask-squircle">
 
-    <div class="card items-center w-64 flex flex-col rightMenu">
+    <div class="card items-center w-64 flex flex-col rightMenu self-center ml-10">
       <h1 class="mt-5">Gioca a Checkers</h1>
       <figure>
-        <img src="@/assets/logo.png" class="mask w-44 h-44 mt-2 p-2">
+        <img src="@/assets/logo.png" class="self-center mask w-44 h-44 mt-2 p-2">
       </figure> 
 
       <label for="create-lobby-modal" id="btn-menu" class="btn">Crea Lobby</label>
@@ -52,7 +52,7 @@
         </div>
       </div>
 
-      <label for="friends-modal" id="btn-menu" class="btn">Sfida un amico</label>
+      <label for="friends-modal" id="btn-menu" class="btn mb-7">Sfida un amico</label>
       <input type="checkbox" id="friends-modal" class="modal-toggle"> 
       <div class="modal modal-invite">
         <div class="modal-box items-center"> 
@@ -105,16 +105,13 @@ export default {
 }
 </script>
 
-<style>
-.centralSpace{
-  padding: 1em 0em 0.6em 11em;
-  margin-left: 10em
-}
-</style>
-
 <style scoped>
+img {
+  width: 54.05%;
+}
 .rightMenu {
   margin-right: 10rem;
+  max-height: 50rem;
   background-color: #1F1E1E;
 }
 .rightMenu #btn-menu:first-child {
@@ -122,7 +119,7 @@ export default {
 }
 .rightMenu #btn-menu {
   margin-top: 4em;
-  width: 205px;
+  min-width: 205px;
   margin-left: 1.5em;
   margin-right: 1.5em;
 }
@@ -130,11 +127,7 @@ export default {
   background-color: #343232;
 }
 @media (max-width: 1700px) {
-  .rightMenu {
-    margin-left: 2em;
-  }
   .rightMenu #btn-menu {
-    min-width: 130px;
     margin-top: 2em;
   }
 }

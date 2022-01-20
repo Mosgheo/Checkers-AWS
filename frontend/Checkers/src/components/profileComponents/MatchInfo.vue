@@ -1,6 +1,6 @@
 <template>
-<div class="overflow-x-auto">
-  <table class="table w-full">
+<div class="overflow-hidden">
+  <table class="table table-compact w-full">
 
     <thead>
       <tr>
@@ -56,13 +56,13 @@
 
   </table>
 
-  <div v-if="this.history.length > this.perPage" class="btn-group mt-4">
-    <button @click="previousPage($event)" class="btn btn-disabled btn-outline btn-wide">Previous</button> 
-    <button @click="nextPage($event)" class="btn btn-outline btn-wide">Next</button>
+  <div v-if="this.history.length > this.perPage" class="flex mt-3 justify-center">
+    <button @click="previousPage($event)" class="btn mr-5 btn-disabled">Previous</button> 
+    <button @click="nextPage($event)" class="btn">Next</button>
   </div>
   <div v-else class="btn-group mt-4">
-    <button @click="previousPage($event)" class="btn btn-disabled btn-outline btn-wide">Previous</button> 
-    <button @click="nextPage($event)" class="btn btn-disabled btn-outline btn-wide">Next</button>
+    <button @click="previousPage($event)" class="btn mr-5 btn-disabled ">Previous</button> 
+    <button @click="nextPage($event)" class="btn btn-disabled">Next</button>
   </div>
 
 </div>
@@ -80,7 +80,7 @@ export default {
     return {
       history: [],
       currentPage: [],
-      perPage: 7,
+      perPage: 9,
       page: 1
     }
   },
@@ -95,10 +95,10 @@ export default {
       }
       this.page++
       if(this.history.at(-1) === this.currentPage.at(-1)) {
-        button.path[1].children[1].setAttribute("class", "btn btn-disabled btn-outline btn-wide")
+        button.path[1].children[1].setAttribute("class", "btn btn-disabled")
       }
       if(button.path[1].children[0].className.includes("disabled")) {
-        button.path[1].children[0].setAttribute("class", "btn btn-outline btn-wide")
+        button.path[1].children[0].setAttribute("class", "btn mr-5")
       }
     },
     previousPage(button) {
@@ -112,10 +112,10 @@ export default {
       }
       this.page--
       if(this.history[0] === this.currentPage[0]) {
-        button.path[1].children[0].setAttribute("class", "btn btn-disabled btn-outline btn-wide")
+        button.path[1].children[0].setAttribute("class", "btn mr-5 btn-disabled")
       }
       if(button.path[1].children[1].className.includes("disabled")) {
-        button.path[1].children[1].setAttribute("class", "btn btn-outline btn-wide")
+        button.path[1].children[1].setAttribute("class", "btn")
       }
     },
     getAvatar(user){
@@ -142,5 +142,9 @@ export default {
 </script>
 
 
-<style>
+<style scoped>
+button {
+  color: white;
+  background-color: #1F1E1E;
+}
 </style>

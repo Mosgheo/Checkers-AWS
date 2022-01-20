@@ -1,26 +1,26 @@
 <template>
-  <div class="profile flex flex-col">
+  <div class="profile flex flex-col h-full">
     <div class="basic-info card lg:card-side flex flex-row">
-      <img v-bind:src="getAvatar" class="mask mask-square p-5">
+      <img :src="getAvatar" class="mask mask-square w-60 h-60 p-5">
       <div class="p-3">
         <div class="flex p-2">
-          <h2 v-bind:innerText="getUsername" class="card-title"></h2>
+          <h2 :innerText="getUsername" class="card-title"></h2>
           <div class="avatar">
-            <div class="ml-1 rounded-btn w-11 h-11">
-              <img v-bind:src="getAvatar" class="avatar2">
+            <div class="ml-1 rounded-btn w-14 h-14">
+              <img :src="getAvatar" class="avatar2">
             </div>
           </div>
         </div> 
-        <p v-bind:innerText="getFirstLastName" class="text-left p-2">Nome Cognome</p> 
+        <p :innerText="getFirstLastName" class="text-left p-2">Nome Cognome</p> 
       </div>
     </div>
 
-    <div class="profile-info rounded-xl bordered mt-10">
-      <div class="tabs tabs-boxed pl-5 mt-5">
+    <div class="profile-info rounded-xl bordered mt-5">
+      <div class="tabs tabs-boxed pl-5 justify-center">
         <a @click="dataInfo" id="dataInfo" class="tab tab-lg tab-active">Dati Utente</a>
         <a @click="matchInfo" id="matchInfo" class="tab tab-lg ">Partite</a>
       </div>
-      <div id="content" class="card shadow-lg mt-2">
+      <div id="content" class="card shadow-lg">
         <div id="tabDiv" class="card-body">
           <div v-if="this.tabName === 'Dati Utente'" >
             <h2 class="card-title">{{ this.tabName }}</h2>
@@ -106,21 +106,17 @@ export default {
 
 <style scoped>
 .profile {
-  padding: 3.8em 3.8em 2em 15em
+  padding: 2.5em 3.8em 2em 15em
 }
-
 .basic-info, .profile-info {
   background-color: #1F1E1E;
 }
-
 .tabs{
   background-color: #161512;
 }
-
 .tab {
   color: #A39D8F;
 }
-
 img {
     max-width: 300px;
     max-height: 300px;

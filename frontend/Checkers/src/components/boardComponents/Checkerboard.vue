@@ -1,5 +1,5 @@
 <template>
-	<div class="content flex flex-col flex-grow">
+	<div class="content flex flex-col flex-grow max-w-screen-lg">
     <appPlayer1 :player="this.player2"/>
 		<div class="wrapper">
 			<div class="subwrapper">

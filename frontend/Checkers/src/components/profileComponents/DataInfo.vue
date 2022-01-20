@@ -1,26 +1,26 @@
 <template>
-  <div class="form-control">
+  <div class="form-control items-center">
 
     <label class="label">
       <span class="label-text">Nome utente</span>
     </label> 
-    <input type="text" placeholder="Username" v-bind:value="getUsername" class="username input input-bordered w-13">
+    <input type="text" placeholder="Username" :value="getUsername" class="username input input-bordered w-screen">
     
     <label class="label mt-3">
       <span class="label-text">Nome</span>
     </label> 
-    <input type="text" placeholder="Nome" v-bind:value ="getFirstName" class="first_name input input-bordered">
+    <input type="text" placeholder="Nome" :value ="getFirstName" class="first_name input input-bordered w-screen">
 
     <label class="label mt-3">
       <span class="label-text">Cognome</span>
     </label> 
-    <input type="text" placeholder="Cognome" v-bind:value="getLastName" class="last_name input input-bordered">
+    <input type="text" placeholder="Cognome" :value="getLastName" class="last_name input input-bordered w-screen">
 
     
     <label class="label mt-3">
       <span class="label-text">Email</span>
     </label> 
-    <input type="text" placeholder="info@site.com" v-bind:value="getMail" class="mail input input-bordered">
+    <input type="text" placeholder="info@site.com" :value="getMail" class="mail input input-bordered w-screen">
 
     <label class="label mt-3">
       <span class="label-text">Avatar</span>

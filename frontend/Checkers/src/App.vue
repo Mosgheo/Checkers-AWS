@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <div class="flex flex-row">
+    <div class="flex">
       <Sidebar class="sidebar flex-none" />
-      <div class="middle flex-auto">
+      <div class="middle min-h-screen flex-auto">
         <router-view />
       </div>
     </div>
