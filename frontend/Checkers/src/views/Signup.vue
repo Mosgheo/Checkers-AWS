@@ -1,5 +1,5 @@
 <template>
-<div class="flex flex-col min-h-screen justify-center">
+<div class="flex flex-col justify-center">
     <div class="pt-20">
         <h1>Accedi a Checkers</h1>
     </div>

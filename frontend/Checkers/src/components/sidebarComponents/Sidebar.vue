@@ -1,42 +1,57 @@
-
 <template>
-  <div class="sidebar" :style="{ width: sidebarWidth }">
-    <router-link to="/"><img src="@/assets/logo.png" class="mask mask-squircle"/></router-link>
+<div>
+  <div class="sidebar flex flex-col justify-around" v-if="this.screenWidth > 1000">
+    <router-link to="/">
+      <img src="@/assets/logo.png" class="mask w-40 h-40 my-5 ml-2 mask-squircle"/>
+    </router-link>
 
-    <SidebarLink class="home" to="/" icon="fas fa-home">Home</SidebarLink>
-    <SidebarLink class="profile" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
-    <SidebarLink class="leaderboard" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
-    <SidebarLink class="domande" to="/domande" icon="fas fa-question">Domande</SidebarLink>
+    <SidebarLink class="flex-none w-44 home mb-3 p-0.5" to="/" icon="fas fa-home">Home</SidebarLink>
+    <SidebarLink class="flex-none w-44 profile mb-3 p-0.5" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
+    <SidebarLink class="leaderboard mb-3 p-0.5" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
 
     <!--<div v-if="!$store.loading.value">-->
-        <SidebarLink class="login"  to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
+      <SidebarLink class="flex-none w-44 login mt-48 p-0.5"  to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
     <!--</div>-->
-
-    <!--<span
-      class="collapse-icon"
-      :class="{ 'rotate-180': collapsed }"
-      @click="toggleSidebar"
-    >
-      <i class="fas fa-angle-double-left" />
-    </span> -->
-    
   </div>
+
+  <div v-else class="sidebar flex flex-row justify-around">
+    <router-link to="/">
+      <img src="@/assets/logo.png" class="justify-self-start min-h-min w-16 h-16 my-2 ml-2 mask mask-squircle"/>
+    </router-link>
+
+    <SidebarLink class="home ml-5 p-0.5" to="/" icon="fas fa-home">Home</SidebarLink>
+    <SidebarLink class="profile ml-3 p-0.5" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
+    <SidebarLink class="leaderboard ml-3 p-0.5" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
+
+    <!--<div v-if="!$store.loading.value">-->
+      <SidebarLink class="login mr-3 p-0.5"  to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
+    <!--</div>-->
+  </div>
+</div>
 </template>
 
 <script>
 import SidebarLink from './SidebarLink'
-import { /*collapsed, toggleSidebar,*/ sidebarWidth } from './state'
 
 export default {
-  props: {},
-  components: { SidebarLink },
-  setup() {
-    return { /*collapsed, toggleSidebar,*/ sidebarWidth }
+  components: { 
+    SidebarLink 
+  },
+  created()  {
+    window.addEventListener("resize", this.resizeHandler);
+  },
+  destroyed()  {
+    window.removeEventListener("resize", this.resizeHandler);
+  },
+  data() {
+    return {
+      screenWidth: window.innerWidth
+    }
   },
   methods: {
-    login() {
-      this.$socket.emit("login", "pasottipro@gmail.com")
-    },
+    resizeHandler() {
+      this.screenWidth = window.innerWidth
+    }
   }
 }
 </script>
@@ -53,17 +68,7 @@ export default {
 .sidebar {
   color: white;
   background-color: var(--sidebar-bg-color);
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  bottom: 0;
   transition: 0.3s ease;
-}
-img {
-  width: 100px;
-  height: 100px;
-  margin: 2% auto;
 }
 /*collapse-icon {
   position: absolute;
@@ -76,21 +81,4 @@ img {
   transform: rotate(180deg);
   transition: 0.2s linear;
 }*/
-.profile, .leaderboard, .domande, .home{
-  margin-top: 10%;
-}
-.login, .logout {
-  margin-top: 50%;
-}
-@media (max-width: 1850px) {
-  .sidebar {
-    max-width: 11.6em;
-    transition: 0.2s linear;
-  }
-}
-@media (max-width: 1000px) {
-  .sidebar {
-    max-width: 9.7em;
-  }
-}
 </style>

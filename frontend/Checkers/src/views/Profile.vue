@@ -1,6 +1,6 @@
 <template>
-  <div class="profile flex flex-col h-full">
-    <div class="basic-info card lg:card-side flex flex-row">
+  <div class="profile flex flex-col items-center content-center px-32 py-8">
+    <div class="basic-info card lg:card-side flex flex-row w-9/12 max-w-screen-2xl">
       <img :src="getAvatar" class="mask mask-square w-60 h-60 p-5">
       <div class="p-3">
         <div class="flex p-2">
@@ -15,7 +15,7 @@
       </div>
     </div>
 
-    <div class="profile-info rounded-xl bordered mt-5">
+    <div class="profile-info rounded-xl bordered mt-5 w-9/12 max-w-screen-2xl">
       <div class="tabs tabs-boxed pl-5 justify-center">
         <a @click="dataInfo" id="dataInfo" class="tab tab-lg tab-active">Dati Utente</a>
         <a @click="matchInfo" id="matchInfo" class="tab tab-lg ">Partite</a>
@@ -105,9 +105,6 @@ export default {
 </script>
 
 <style scoped>
-.profile {
-  padding: 2.5em 3.8em 2em 15em
-}
 .basic-info, .profile-info {
   background-color: #1F1E1E;
 }

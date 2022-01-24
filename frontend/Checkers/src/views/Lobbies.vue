@@ -1,5 +1,5 @@
 <template>
-  <div class="lobbies overflow-x-auto">
+  <div class="lobbies overflow-hidden py-8 px-5">
     <table class="table w-full">
       <thead>
         <tr>
@@ -48,7 +48,4 @@ export default {
 </script>
 
 <style scoped>
-.lobbies {
-  padding: 3.8em 3.8em 2em 15em
-}
 </style>

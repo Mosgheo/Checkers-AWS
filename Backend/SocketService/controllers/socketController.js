@@ -545,7 +545,7 @@ io.on('connection', async client => {
   client.on('decline_invite',async(token,opp_mail)=>{
     const user = await user_authenticated(token,client.id)
     if(user[0]){
-      const invitation = invitation.get(opp_mail)
+      const invitation = invitations.get(opp_mail)
       if(invitation === null){
         client.emit("invitation_expired",{message:"Your invitation for this lobby has expired"})
       }else{

@@ -1,5 +1,5 @@
 <template>
-  <router-link :to="to" class="link" :class="{ active: isActive }">
+  <router-link :to="to" class="self-center link rounded-lg flex" :class="{ active: isActive }">
     <i class="icon" :class="icon" />
     <button class="btn btn-ghost"><slot /></button> 
     <!--<transition name="fade">
@@ -39,16 +39,7 @@ export default {
 }
 
 .link {
-  display: flex;
   align-items: center;
-  cursor: pointer;
-  position: relative;
-  font-weight: 400;
-  user-select: none;
-  margin: 0.1em 0;
-  padding: 0.4em;
-  border-radius: 0.25em;
-  height: 2em;
   color: #CDCBCB;
   text-decoration: none;
   transition: 0.2s;
@@ -67,7 +58,6 @@ button:hover {
 }
 
 .link .icon {
-  flex-shrink: 0;
   width: 25px;
   margin-right: 10px;
 }

@@ -1,28 +1,49 @@
 <template>
   <div id="app">
-    <div class="flex">
-      <Sidebar class="sidebar flex-none" />
-      <div class="middle min-h-screen flex-auto">
-        <router-view />
-      </div>
-    </div>
 
-    <div class="modal modal-notifications">
-      <div class="modal-box">
-        <p class="notification-msg"></p> 
-        <div class="modal-action">
-          <label for="my-modal-2" @click="accept" class="btn">Accept</label> 
-          <label for="my-modal-2" @click="decline" class="btn">Close</label>
+    <div v-if="this.screenWidth > 1000">
+      <div class="flex flex-row">
+        <Sidebar class="sidebar min-h-screen" />
+        <div class="middle w-screen min-h-screen">
+          <router-view />
+        </div>
+      </div>
+
+      <div class="modal modal-notifications">
+        <div class="modal-box">
+          <p class="notification-msg"></p> 
+          <div class="modal-action">
+            <label for="my-modal-2" @click="accept" class="btn">Accept</label> 
+            <label for="my-modal-2" @click="decline" class="btn">Close</label>
+          </div>
         </div>
       </div>
     </div>
 
+    <div v-else>
+      <div class="flex flex-col max-h-screen">
+        <Sidebar class="sidebar min-w-screen" />
+        <div class="middle min-w-screen h-screen">
+          <router-view />
+        </div>
+      </div>
+
+      <div class="modal modal-notifications">
+        <div class="modal-box">
+          <p class="notification-msg"></p> 
+          <div class="modal-action">
+            <label for="my-modal-2" @click="accept" class="btn">Accept</label> 
+            <label for="my-modal-2" @click="decline" class="btn">Rifiuta</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    
   </div>
 </template>
 
 <script>
 import Sidebar from '@/components/sidebarComponents/Sidebar.vue'
-import {sidebarWidth} from '@/components/sidebarComponents/state.js'
 import store from './store'
 import api from '../api.js'
 
@@ -33,12 +54,17 @@ export default {
   components: {
     Sidebar
   },
-  setup() {
-    return { sidebarWidth }
+  created()  {
+    window.addEventListener("resize", this.resizeHandler);
+  },
+
+  destroyed()  {
+    window.removeEventListener("resize", this.resizeHandler);
   },
   data() {
     return {
-      opponent_mail: null
+      opponent_mail: null,
+      screenWidth: window.innerWidth
     }
   },
   methods: {
@@ -51,6 +77,9 @@ export default {
       api.decline_invite(this.$socket, this.opponent_mail)
       modal[0].className = "modal modal-notifications modal-close"
     },
+    resizeHandler() {
+      this.screenWidth = window.innerWidth
+    }
   },
   sockets: {
     token_ok(res){
@@ -87,7 +116,7 @@ export default {
     },
     invitation_declined(msg) {
       console.log(msg)
-    }
+    },
   }
 }
 </script>

@@ -1,8 +1,8 @@
 <template>
 <div>
-  <div class="flex justify-center flex-row centralSpace my-10">
+  <div class="flex flex-row items-center justify-center centralSpace px-28 py-7">
 
-    <img src="@/assets/checkers.png" class="mask max-w-screen-lg mask-squircle">
+    <img src="@/assets/checkers.png" class="self-center mask min-w-fit min-h-fit w-7/12 h-7/12 mask-squircle">
 
     <div class="card items-center w-64 flex flex-col rightMenu self-center ml-10">
       <h1 class="mt-5">Gioca a Checkers</h1>
@@ -68,6 +68,16 @@
       </div>
 
     </div>
+
+    <div class="alert alert-info" style="display: none">
+      <div class="flex-1">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 mx-2 stroke-current">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>                          
+        </svg> 
+        <label>Invito mandato correttamente</label>
+      </div>
+    </div>
+
   </div>
 </div>
 </template>
@@ -98,8 +108,15 @@ export default {
     invitePlayer() {
       if(store.state.token !== "") {
         api.invite_opponent(this.$socket, opponent[0].value)
+        /*console.log(document.getElementsByClassName("alert-info"))
+        document.getElementsByClassName("alert-info")[0].style.visibility = "visible"
+        setTimeout(function() {
+          console.log("Ciao")
+          console.log(document.getElementsByClassName("alert-info"))
+          //document.getElementsByClassName("alert-info")[0].style.visibility = "hidden"
+        }, 3000)*/
+        this.$router.push("/profile")
       }
-      this.$router.push("/profile")
     }
   }
 }
@@ -107,11 +124,11 @@ export default {
 
 <style scoped>
 img {
-  width: 54.05%;
+  min-width: 55%;
+  min-height: 55%;
 }
 .rightMenu {
-  margin-right: 10rem;
-  max-height: 50rem;
+  min-width: 230px;
   background-color: #1F1E1E;
 }
 .rightMenu #btn-menu:first-child {
@@ -125,10 +142,5 @@ img {
 }
 .modal-box {
   background-color: #343232;
-}
-@media (max-width: 1700px) {
-  .rightMenu #btn-menu {
-    margin-top: 2em;
-  }
 }
 </style>

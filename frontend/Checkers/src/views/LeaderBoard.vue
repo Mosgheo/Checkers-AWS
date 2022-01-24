@@ -1,6 +1,6 @@
 <template>
-<div class="flex flex-col justify-center">
-  <div class="mt-5">
+<div class="flex flex-col justify-center px-32 py-14">
+  <div class="my-5 ">
     <h1>Classifica globale</h1>
   </div>
   <div class="leaderboard overflow-hidden">
@@ -128,9 +128,6 @@ export default {
 </script>
 
 <style scoped>
-.leaderboard {
-  padding: 3.8em 3.8em 2em 15em
-}
 button {
   color: white;
   background-color: #1F1E1E;

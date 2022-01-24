@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/Home";
 import Profile from "@/views/Profile";
 import LeaderBooard from "@/views/LeaderBoard";
-import Domande from "@/views/Domande";
 import Login from "@/views/Login";
 import Signup from "@/views/Signup";
 import Game from "@/views/Game";
@@ -23,11 +22,6 @@ const routes = [
     path: '/leaderboard',
     name: 'LeaderBooard',
     component: LeaderBooard
-  },
-  {
-    path: '/domande',
-    name: 'Domande',
-    component: Domande
   },
   {
     path: '/login',

@@ -1,7 +1,7 @@
 <template>
-    <div class="centralSpace flex flex-row justify-center">
+    <div class="centralSpace flex flex-row justify-center px-20 py-10">
       <Checkerboard class="board flex flex-col"/>
-      <Chat :lobbyId="this.lobbyId" class="chat"/>
+      <Chat :lobbyId="this.lobbyId" class="chat mt-28"/>
 
       <div class="modal modal-change-location">
         <div class="modal-box">
@@ -110,10 +110,6 @@ export default {
 </script>
 
 <style scoped>
-.chat {
-  margin-right: 10rem;
-  margin-top: 5em;
-}
 .centralSpace {
   background-color: #343232;
 }
