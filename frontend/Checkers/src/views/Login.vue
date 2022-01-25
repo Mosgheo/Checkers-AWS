@@ -1,6 +1,6 @@
 <template>
 <div class="flex flex-col justify-center">
-    <div class="pt-20">
+    <div class="pt-20 font-bold text-3xl">
         <h1>Accedi a Checkers</h1>
     </div>
     <div class="card">
@@ -9,25 +9,25 @@
 
                 <div class="block">
                     <label class="label">
-                        <span class="label-text mt-2">E-mail</span>
+                        <span class="font-semibold label-text mt-2">E-mail</span>
                     </label> 
-                    <input type="text" placeholder="Inserisci e-mail" class="mail input input-bordered w-13">
+                    <input type="text" placeholder="Inserisci e-mail" class="font-base mail input input-bordered w-13">
                 </div>
 
                 <div class="block">
                     <label class="label">
-                        <span class="label-text mt-2">Password</span>
+                        <span class="font-semibold label-text mt-2">Password</span>
                     </label> 
-                    <input type="password" placeholder="Inserisci la password" class="password input input-bordered w-13">
+                    <input type="password" placeholder="Inserisci la password" class="font-base password input input-bordered w-13">
                 </div>
 
                 <div class="object-center space-x-2 mt-10">
-                    <label class="btn" @click.prevent="login">Login</label> 
+                    <label class="btn text-base font-semibold" @click.prevent="login">Login</label> 
                     <div class="login-fail modal modal-close">
                         <div class="modal-box">
-                            <p class="msg">Ciao</p> 
+                            <p class="msg text-base font-semibold">Ciao</p> 
                             <div class="modal-action">
-                                <label class="btn" @click.prevent="close">Accept</label>
+                                <label class="btn text-base" @click.prevent="close">Accept</label>
                             </div>
                         </div>
                     </div>
@@ -39,7 +39,7 @@
                     <span class="label-text">Se non sei ancora iscritto</span>
                 </label> 
                 <router-link to="/signup">
-                    <button class="btn-link mb-3">Iscriviti</button>
+                    <button class="font-bold text-lg btn-link mb-3">Iscriviti</button>
                 </router-link>
             </div>
         </div>

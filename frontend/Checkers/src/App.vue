@@ -1,35 +1,31 @@
 <template>
-  <div id="app">
+<div id="app">
 
-    <div v-if="this.screenWidth > 1250">
-      <div class="flex flex-row">
-        <Sidebar @checkInvite="checkInvite" class="sidebar min-h-screen" :invites="this.invites" />
-        <div class="middle w-screen min-h-screen">
-          <router-view />
-        </div>
-      </div>
+  <div v-if="this.screenWidth > 1250" class="flex flex-row">
+    <Sidebar @checkInvite="checkInvite" class="sidebar min-h-screen" :invites="this.invites" />
+    <div class="middle w-screen min-h-screen">
+      <router-view />
     </div>
-
-    <div v-else>
-      <div class="flex flex-col max-h-screen">
-        <Sidebar @checkInvite="checkInvite" class="sidebar min-w-screen" :invites="this.invites" />
-        <div class="middle min-w-screen h-screen">
-          <router-view />
-        </div>
-      </div>
-    </div>
-
-    <div class="modal modal-notifications">
-      <div class="modal-box">
-        <p class="notification-msg"></p> 
-        <div class="modal-action">
-          <label for="my-modal-2" @click="accept" class="btn">Accept</label> 
-          <label for="my-modal-2" @click="decline" class="btn">Refuse</label>
-        </div>
-      </div>
-    </div>
-    
   </div>
+
+  <div v-else class="flex flex-col max-h-screen">
+    <Sidebar @checkInvite="checkInvite" class="sidebar min-w-screen" :invites="this.invites" />
+    <div class="middle min-w-screen h-screen">
+      <router-view />
+    </div>
+  </div>
+
+  <div class="modal modal-notifications">
+    <div class="modal-box">
+      <p class="notification-msg"></p> 
+      <div class="modal-action">
+        <label for="my-modal-2" @click="accept" class="btn">Accept</label> 
+        <label for="my-modal-2" @click="decline" class="btn">Refuse</label>
+      </div>
+    </div>
+  </div>
+  
+</div>
 </template>
 
 <script>
@@ -60,10 +56,13 @@ export default {
   },
   methods: {
     accept() {
-      api.accept_invite(this.$socket, this.opponent_mail)
+      console.log(store.state.in_game)
+      if(!store.state.in_game) {
+        api.accept_invite(this.$socket, this.opponent_mail)
+        this.invites.splice(this.inviteId, 1)
+        this.$router.push("/inGame")
+      }
       modal[0].className = "modal modal-notifications modal-close"
-      this.invites.splice(this.inviteId, 1)
-      this.$router.push("/inGame")
     },
     decline() {
       api.decline_invite(this.$socket, this.opponent_mail)
@@ -72,11 +71,16 @@ export default {
     },
     resizeHandler() {
       this.screenWidth = window.innerWidth
+      this.$forceUpdate()
     },
     checkInvite(invite, i) {
       this.opponent_mail = invite
       this.inviteId = i
-      message[0].innerHTML = "Hai ricevuto una sfida da parte di: " + invite
+      if(!store.state.in_game) {
+        message[0].innerHTML = "Hai ricevuto una sfida da parte di: " + invite
+      } else {
+        message[0].innerHTML = "Non puoi entrare in un'altra lobby mentre sei già in partita"
+      }
       modal[0].className = "modal modal-notifications modal-open"
     }
   },
@@ -105,27 +109,39 @@ export default {
     },
     lobby_invitation(msg) {
       console.log(msg)
+      for(let i = 0; i < this.invites.length; i++) {
+        if(this.invites[i] === msg) {
+          this.invites[i] = msg
+          return
+        }
+      }
       this.invites.push(msg)
-      /*message[0].innerHTML = "Hai ricevuto una sfida da parte di: "
-      modal[0].className = "modal modal-notifications modal-open"*/
     },
     invite_accepted() {
       console.log("Invite accepated")
-      this.$router.push("/inGame")
+      console.log(store.state.in_game)
+      if(!store.state.in_game) {
+        this.$router.push("/inGame")
+      }
     },
     invitation_declined(msg) {
       console.log(msg)
     },
+    invitation_expired(msg) {
+      message[0].innerHTML = msg
+      modal[0].className = "modal modal-notifications modal-open"
+      this.$router.push("/")
+    }
   }
 }
 </script>
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  font-size: 18px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-style: italic;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
   text-align: center;
   color: #A39D8F;
 }

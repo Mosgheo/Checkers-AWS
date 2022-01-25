@@ -4,14 +4,14 @@
       <img :src="getAvatar" class="mask mask-square w-60 h-60 p-5">
       <div class="p-3">
         <div class="flex p-2">
-          <h2 :innerText="getUsername" class="card-title"></h2>
+          <h2 :innerText="getUsername" class="font-semibold text-xl card-title"></h2>
           <div class="avatar">
             <div class="ml-1 rounded-btn w-14 h-14">
               <img :src="getAvatar" class="avatar2">
             </div>
           </div>
         </div> 
-        <p :innerText="getFirstLastName" class="text-left p-2">Nome Cognome</p> 
+        <p :innerText="getFirstLastName" class="text-lg text-left p-2">Nome Cognome</p> 
       </div>
     </div>
 

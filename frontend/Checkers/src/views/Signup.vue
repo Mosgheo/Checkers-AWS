@@ -1,7 +1,7 @@
 <template>
 <div class="flex flex-col justify-center">
     <div class="pt-20">
-        <h1>Accedi a Checkers</h1>
+        <h1 class="font-bold text-3xl">Registrati su Checkers</h1>
     </div>
     <div class="card">
         <div class="card-body items-center justify-center">
@@ -9,48 +9,48 @@
 
                 <div class="block">
                     <label class="label">
-                        <span class="label-text mt-5">Nome utente</span>
+                        <span class="font-semibold label-text mt-5">Nome utente</span>
                     </label> 
                     <input type="text" placeholder="Crea un nome utente" class="username input input-bordered w-13">
                 </div>
 
                 <div class="block">
                     <label class="label">
-                        <span class="label-text mt-5">Nome</span>
+                        <span class="font-semibold label-text mt-5">Nome</span>
                     </label> 
                     <input type="text" placeholder="Inserisci Nome" class="first_name input input-bordered w-13">
                 </div>
 
                 <div class="block">
                     <label class="label">
-                        <span class="label-text mt-5">Cognome</span>
+                        <span class="font-semibold label-text mt-5">Cognome</span>
                     </label> 
                     <input type="text" placeholder="Inserisci Cognome" class="last_name input input-bordered w-13">
                 </div>
 
                 <div class="block">
                     <label class="label">
-                        <span class="label-text mt-5">Inserisci la tua mail</span>
+                        <span class="font-semibold label-text mt-5">Inserisci la tua mail</span>
                     </label> 
                     <input type="email" placeholder="Inserisci la tua mail" class="mail input input-bordered w-13">
                 </div>
 
                 <div class="block">
                     <label class="label">
-                        <span class="label-text mt-5">Password</span>
+                        <span class="font-semibold label-text mt-5">Password</span>
                     </label> 
                     <input type="password" placeholder="Inserisci la password" class="password input input-bordered w-13">
                 </div>
 
                 <div class="block">
-                    <label class="label">
+                    <label class="font-semibold label">
                         <span class="label-text mt-5">Conferma Password</span>
                     </label> 
                     <input type="password" placeholder="Reinserisci la password" class="confirm_password input input-bordered w-13">
                 </div>
 
                 <div class="object-center space-x-2 mb-3 mt-10">
-                    <label class="btn" @click.prevent="signup">Iscriviti</label> 
+                    <label class="text-base font-semibold btn" @click.prevent="signup">Iscriviti</label> 
                     <div class="signup-modal modal modal-close">
                         <div class="modal-box">
                             <p class="msg">Ciao</p> 

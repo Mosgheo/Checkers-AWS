@@ -1,14 +1,14 @@
 <template>
 <div class="flex flex-col justify-center px-32 py-14">
-  <div class="my-5 ">
-    <h1>Classifica globale</h1>
+  <div class="mb-10">
+    <h1 class="font-bold text-3xl">Classifica globale</h1>
   </div>
   <div class="leaderboard overflow-hidden">
     <table class="table table-compact w-full shadow">
 
       <thead>
         <tr>
-          <th>Pos</th> 
+          <th>Posizione</th> 
           <th>Nome</th> 
           <th>Punti</th> 
           <th>Partite giocate</th> 
