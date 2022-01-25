@@ -1,16 +1,39 @@
 <template>
 <div>
-  <div class="sidebar flex flex-col justify-around" v-if="this.screenWidth > 1000">
+  <div class="sidebar flex flex-col" v-if="this.screenWidth > 1250">
     <router-link to="/">
-      <img src="@/assets/logo.png" class="mask w-40 h-40 my-5 ml-2 mask-squircle"/>
+      <img src="@/assets/logo.png" class="mask w-40 h-40 my-5 ml-5 mask-squircle"/>
     </router-link>
 
-    <SidebarLink class="flex-none w-44 home mb-3 p-0.5" to="/" icon="fas fa-home">Home</SidebarLink>
-    <SidebarLink class="flex-none w-44 profile mb-3 p-0.5" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
-    <SidebarLink class="leaderboard mb-3 p-0.5" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
-
+    <SidebarLink class="flex-none w-44 home mb-3 pl-0.5" to="/" icon="fas fa-home">Home</SidebarLink>
+    <SidebarLink class="flex-none w-44 profile mb-3 pl-0.5" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
+    <SidebarLink class="leaderboard w-44 mb-3 pl-0.5" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
+    
+    <div class="mx-3 mt-40 indicator">
+      <div v-if="this.invites.length > 0" class="indicator-item badge badge-secondary"></div>
+      <div v-else></div>
+      <div v-if="this.invites.length > 0" class="dropdown dropdown-right">
+        <SidebarLink class="notifications w-44 pl-0.5" to="" icon="fas fa-bell">Notifiche</SidebarLink>
+        <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
+          <template v-for="(invite, i) in this.invites" :key="i">
+            <li>
+              <a @click="checkInvite(invite, i)">Invito di {{ invite }}</a>
+            </li> 
+          </template>
+        </ul>
+      </div>
+      <div v-else class="dropdown dropdown-right">
+        <SidebarLink class="notifications w-44 pl-0.5" to="" icon="fas fa-bell">Notifiche</SidebarLink>
+        <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
+          <li>
+            <a>Non ci sono inviti al momento</a>
+          </li> 
+        </ul>
+      </div>
+    </div>
+    
     <!--<div v-if="!$store.loading.value">-->
-      <SidebarLink class="flex-none w-44 login mt-48 p-0.5"  to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
+    <SidebarLink class="flex-none w-44 login mt-96 pl-0.5"  to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
     <!--</div>-->
   </div>
 
@@ -22,9 +45,31 @@
     <SidebarLink class="home ml-5 p-0.5" to="/" icon="fas fa-home">Home</SidebarLink>
     <SidebarLink class="profile ml-3 p-0.5" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
     <SidebarLink class="leaderboard ml-3 p-0.5" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
-
+    
+    <div class="my-4 indicator">
+      <div v-if="this.invites.length > 0" class="indicator-item badge badge-secondary"></div>
+      <div v-else></div>
+      <div v-if="this.invites.length > 0" class="dropdown dropdown-end">
+        <SidebarLink class="notifications pl-0.5" to="" icon="fas fa-bell">Notifiche</SidebarLink>
+        <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
+          <template v-for="(invite, i) in this.invites" :key="i">
+            <li>
+              <a @click="checkInvite(invite, i)">Invito di {{ invite }}</a>
+            </li> 
+          </template>
+        </ul>
+      </div>
+      <div v-else class="dropdown dropdown-end">
+        <SidebarLink class="notifications" to="" icon="fas fa-bell">Notifiche</SidebarLink>
+        <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
+          <li>
+            <a>Non ci sono inviti al momento</a>
+          </li> 
+        </ul>
+      </div>
+    </div>
     <!--<div v-if="!$store.loading.value">-->
-      <SidebarLink class="login mr-3 p-0.5"  to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
+    <SidebarLink class="login mr-3 p-0.5"  to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
     <!--</div>-->
   </div>
 </div>
@@ -37,10 +82,11 @@ export default {
   components: { 
     SidebarLink 
   },
-  created()  {
+  props: ['invites'],
+  created() {
     window.addEventListener("resize", this.resizeHandler);
   },
-  destroyed()  {
+  destroyed() {
     window.removeEventListener("resize", this.resizeHandler);
   },
   data() {
@@ -51,6 +97,9 @@ export default {
   methods: {
     resizeHandler() {
       this.screenWidth = window.innerWidth
+    },
+    checkInvite(invite, i) {
+      this.$emit("checkInvite", invite, i)
     }
   }
 }
@@ -69,6 +118,9 @@ export default {
   color: white;
   background-color: var(--sidebar-bg-color);
   transition: 0.3s ease;
+}
+.dropdown-content {
+  background-color: #666666;
 }
 /*collapse-icon {
   position: absolute;

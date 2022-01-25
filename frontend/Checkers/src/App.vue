@@ -1,40 +1,30 @@
 <template>
   <div id="app">
 
-    <div v-if="this.screenWidth > 1000">
+    <div v-if="this.screenWidth > 1250">
       <div class="flex flex-row">
-        <Sidebar class="sidebar min-h-screen" />
+        <Sidebar @checkInvite="checkInvite" class="sidebar min-h-screen" :invites="this.invites" />
         <div class="middle w-screen min-h-screen">
           <router-view />
-        </div>
-      </div>
-
-      <div class="modal modal-notifications">
-        <div class="modal-box">
-          <p class="notification-msg"></p> 
-          <div class="modal-action">
-            <label for="my-modal-2" @click="accept" class="btn">Accept</label> 
-            <label for="my-modal-2" @click="decline" class="btn">Close</label>
-          </div>
         </div>
       </div>
     </div>
 
     <div v-else>
       <div class="flex flex-col max-h-screen">
-        <Sidebar class="sidebar min-w-screen" />
+        <Sidebar @checkInvite="checkInvite" class="sidebar min-w-screen" :invites="this.invites" />
         <div class="middle min-w-screen h-screen">
           <router-view />
         </div>
       </div>
+    </div>
 
-      <div class="modal modal-notifications">
-        <div class="modal-box">
-          <p class="notification-msg"></p> 
-          <div class="modal-action">
-            <label for="my-modal-2" @click="accept" class="btn">Accept</label> 
-            <label for="my-modal-2" @click="decline" class="btn">Rifiuta</label>
-          </div>
+    <div class="modal modal-notifications">
+      <div class="modal-box">
+        <p class="notification-msg"></p> 
+        <div class="modal-action">
+          <label for="my-modal-2" @click="accept" class="btn">Accept</label> 
+          <label for="my-modal-2" @click="decline" class="btn">Refuse</label>
         </div>
       </div>
     </div>
@@ -57,28 +47,37 @@ export default {
   created()  {
     window.addEventListener("resize", this.resizeHandler);
   },
-
   destroyed()  {
     window.removeEventListener("resize", this.resizeHandler);
   },
   data() {
     return {
       opponent_mail: null,
-      screenWidth: window.innerWidth
+      screenWidth: window.innerWidth,
+      invites: [],
+      inviteId: null
     }
   },
   methods: {
     accept() {
       api.accept_invite(this.$socket, this.opponent_mail)
       modal[0].className = "modal modal-notifications modal-close"
+      this.invites.splice(this.inviteId, 1)
       this.$router.push("/inGame")
     },
     decline() {
       api.decline_invite(this.$socket, this.opponent_mail)
+      this.invites.splice(this.inviteId, 1)
       modal[0].className = "modal modal-notifications modal-close"
     },
     resizeHandler() {
       this.screenWidth = window.innerWidth
+    },
+    checkInvite(invite, i) {
+      this.opponent_mail = invite
+      this.inviteId = i
+      message[0].innerHTML = "Hai ricevuto una sfida da parte di: " + invite
+      modal[0].className = "modal modal-notifications modal-open"
     }
   },
   sockets: {
@@ -106,9 +105,9 @@ export default {
     },
     lobby_invitation(msg) {
       console.log(msg)
-      this.opponent_mail = msg
-      message[0].innerHTML = "Hai ricevuto una sfida da parte di: "
-      modal[0].className = "modal modal-notifications modal-open"
+      this.invites.push(msg)
+      /*message[0].innerHTML = "Hai ricevuto una sfida da parte di: "
+      modal[0].className = "modal modal-notifications modal-open"*/
     },
     invite_accepted() {
       console.log("Invite accepated")
