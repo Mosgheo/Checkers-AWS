@@ -26,7 +26,7 @@
         <SidebarLink class="notifications w-44 pl-0.5" to="" icon="fas fa-bell">Notifiche</SidebarLink>
         <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
           <li>
-            <a>Non ci sono inviti al momento</a>
+            <a>Non ci sono notifiche al momento</a>
           </li> 
         </ul>
       </div>
@@ -63,7 +63,7 @@
         <SidebarLink class="notifications" to="" icon="fas fa-bell">Notifiche</SidebarLink>
         <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
           <li>
-            <a>Non ci sono inviti al momento</a>
+            <a>Non ci sono notifiche al momento</a>
           </li> 
         </ul>
       </div>

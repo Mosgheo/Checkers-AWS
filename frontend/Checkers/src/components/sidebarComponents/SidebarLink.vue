@@ -30,33 +30,32 @@ export default {
 </script>
 
 <style scoped>
+button {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-style: italic;
+  font-weight: 700;
+}
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.1s;
 }
-
 .fade-enter, .fade-leave-to {
   opacity: 0;
 }
-
 .link {
   align-items: center;
   color: #CDCBCB;
   text-decoration: none;
   transition: 0.2s;
 }
-
 button:hover {
   background-color: transparent;
 }
-
 .link:hover {
   background-color: var(--sidebar-item-hover);
 }
-
 .link.active {
   background-color: var(--sidebar-item-active);
 }
-
 .link .icon {
   width: 25px;
   margin-right: 10px;

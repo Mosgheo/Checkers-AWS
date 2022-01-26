@@ -11,7 +11,7 @@
                         </div>
                     </div>
                 </div> 
-                <h3 class="text-left p-2" :innerText="this.player.stars">Punteggio</h3> 
+                <h3 class="text-left font-semibold text-base p-0.5 pl-2" :innerText="this.player.stars">Punteggio</h3> 
             </div>
         </div>
     </div>

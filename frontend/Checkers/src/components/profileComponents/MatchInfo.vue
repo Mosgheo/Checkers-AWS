@@ -80,7 +80,7 @@ export default {
     return {
       history: [],
       currentPage: [],
-      perPage: 9,
+      perPage: 7,
       page: 1
     }
   },

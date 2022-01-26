@@ -5,24 +5,24 @@
     <img src="@/assets/checkers.png" class="self-center mask min-w-fit min-h-fit w-7/12 h-7/12 mask-squircle">
 
     <div class="card items-center w-64 flex flex-col rightMenu self-center ml-10">
-      <h1 class="mt-5">Gioca a Checkers</h1>
+      <h1 class="font-bold text-2xl my-5">Gioca a Checkers</h1>
       <figure>
         <img src="@/assets/logo.png" class="self-center mask w-44 h-44 mt-2 p-2">
       </figure> 
 
-      <label for="create-lobby-modal" id="btn-menu" class="btn">Crea Lobby</label>
+      <label for="create-lobby-modal" id="btn-menu" class="btn text-sm">Crea Lobby</label>
       <input type="checkbox" id="create-lobby-modal" class="modal-toggle"> 
       <div class="modal">
         <div class="modal-box">
           <div class="form-control items-center">
             <label class="mt-3">
-              <span>Dai un nome alla tua lobby</span>
+              <span class="font-bold text-lg">Dai un nome alla tua lobby</span>
             </label> 
-            <input type="text" placeholder="Name" class="input-name input input-bordered mt-2 w-min">
-            <label class="mt-3">
+            <input type="text" placeholder="Name" class="text-base input-name input input-bordered mt-2 w-min">
+            <label class="font-bold text-lg mt-3">
               <span>Indica il punteggio massimo che deve avere un giocatore</span>
             </label> 
-            <input type="text" placeholder="Max Points" class="input-star input input-bordered mt-2 w-min">
+            <input type="text" placeholder="Max Points" class="text-base input-star input input-bordered mt-2 w-min">
           </div>
           <div class="flex flex-row modal-action">
             <label for="create-lobby-modal" @click.prevent="startingMatch" class="accept btn"> 
@@ -33,18 +33,18 @@
         </div>
       </div>
 
-      <label for="join-lobby-modal" id="btn-menu" class="btn">Unisciti ad una lobby</label>
+      <label for="join-lobby-modal" id="btn-menu" class="btn text-sm">Unisciti ad una lobby</label>
       <input type="checkbox" id="join-lobby-modal" class="modal-toggle"> 
       <div class="modal">
         <div class="modal-box items-center">
           <div class="form-control items-center">
             <label class="mt-3">
-              <span>Indica il punteggio massimo delle lobby</span>
+              <span class="font-bold text-lg">Indica il punteggio massimo delle lobby</span>
             </label> 
             <input type="text" placeholder="Max Points" class="input-star2 input input-bordered mt-2 w-min">
           </div>
           <div class="flex flex-row modal-action">
-            <label @click.prevent="lobbyOpened" for="join-lobby-modal" class="accept btn">
+            <label @click.prevent="lobbyOpened" for="join-lobby-modal" class="text-base accept btn">
               Cerca lobby
             </label>
             <label for="join-lobby-modal" class="btn">Annulla</label>
@@ -52,13 +52,13 @@
         </div>
       </div>
 
-      <label for="friends-modal" id="btn-menu" class="btn mb-7">Sfida un amico</label>
+      <label for="friends-modal" id="btn-menu" class="btn mb-7 text-sm">Sfida un amico</label>
       <input type="checkbox" id="friends-modal" class="modal-toggle"> 
       <div class="modal modal-invite">
         <div class="modal-box items-center"> 
-          <h3>Inserisci il nickname del tuo amico</h3>
+          <h3 class="font-bold text-lg">Inserisci il nickname del tuo amico</h3>
           <div class="form-control items-center mt-2">
-            <input type="text" placeholder="Username" class="opponent-mail input input-bordered w-min">
+            <input type="text" placeholder="Username" class="text-base opponent-mail input input-bordered w-min">
           </div>
           <div class="flex flex-row modal-action">
             <label @click.prevent="invitePlayer" for="friends-modal" class="accept btn">Invita</label>

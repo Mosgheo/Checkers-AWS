@@ -2,28 +2,28 @@
   <div class="form-control items-center">
 
     <label class="label">
-      <span class="label-text">Nome utente</span>
+      <span class="font-semibold label-text">Nome utente</span>
     </label> 
-    <input type="text" placeholder="Username" :value="getUsername" class="username input input-bordered w-screen">
+    <input type="text" placeholder="Username" :value="getUsername" class="text-sm username input input-bordered w-screen">
     
     <label class="label mt-3">
-      <span class="label-text">Nome</span>
+      <span class="font-semibold label-text">Nome</span>
     </label> 
-    <input type="text" placeholder="Nome" :value ="getFirstName" class="first_name input input-bordered w-screen">
+    <input type="text" placeholder="Nome" :value ="getFirstName" class="text-sm first_name input input-bordered w-screen">
 
     <label class="label mt-3">
-      <span class="label-text">Cognome</span>
+      <span class="font-semibold label-text">Cognome</span>
     </label> 
-    <input type="text" placeholder="Cognome" :value="getLastName" class="last_name input input-bordered w-screen">
+    <input type="text" placeholder="Cognome" :value="getLastName" class="text-sm last_name input input-bordered w-screen">
 
     
     <label class="label mt-3">
-      <span class="label-text">Email</span>
+      <span class="font-semibold label-text">Email</span>
     </label> 
-    <input type="text" placeholder="info@site.com" :value="getMail" class="mail input input-bordered w-screen">
+    <input type="text" placeholder="info@site.com" :value="getMail" class="text-sm mail input input-bordered w-screen">
 
     <label class="label mt-3">
-      <span class="label-text">Avatar</span>
+      <span class="font-semibold label-text">Avatar</span>
     </label> 
    <input
       ref="fileInput"
@@ -38,7 +38,7 @@
     </select>-->
 
     <div class="object-center space-x-2 mt-10">
-      <label class="btn" @click.prevent="save_profile">Modifica</label> 
+      <label class="btn font-semibold text-base" @click.prevent="save_profile">Modifica</label> 
     </div>
 
     <div class="update-modal modal modal-close">

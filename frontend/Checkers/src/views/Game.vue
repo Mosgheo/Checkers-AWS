@@ -89,11 +89,13 @@ export default {
     },
     game_started(res) {
       this.lobbyId = res[3]
+      store.commit('setInGame', true)
+      console.log(store.state.in_game)
     }
   },
   beforeRouteLeave(to, from, next) {
     if(changeLocation) {
-      store.state.in_game = false
+      store.commit('setInGame', false)
       changeLocation = false
       next()
     } else {
