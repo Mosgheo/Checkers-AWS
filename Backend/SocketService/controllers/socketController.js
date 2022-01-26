@@ -479,9 +479,7 @@ io.on('connection', async client => {
             console.log("join ok")
             let game = await setupGame(lobby_id,host,opponent)
             if(game.length > 0){
-              console.log("GAME "+game)
               io.to(lobby_id).emit("game_started",game)
-              console.log("PUTTANA MADONNA" +JSON.stringify(lobbies))
               turn_timeouts.set(lobby_id, setTimeout(function(){
                 change_turn(lobby_id)
                 console.log("TURN TIMEOUT FOR GAME " + lobby_id)
@@ -585,9 +583,6 @@ io.on('connection', async client => {
     if(user[0]){
       const user_mail = online_users.get(client.id)
       if(invitations.has(opp_mail) == false || invitations.get(opp_mail).has(user_mail) == false){
-        console.log("invitation expired")
-        console.log(invitations.has(opp_mail))
-        console.log(invitations.has(opp_mail))
         client.emit('invitation_expired',{message:"Your invitation for this lobby has expired"})
       }else{
         console.log("There is an invitation accepted from "+opp_mail)
@@ -655,7 +650,7 @@ io.on('connection', async client => {
       if(invitations.get(opp_mail).has(user_mail) === false){
         client.emit("invitation_expired",{message:"Your invitation for this lobby has expired"})
       }else{
-        io.to(opp_mail).emit("invitation_declined",{message:online_users.get(opp_mail)+" has just refused your invite, we're so sry. "})
+        io.to(online_users.getKey(opp_mail)).emit("invitation_declined",{message:opp_mail+" has just refused your invite, we're so sry. "})
         if(invitations.has(opp_mail) && invitations.get(opp_mail).has(user_mail)){
           invitations.get(opp_mail).delete(user_mail)
           clearTimeout(invitation_timeouts.get(opp_mail).get(user_mail))
