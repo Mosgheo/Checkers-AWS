@@ -6,6 +6,7 @@ import Login from "@/views/Login";
 import Signup from "@/views/Signup";
 import Game from "@/views/Game";
 import Lobbies from "@/views/Lobbies";
+import Error404 from "@/views/404";
 
 const routes = [
   {
@@ -43,6 +44,11 @@ const routes = [
     path: '/lobbies',
     name: 'Lobbies',
     component: Lobbies
+  },
+  {
+    path: '/404',
+    name: '404',
+    component: Error404
   }
 ]
 

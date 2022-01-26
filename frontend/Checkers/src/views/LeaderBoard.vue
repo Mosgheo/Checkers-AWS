@@ -66,6 +66,8 @@
 <script>
 import api from '@/../api.js'
 
+var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+
 export default {
   name: "LeaderBoard",
   data() {
@@ -80,6 +82,7 @@ export default {
   },
   methods: {
     nextPage(button) {
+      button_click.play()
       this.currentPage = []
       for(let i = (this.perPage*this.page); i < (this.page + 1)*this.perPage; i++) {
         if(this.leaderboard[i] === undefined) {
@@ -96,6 +99,7 @@ export default {
       }
     },
     previousPage(button) {
+      button_click.play()
       this.currentPage = []
       var fillTo = ((this.perPage*this.page)-1) - this.perPage
       for(let i = (fillTo - this.perPage)+1; i <= fillTo; i++) {

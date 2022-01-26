@@ -24,6 +24,8 @@
 <script>
 import api from '../../api.js'
 
+var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+
 export default {
   name: "Lobbies",
   data() {
@@ -34,6 +36,7 @@ export default {
   },
   methods: {
     joinLobby(id) {
+      button_click.play()
       if(this.res.length > 0) {
         api.join_lobby(this.$socket, id)
       }

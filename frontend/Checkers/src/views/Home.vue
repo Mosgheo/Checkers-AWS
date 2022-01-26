@@ -10,7 +10,7 @@
         <img src="@/assets/logo.png" class="self-center mask w-44 h-44 mt-2 p-2">
       </figure> 
 
-      <label for="create-lobby-modal" id="btn-menu" class="btn text-sm">Crea Lobby</label>
+      <label @click="buttonClick" for="create-lobby-modal" id="btn-menu" class="btn text-sm">Crea Lobby</label>
       <input type="checkbox" id="create-lobby-modal" class="modal-toggle"> 
       <div class="modal">
         <div class="modal-box">
@@ -25,15 +25,15 @@
             <input type="text" placeholder="Max Points" class="text-base input-star input input-bordered mt-2 w-min">
           </div>
           <div class="flex flex-row modal-action">
-            <label for="create-lobby-modal" @click.prevent="startingMatch" class="accept btn"> 
+            <label for="create-lobby-modal" @click="startingMatch" class="accept btn"> 
               Avvia creazione
             </label>
-            <label for="create-lobby-modal" class="btn">Annulla</label>
+            <label for="create-lobby-modal" @click="buttonClick" class="btn">Annulla</label>
           </div>
         </div>
       </div>
 
-      <label for="join-lobby-modal" id="btn-menu" class="btn text-sm">Unisciti ad una lobby</label>
+      <label @click="buttonClick" for="join-lobby-modal" id="btn-menu" class="btn text-sm">Unisciti ad una lobby</label>
       <input type="checkbox" id="join-lobby-modal" class="modal-toggle"> 
       <div class="modal">
         <div class="modal-box items-center">
@@ -44,15 +44,15 @@
             <input type="text" placeholder="Max Points" class="input-star2 input input-bordered mt-2 w-min">
           </div>
           <div class="flex flex-row modal-action">
-            <label @click.prevent="lobbyOpened" for="join-lobby-modal" class="text-base accept btn">
+            <label @click="lobbyOpened" for="join-lobby-modal" class="accept btn">
               Cerca lobby
             </label>
-            <label for="join-lobby-modal" class="btn">Annulla</label>
+            <label @click="buttonClick" for="join-lobby-modal" class="btn">Annulla</label>
           </div>
         </div>
       </div>
 
-      <label for="friends-modal" id="btn-menu" class="btn mb-7 text-sm">Sfida un amico</label>
+      <label @click="buttonClick" for="friends-modal" id="btn-menu" class="btn mb-7 text-sm">Sfida un amico</label>
       <input type="checkbox" id="friends-modal" class="modal-toggle"> 
       <div class="modal modal-invite">
         <div class="modal-box items-center"> 
@@ -61,8 +61,8 @@
             <input type="text" placeholder="Username" class="text-base opponent-mail input input-bordered w-min">
           </div>
           <div class="flex flex-row modal-action">
-            <label @click.prevent="invitePlayer" for="friends-modal" class="accept btn">Invita</label>
-            <label for="friends-modal" class="btn">Annulla</label>
+            <label @click="invitePlayer" for="friends-modal" class="accept btn">Invita</label>
+            <label @click="buttonClick" for="friends-modal" class="btn">Annulla</label>
           </div>
         </div>
       </div>
@@ -85,6 +85,9 @@
 <script>
 import api from '../../api.js'
 import store from '../store'
+
+var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+
 var lobbyName = document.getElementsByClassName("input-name")
 var starTextBox = document.getElementsByClassName("input-star")
 var starTextBox2 = document.getElementsByClassName("input-star2")
@@ -94,18 +97,25 @@ export default {
   name: 'Home',
   methods: {
     startingMatch() {
+      button_click.play()
       if(store.state.token !== "") {
         api.build_lobby(this.$socket, lobbyName[0].value, starTextBox[0].value)
         this.$router.push("/inGame")
+      } else {
+        this.$router.push("/404")
       }
     },
     lobbyOpened() {
+      button_click.play()
       if(store.state.token !== "") {
         api.get_lobbies(this.$socket, starTextBox2[0].value)
         this.$router.push("/lobbies")
+      } else {
+        this.$router.push("/404")
       }
     },
     invitePlayer() {
+      button_click.play()
       if(store.state.token !== "") {
         api.invite_opponent(this.$socket, opponent[0].value)
         /*console.log(document.getElementsByClassName("alert-info"))
@@ -115,8 +125,13 @@ export default {
           console.log(document.getElementsByClassName("alert-info"))
           //document.getElementsByClassName("alert-info")[0].style.visibility = "hidden"
         }, 3000)*/
-        this.$router.push("/profile")
+        //this.$router.push("/profile")
+      } else {
+        this.$router.push("/404")
       }
+    },
+    buttonClick() {
+      button_click.play()
     }
   }
 }

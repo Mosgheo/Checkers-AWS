@@ -15,16 +15,25 @@
     </div>
   </div>
 
-  <div class="modal modal-notifications">
+  <div class="modal modal-invites">
     <div class="modal-box">
-      <p class="notification-msg"></p> 
+      <p class="invites-msg"></p> 
       <div class="modal-action">
-        <label for="my-modal-2" @click="accept" class="btn">Accept</label> 
-        <label for="my-modal-2" @click="decline" class="btn">Refuse</label>
+        <label @click="accept" class="btn">Accept</label> 
+        <label @click="decline" class="btn">Refuse</label>
       </div>
     </div>
   </div>
-  
+
+  <div class="modal modal-notification">
+    <div class="modal-box">
+      <p class="notification-msg"></p> 
+      <div class="modal-action">
+        <label @click="close" class="btn">Accept</label>
+      </div>
+    </div>
+  </div>
+
 </div>
 </template>
 
@@ -33,17 +42,22 @@ import Sidebar from '@/components/sidebarComponents/Sidebar.vue'
 import store from './store'
 import api from '../api.js'
 
-var message = document.getElementsByClassName("notification-msg")
-var modal = document.getElementsByClassName("modal-notifications")
+var notification_sound = new Audio(require("@/assets/sounds/notification.mp3"))
+var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+
+var message = document.getElementsByClassName("invites-msg")
+var modal = document.getElementsByClassName("modal-invites")
+var modalNotification = document.getElementsByClassName("modal-notification")
+var messageNotification = document.getElementsByClassName("notification-msg")
 
 export default {
   components: {
     Sidebar
   },
-  created()  {
+  created() {
     window.addEventListener("resize", this.resizeHandler);
   },
-  destroyed()  {
+  destroyed() {
     window.removeEventListener("resize", this.resizeHandler);
   },
   data() {
@@ -51,23 +65,34 @@ export default {
       opponent_mail: null,
       screenWidth: window.innerWidth,
       invites: [],
-      inviteId: null
+      inviteId: null,
+      invitation_expired: false
     }
   },
   methods: {
     accept() {
-      console.log(store.state.in_game)
+      button_click.play()
       if(!store.state.in_game) {
         api.accept_invite(this.$socket, this.opponent_mail)
         this.invites.splice(this.inviteId, 1)
-        this.$router.push("/inGame")
+        var component = this
+        setTimeout(function() {
+          if(!component.invitation_expired) {
+            console.log("Invito buono")
+            component.$router.push("/inGame")
+          } else {
+            console.log("Invito scaduto")
+            component.invitation_expired = false
+          }
+        }, 500)
       }
-      modal[0].className = "modal modal-notifications modal-close"
+      modal[0].className = "modal modal-invites"
     },
     decline() {
+      button_click.play()
       api.decline_invite(this.$socket, this.opponent_mail)
       this.invites.splice(this.inviteId, 1)
-      modal[0].className = "modal modal-notifications modal-close"
+      modal[0].className = "modal modal-invites"
     },
     resizeHandler() {
       this.screenWidth = window.innerWidth
@@ -81,7 +106,11 @@ export default {
       } else {
         message[0].innerHTML = "Non puoi entrare in un'altra lobby mentre sei già in partita"
       }
-      modal[0].className = "modal modal-notifications modal-open"
+      modal[0].className = "modal modal-invites modal-open"
+    },
+    close() {
+      button_click.play()
+      modalNotification[0].className = "modal modal-notification"
     }
   },
   sockets: {
@@ -93,10 +122,11 @@ export default {
       ///var tokenData = JSON.parse(Buffer.from(res.token.split('.')[1], 'base64'))
       ///token_timeout(tokenData);
     },
-    token_error(res){
+    token_error(res) {
       console.log("something wrong with tokens boy")
       sessionStorage.token = ""
       store.commit('unsetToken')
+      this.$router.push("/404")
     },
     permit_error(error) {
       console.log(error)
@@ -116,21 +146,22 @@ export default {
         }
       }
       this.invites.push(msg)
+      notification_sound.play()
     },
     invite_accepted() {
-      console.log("Invite accepated")
-      console.log(store.state.in_game)
+      var component = this
       if(!store.state.in_game) {
-        this.$router.push("/inGame")
+        component.$router.push("/inGame")
       }
     },
     invitation_declined(msg) {
       console.log(msg)
     },
     invitation_expired(msg) {
-      message[0].innerHTML = msg
-      modal[0].className = "modal modal-notifications modal-open"
-      this.$router.push("/")
+      this.invitation_expired = true
+      console.log(msg)
+      messageNotification[0].innerHTML = msg.message
+      modalNotification[0].className = "modal modal-notification modal-open"
     }
   }
 }

@@ -22,6 +22,8 @@ import Chat from '@/components/boardComponents/Chat'
 import store from '@/store'
 import api from '../../api.js'
 
+var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+
 var changeLocation = false
 var path = null
 
@@ -40,9 +42,11 @@ export default {
   },
   methods: {
     closeModal() {
-      modal[0].className = "modal modal-change-location modal-close"
+      button_click.play()
+      modal[0].className = "modal modal-change-location"
     },
     exitGame() {
+      button_click.play()
       if(this.lobbyId === null || this.lobbyId === undefined) {
         api.get_lobbies(this.$socket, store.state.user.stars)
       }
@@ -90,7 +94,6 @@ export default {
     game_started(res) {
       this.lobbyId = res[3]
       store.commit('setInGame', true)
-      console.log(store.state.in_game)
     }
   },
   beforeRouteLeave(to, from, next) {

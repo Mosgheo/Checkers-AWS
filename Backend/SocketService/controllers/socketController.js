@@ -611,7 +611,9 @@ io.on('connection', async client => {
             game.push(board)
             game.push(lobby_id)
             io.to(online_users.getKey(opp_mail)).emit("invite_accepted")
-            io.to(lobby_id).emit("game_started",game)
+            setTimeout(function() {
+              io.to(lobby_id).emit("game_started",game)
+            }, 700)
             console.log("game started")
             invitations.delete(opp_mail)
             invitation_timeouts.get(opp_mail).forEach(invite_timeout =>{
@@ -702,9 +704,7 @@ io.on('connection', async client => {
                   })
                   console.log("Successfully sent end_game")
                   delete_lobby(lobby_id)
-                  io.sockets.clients(lobby_id).forEach(function(socket){
-                    socket.leave(lobby_id);
-                  });
+                  io.sockets.adapter.rooms.get(lobby_id).clear()
                 }else{
                   console.log("Something wrong while updating points.")
                   client.emit("server_error",{message:"Something wrong while updating points."})

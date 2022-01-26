@@ -42,6 +42,8 @@ import DataInfo from "@/components/profileComponents/DataInfo";
 import MatchInfo from "@/components/profileComponents/MatchInfo";
 import store from '@/store'
 
+var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+
 var user = null
 const wrapper = document.getElementsByClassName("info")
 
@@ -84,6 +86,7 @@ export default {
   methods: {
     dataInfo() {
       const elem = document.getElementById("dataInfo")
+      button_click.play()
       if(!elem.getAttribute("class").includes("tab-active")) {
         this.tabName = "Dati Utente"
         elem.setAttribute("class", "tab tab-lg tab-active");
@@ -93,6 +96,7 @@ export default {
     },
     matchInfo() {
       const elem = document.getElementById("matchInfo")
+      button_click.play()
       if(!elem.getAttribute("class").includes("tab-active")) {
         this.tabName = "Storico Partite"
         elem.setAttribute("class", "tab tab-lg tab-active");

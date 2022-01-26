@@ -54,7 +54,7 @@
         <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
           <template v-for="(invite, i) in this.invites" :key="i">
             <li>
-              <a @click="checkInvite(invite, i)">Invito di {{ invite }}</a>
+              <a @click="checkInvite(invite, i)">Invito da parte di {{ invite }}</a>
             </li> 
           </template>
         </ul>
@@ -78,6 +78,8 @@
 <script>
 import SidebarLink from './SidebarLink'
 
+var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+
 export default {
   components: { 
     SidebarLink 
@@ -99,6 +101,7 @@ export default {
       this.screenWidth = window.innerWidth
     },
     checkInvite(invite, i) {
+      button_click.play()
       this.$emit("checkInvite", invite, i)
     }
   }

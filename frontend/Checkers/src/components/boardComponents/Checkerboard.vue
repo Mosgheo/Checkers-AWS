@@ -33,7 +33,7 @@ import store from '@/store'
 import api from '../../../api.js'
 
 var user = null
-
+var move_piece = new Audio(require("@/assets/sounds/piece-move.wav"))
 var appInstance = null
 
 export default {
@@ -140,9 +140,11 @@ export default {
           this.counterClick = 0
           this.release(cell)
         } else if(this.counterClick === 0) {
+          move_piece.play()
           this.clickedCell = cell
           this.counterClick++
         } else {
+          move_piece.play()
           for(let i = 0; i < this.possibleMoves.length; i++) {
             if(this.possibleMoves[i].from === "K"+this.clickedCell && this.possibleMoves[i].to === cell) {
               api.move_piece(this.$socket, this.lobbyId, "K"+this.clickedCell, cell)
@@ -231,11 +233,13 @@ export default {
     },
     update_board(res) {
       var cells = Array.from((document.getElementsByClassName("grid")[0]).children).filter(el => el.id !== "0")
+      console.log(cells)
       for(let i = 0; i < cells.length; i++) {
         if(cells[i].children.length > 0) {
           (cells[i].children[0]).remove()
         }
         var piece = document.createElement('img');
+        piece.className = "ease-out duration-300"
         if(("K"+cells[i].id) in res[2]) {
           piece.src = this.redKingPiece
           cells[i].appendChild(piece)

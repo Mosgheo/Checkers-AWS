@@ -45,7 +45,7 @@
       <div class="modal-box">
         <p class="msg">Ciao</p> 
         <div class="modal-action justify-center">
-            <label class="btn" @click.prevent="close">Accept</label>
+            <label class="btn" @click="close">Accept</label>
         </div>
       </div>
     </div>
@@ -56,6 +56,8 @@
 <script>
 import store from '@/store'
 import api from '@/../api.js'
+
+var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
 
 var user = null
 var update_modal = document.getElementsByClassName("update-modal")
@@ -97,6 +99,8 @@ export default {
   },
   methods:{
     save_profile() {
+      button_click.play()
+
       const user = {
           username : document.getElementsByClassName("username")[0].value,
           first_name : document.getElementsByClassName("first_name")[0].value,
@@ -116,7 +120,8 @@ export default {
       //api.update_profile(this.$socket, user, localStorage.token)
     },
     close() {
-      update_modal[0].setAttribute("class", "update-modal modal modal-close")
+      button_click.play()
+      update_modal[0].setAttribute("class", "update-modal modal")
       this.$forceUpdate()
     },
     uploadImage(){

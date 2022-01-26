@@ -22,12 +22,12 @@
                 </div>
 
                 <div class="object-center space-x-2 mt-10">
-                    <label class="btn text-base font-semibold" @click.prevent="login">Login</label> 
-                    <div class="login-fail modal modal-close">
+                    <label class="btn text-base font-semibold" @click="login">Login</label> 
+                    <div class="login-fail modal">
                         <div class="modal-box">
                             <p class="msg text-base font-semibold">Ciao</p> 
                             <div class="modal-action">
-                                <label class="btn text-base" @click.prevent="close">Accept</label>
+                                <label class="btn text-base" @click="close">Accept</label>
                             </div>
                         </div>
                     </div>
@@ -39,7 +39,7 @@
                     <span class="label-text">Se non sei ancora iscritto</span>
                 </label> 
                 <router-link to="/signup">
-                    <button class="font-bold text-lg btn-link mb-3">Iscriviti</button>
+                    <button @click="buttonClick" class="font-bold text-lg btn-link mb-3">Iscriviti</button>
                 </router-link>
             </div>
         </div>
@@ -51,16 +51,18 @@
 import api from '@/../api.js'
 import store from '@/store'
 
+var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+
 var mail = document.getElementsByClassName("mail")
 var password = document.getElementsByClassName("password")
 var login_fail = document.getElementsByClassName("login-fail")
 var msg = document.getElementsByClassName("msg")
 
-
 export default {
     name: "Login",
     methods: {
         login() {
+            button_click.play()
             if(mail[0].value === "" && password[0].value === "") {
                 msg[0].textContent = "Insert a valid email and/or password"
                 login_fail[0].setAttribute("class", "login-fail modal modal-open")
@@ -69,9 +71,13 @@ export default {
             }
         },
         close() {
-            login_fail[0].setAttribute("class", "login-fail modal modal-close")
+            button_click.play()
+            login_fail[0].setAttribute("class", "login-fail modal")
             mail[0].value = ""
             password[0].value = ""
+        },
+        buttonClick() {
+            button_click.play()
         }
     },
     sockets:{

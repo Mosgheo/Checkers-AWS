@@ -50,12 +50,12 @@
                 </div>
 
                 <div class="object-center space-x-2 mb-3 mt-10">
-                    <label class="text-base font-semibold btn" @click.prevent="signup">Iscriviti</label> 
+                    <label class="text-base font-semibold btn" @click="signup">Iscriviti</label> 
                     <div class="signup-modal modal modal-close">
                         <div class="modal-box">
                             <p class="msg">Ciao</p> 
                             <div class="modal-action">
-                                <label class="btn" @click.prevent="close">Accept</label>
+                                <label class="btn" @click="close">Accept</label>
                             </div>
                         </div>
                     </div>
@@ -75,6 +75,7 @@ var last_name_input= document.getElementsByClassName("last_name")
 var mail_input = document.getElementsByClassName("mail")
 var pw_input = document.getElementsByClassName("password")
 var confirm_pw_input = document.getElementsByClassName("confirm_password")*/
+var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
 
 var signup_modal = document.getElementsByClassName("signup-modal")
 var msg = document.getElementsByClassName("msg")
@@ -84,6 +85,7 @@ export default {
     name: "Signup",
     methods: {
         signup() {
+            button_click.play()
             var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
             var username = document.getElementsByClassName("username")[0].value
             var first_name = document.getElementsByClassName("first_name")[0].value
@@ -101,13 +103,14 @@ export default {
             }
         },
         close() {
+            button_click.play()
             signup_modal[0].setAttribute("class", "signup-modal modal modal-close")
             if(signup) {
                 this.$router.push("/login")
             }
         }
     },
-    sockets:{
+    sockets: {
         signup_success(res) {
             signup = true
             msg[0].textContent = res.message
