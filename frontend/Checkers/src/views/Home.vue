@@ -2,12 +2,12 @@
 <div>
   <div class="flex flex-row items-center justify-center centralSpace px-28 py-7">
 
-    <img src="@/assets/checkers.png" class="self-center mask min-w-fit min-h-fit w-7/12 h-7/12 mask-squircle">
+    <img src="@/assets/checkers.png" class="main-logo self-center mask min-w-fit min-h-fit w-7/12 h-7/12 mask-square">
 
     <div class="card items-center w-64 flex flex-col rightMenu self-center ml-10">
       <h1 class="font-bold text-2xl my-5">Gioca a Checkers</h1>
       <figure>
-        <img src="@/assets/logo.png" class="self-center mask w-44 h-44 mt-2 p-2">
+        <img src="@/assets/logo.png" class="self-center mask w-44 h-44 mt-2 p-2 mask-square">
       </figure> 
 
       <label @click="buttonClick" for="create-lobby-modal" id="btn-menu" class="btn text-sm">Crea Lobby</label>
@@ -138,12 +138,12 @@ export default {
 </script>
 
 <style scoped>
-img {
+.main-logo {
   min-width: 55%;
   min-height: 55%;
 }
 .rightMenu {
-  min-width: 230px;
+  width: 220px;
   background-color: #1F1E1E;
 }
 .rightMenu #btn-menu:first-child {
@@ -151,7 +151,7 @@ img {
 }
 .rightMenu #btn-menu {
   margin-top: 4em;
-  min-width: 205px;
+  width: 200px;
   margin-left: 1.5em;
   margin-right: 1.5em;
 }

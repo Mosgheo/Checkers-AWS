@@ -1,19 +1,19 @@
 <template>
 <div id="app">
 
-  <div v-if="this.screenWidth > 1250" class="flex flex-row">
-    <Sidebar @checkInvite="checkInvite" class="sidebar min-h-screen" :invites="this.invites" />
-    <div class="middle w-screen min-h-screen">
+  <div id="main" class="flex flex-row">
+    <Sidebar @checkInvite="checkInvite" class="sidebar h-screen" :invites="this.invites" />
+    <div class="middle w-screen ">
       <router-view />
     </div>
   </div>
 
-  <div v-else class="flex flex-col max-h-screen">
-    <Sidebar @checkInvite="checkInvite" class="sidebar min-w-screen" :invites="this.invites" />
-    <div class="middle min-w-screen h-screen">
+  <!--<div v-else class="flex flex-col max-h-screen">
+    <Sidebar @checkInvite="checkInvite" class="sidebar" :invites="this.invites" />
+    <div class="middle h-screen">
       <router-view />
     </div>
-  </div>
+  </div>-->
 
   <div class="modal modal-invites">
     <div class="modal-box">
@@ -175,9 +175,24 @@ export default {
   -moz-osx-font-smoothing: auto;
   text-align: center;
   color: #A39D8F;
+  overflow: hidden;
 }
-
 .middle {
   background-color: #343232;
+}
+
+@media only screen and (max-width: 1200px) {
+  #main {
+    flex-direction: column;
+    max-height: 100vh;
+  }
+  .sidebar {
+    max-height: 5.5rem;
+  }
+  .middle {
+    height: 100vh;
+    min-height: min-content;
+    width: 0px;
+  }
 }
 </style>
