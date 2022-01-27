@@ -19,7 +19,7 @@ var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
 
 export default {
   props: {
-    to: { type: String, required: true },
+    to: { type: String, required: false },
     icon: { type: String, required: true },
     click: { type: String, required: false }
   },
@@ -66,5 +66,26 @@ button:hover {
 .link .icon {
   width: 25px;
   margin-right: 10px;
+}
+
+@media only screen and (max-width: 1200px) { 
+  .btn {
+    visibility: hidden;
+    width: 0;
+  }
+  .icon {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+}
+
+@media only screen and (max-width: 785px) {
+  .btn {
+    visibility: visible;
+    width: auto;
+  }
+  .icon {
+    width: 25px;
+  }
 }
 </style>

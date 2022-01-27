@@ -1,5 +1,5 @@
 <template>
-  <div class="profile flex flex-col items-center content-center px-32 py-8">
+  <div class="profile flex flex-col items-center px-32 py-8">
     <div class="basic-info card lg:card-side flex flex-row w-9/12 max-w-screen-2xl">
       <img :src="getAvatar" class="mask mask-square w-60 h-60 p-5">
       <div class="p-3">
@@ -119,17 +119,19 @@ export default {
   color: #A39D8F;
 }
 img {
-    max-width: 300px;
-    max-height: 300px;
+  max-width: 14rem;
+  max-height: 14rem;
 }
 
-@media (max-width: 785px) {
+@media only screen and (max-width: 800px) {
   img {
-    width: 150px;
-    height: 150px;
+    width: 9rem;
+    height: 9rem;
   }
   .profile {
-    margin-left: 2em;
-  } 
+    min-width: 50rem;
+    padding-left: 0;
+    padding-right: 20rem;
+  }
 }
 </style>

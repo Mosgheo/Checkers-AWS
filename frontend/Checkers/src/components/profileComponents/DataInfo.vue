@@ -169,7 +169,7 @@ span {
   color: #CDCBCB;
 }
 input {
-  max-width: 400px;
+  max-width: 20rem;
   background-color: #343232;
 }
 .select {
@@ -178,6 +178,11 @@ input {
 .avatarss{
   max-height: 100%; 
   max-width: 100%;
+}
+@media only screen and (max-width: 900px) {
+  input {
+    max-width: 13rem;
+  }
 }
 </style>
 

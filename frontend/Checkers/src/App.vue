@@ -3,7 +3,7 @@
 
   <div id="main" class="flex flex-row">
     <Sidebar @checkInvite="checkInvite" class="sidebar h-screen" :invites="this.invites" />
-    <div class="middle w-screen ">
+    <div class="middle w-screen">
       <router-view />
     </div>
   </div>
@@ -181,7 +181,7 @@ export default {
   background-color: #343232;
 }
 
-@media only screen and (max-width: 1200px) {
+@media only screen and (max-width: 785px) {
   #main {
     flex-direction: column;
     max-height: 100vh;
