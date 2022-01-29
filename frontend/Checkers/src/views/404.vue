@@ -12,6 +12,14 @@
 </template>
 
 <script>
+import toasty from 'toasty';
+export default{
+  setup(){
+  let t = toasty();
+  t.trigger();
+  }
+}
+
 </script>
 
 <style scoped>

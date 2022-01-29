@@ -2,36 +2,31 @@
 const Game = require('../models/gameModel')
 const Draughts = require('./draughts')
 
-let games = new Map(); // game_id -> game
+let games = new Map(); // {game_id -> game}
      /*      game: {
                 white: "",
                 black: "",
                 draughts: null,
                 finished: false,
                 winner: "",
-                tick: 0
             }
      */
 
 /**
- ** 
- **
- ** GAME HANDLING  
- **
- **
+ ** ** ** ** ** ** **
+ ** GAME HANDLING  **
+ ** ** ** ** ** ** **
  */
 
+
+ /**
+  * 
+  * @param {*} game_id To retrieve the game instance
+  * @returns wheter such game is over because someone won.
+  */
 function winCheck(game_id){
     let gameInstance = games.get(game_id)
     let game = gameInstance.draughts
-    const xd = game.fen().split(':')[1].split[',']
-    console.log("final fen: "+game.fen())
-    console.log("fen split by ':' "+ game.fen().split(':'))
-    console.log("white_fen: "+game.fen().split(':')[1])
-    console.log("black_fen: "+game.fen().split(':')[2])
-    console.log("white_pieces: "+game.fen().split(':')[1].split[','])
-    console.log("black_pieces: "+game.fen().split(':')[2].split[','])
-
     if(game.fen().split(':')[1].length <= 1){
         game.winner = gameInstance.black
         game.loser = gameInstance.white
@@ -57,6 +52,14 @@ async function saveGame(game_id) {
             fen:fen}})
     
 }
+/**
+ * Handles a game end.
+ * @param {*} game_id  game that just ended
+ * @param {*} tie whether it resulted in a tie.
+ * @param {*} winner player who won (same as loser if "tie" param is set to TRUE)
+ * @param {*} loser player who lost (same as winner if "tie" param is set to TRUE)
+ * @returns true if game was terminated correctly and successfully saved into DB, false otherwise.
+ */
 async function gameEnd(game_id,tie,winner,loser){
     let game = games.get(game_id)
     game.winner = winner
@@ -88,11 +91,15 @@ async function gameEnd(game_id,tie,winner,loser){
     }
 
 }
+/**
+ * 
+ * @param {*} game_id to get history of
+ */
 function getHistory(game_id){
-    games.get(game_id).draughts.getHistory({verbose:true});
+   return games.get(game_id).draughts.getHistory({verbose:true});
 }
+
 exports.tieGame = function(req,res){
-    //WILL "_" BELOW WORK?
     gameEnd(req.body.game_id,true,_,_).then(
         res.status(200).send({message: "Game has been settled with a tie, each player will not earn nor lose stars"})
     ).catch(
@@ -101,6 +108,9 @@ exports.tieGame = function(req,res){
 
 
 }
+/**
+ * Returns all games played by a user.
+ */
 exports.user_history = async function(req,res){
     console.log("hello i'm here")
     const mail = req.query.mail
@@ -111,6 +121,9 @@ exports.user_history = async function(req,res){
     }
 
 }
+/**
+ * Handles user leaving a game
+ */
 exports.leaveGame = async function(req,res){
     let game_id = req.body.game_id
     let quitter = req.body.player_id
@@ -132,7 +145,9 @@ exports.leaveGame = async function(req,res){
     }
 
 }
-
+/**
+ * 
+ */
 exports.deleteGame = async function(req,res){
     const game_id = req.body.game_id
     const forfeiter = req.body.forfeiter
@@ -145,6 +160,9 @@ exports.deleteGame = async function(req,res){
     }
 }
 
+/**
+ * A user moves a piece inside the board
+ */
 exports.movePiece = function(req,res){
     let game_id = req.body.game_id
     if(!games.has(game_id)){
@@ -154,7 +172,6 @@ exports.movePiece = function(req,res){
         console.log(parseFEN(game_id))
         if(game.move({from: req.body.from, to: req.body.to }) != false){
             let data = parseFEN(game_id)
-            console.log(data)
             console.log(req.body.from+"-"+req.body.to)
             if(game.gameOver()){
                 console.log("It's game over you dumbasses")
@@ -167,7 +184,12 @@ exports.movePiece = function(req,res){
                         board: data
                     })
                 }else{
-                    /**HANDLE WHAT HAPPENS IF GAME OVER BUT NONE WON */
+                    gameEnd(game_id,true,game.winner,game.loser)
+                    res.json({
+                        winner:"",
+                        tie:true,
+                        board:data
+                    })
                 }
             }else{
                 console.log("The show must go on fellas")
@@ -217,12 +239,6 @@ exports.create_game = function(req,res){
     }
 }
 
-exports.get_old_games = async function(req,res){
-    //TODO
-}
-exports.restart_old_game = async function(req,res){
-    //TODO
-}
 
 /**
  ** 
@@ -254,20 +270,8 @@ function parseFEN(game_id) {
     black_pieces[0] = black_pieces[0].substring(1)
     let white_pieces_with_moves = new Map()
     let black_pieces_with_moves = new Map()
-    console.log("black pieces size: "+black_pieces.length)
-    console.log("white pieces size: "+white_pieces.length)
-    console.log("White pieces " +white_pieces)
-    console.log("black pieces "+black_pieces)
-    console.log("FEN "+fen)
     for (let i = 0; i < black_pieces.length; i++) {
         let piece = black_pieces[i]
-        if(black_pieces.length == 1){
-            console.log("IT'S FINALLY THE LAST BLACK INDEX: " +black_pieces[0])
-        }
-
-        if(black_pieces.length == 1){
-            console.log("eccoce black"+black_pieces[0])
-        }
         console.log("Asked moves for black piece "+piece)
         if(piece !== "" && piece !== null){
             if(piece.charAt(0) === "K"){
@@ -283,13 +287,6 @@ function parseFEN(game_id) {
     }
     for (let i = 0; i < white_pieces.length; i++) {
         let piece = white_pieces[i]
-        if(white_pieces.length == 1){
-            console.log("IT'S FINALLY THE LAST WHITE INDEX: " +piece)
-        }
-
-        if(white_pieces.length == 1){
-            console.log("eccoce white"+white_pieces[0])
-        }
         if(piece !== "" && piece !== null){
             if(piece.charAt(0) === "K"){
                 let moves = game.getLegalMoves(piece.substring(1))

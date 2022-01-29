@@ -4,21 +4,8 @@ const jwt = require('jsonwebtoken');
 const email_validator = require("email-validator");
 let passwordValidator = require('password-validator');
 const fs = require('fs');
-/**
- *   refresh_token(succHandler, errorHandler) {
-        let tokenData = JSON.parse(atob(localStorage.token.split('.')[1]));
-        const authHeader = 'bearer '.concat(localStorage.token);
-        axiosInstance.get("/users/" + tokenData.user._id + "/token", { headers: { Authorization: authHeader } })
-            .then(response => {
-                if (succHandler) {
-                    succHandler(response.data.token);
-                }
-            })
-            .catch(error => api.handleError(error, errorHandler));
-    },
 
-    TOKEN REFRESHING ON FRONTEND, API.JS
- */
+//Rules for a "safe" psw
 const password_validator = new passwordValidator()
     .is().min(8)
     .is().max(100)
@@ -31,7 +18,7 @@ const password_validator = new passwordValidator()
 const jsecret_path = './jwt_secret';
 const jwt_secret = load_jwt_secret()
 
-
+//Loads the secret string  with which the server will authenticate clients
 function load_jwt_secret(){
     if(fs.existsSync(jsecret_path)){
         return fs.readFileSync(jsecret_path,"utf-8")
@@ -41,16 +28,28 @@ function load_jwt_secret(){
         return new_secret
     }
 }
+/**
+ * Generats a random string of given length
+ */
 function randomString(length){
     return crypto.randomBytes(Math.ceil(length / 2))
     .toString('hex')
     .slice(0, length)
 }
+/**
+ * 
+ * @param {*} psw  to be salted
+ * @param {*} salt to apply to psw
+ * @returns  salted psw
+ */
 function salt_function(psw,salt){
     const hash = crypto.createHmac('sha512',salt);
     hash.update(psw)
     return hash.digest('hex')
 }
+/**
+ * Tries to sign up a new user
+ */
 exports.signup = async function(req,res){
     console.log("someone is signing up")
 	const username = req.body.username;
@@ -100,6 +99,8 @@ exports.signup = async function(req,res){
         }
     }
 }
+
+//Tries to login a user
 exports.login = async function(req,res){
     const email = req.body.mail
     const password = req.body.password
@@ -107,9 +108,11 @@ exports.login = async function(req,res){
     if(email.trim() === "" || password.trim() === ""){
         res.status(400).send({message: "Login parameters can't have empty values"})
     }else{
-        const registered_user = await User.findOne({mail:email})
+        const registered_user = await User.findOne({mail:email},'username first_name last_name mail salt password stars nationality wins losses avatar')
         if(registered_user){
             const alleged_password = salt_function(password,registered_user.salt)
+            console.log(alleged_password)
+            console.log(registered_user.password)
             if(alleged_password == registered_user.password){
                 console.log(email+" just logged in")
                 //Will those two lines work?
@@ -123,7 +126,6 @@ exports.login = async function(req,res){
                         last_name: registered_user.last_name,
                         mail:email,
                         stars:registered_user.stars,
-                        nationality:registered_user.nationality,
                         wins:registered_user.wins,
                         losses:registered_user.losses,
                         avatar:registered_user.avatar
@@ -143,7 +145,7 @@ exports.refresh_token = async function (req,res){
     const token = req.query.token
     var token_mail = JSON.parse(Buffer.from(token.split('.')[1], 'base64')).user.email;
     if(mail === token_mail){
-        const registered_user = await User.findOne({mail:mail})
+        const registered_user = await User.findOne({mail:mail},'username first_name last_name mail stars nationality wins losses avatar')
         if(registered_user){
             //Check this await
            const token = await jwt.sign({user:{email:registered_user.mail,username:registered_user.username}},jwt_secret,{expiresIn: '1 day'})
@@ -156,7 +158,6 @@ exports.refresh_token = async function (req,res){
                         last_name: registered_user.last_name,
                         mail: registered_user.mail,
                         stars: registered_user.stars,
-                        nationality: registered_user.nationality,
                         wins: registered_user.wins,
                         losses: registered_user.losses,
                         avatar: registered_user.avatar
@@ -202,7 +203,7 @@ exports.getProfile = async function(req,res){
     const mail = req.query.mail
     console.log("I'm in get profile " +mail)
     try {
-        const data = await User.findOne({mail:mail}).lean()
+        const data = await User.findOne({mail:mail},'username avatar first_name last_name stars mail').lean()
         if(data === null){
             res.status(404).json({error: "Cannot find any player with such ID"})
         }else{
@@ -223,7 +224,7 @@ exports.getProfile = async function(req,res){
 exports.getHistory = async function(req,res){
     try{
         console.log("hello welcome to history gegtter "+req.query.mail)
-        const user = await User.find({mail:req.query.mail})
+        const user = await User.find({mail:req.query.mail},'wins losses')
         const data = []
         if(user === null){
             console.log("user null")
@@ -270,7 +271,7 @@ exports.updateProfile = async function(req,res){
         }
     }else{
         console.log("Updating even mail")
-        const email = await User.find({mail:user_mail})
+        const email = await User.find({mail:user_mail},'username first_name last_name mail stars avatar')
         if(email === null){
             if(new_user = await User.findOneAndUpdate({"mail": user_mail},
             { $set:{
@@ -298,7 +299,7 @@ exports.updateProfile = async function(req,res){
 //WILL THIS WORK?
 exports.getLeaderboard = async function(_,res){
     try{
-        const users = await User.find({},'username avatar stars wins losses').sort({ stars: 'desc'})
+        const users = await User.find({},'username avatar stars wins losses ties').sort({ stars: 'desc'})
         if(users != null){ 
             res.status(200).json(users);
         }else{
@@ -315,12 +316,17 @@ exports.updatePoints = async function(req,res){
     const stars = req.body.stars
     const won = req.body.won
     const single_match = 1
+    const tied = req.body.tied
     let user = null
     try{
-        if(won){
-             user = await User.findOneAndUpdate({"mail":mail},{$inc: {wins:single_match,stars:stars}})
+        if(tied){
+            user = await User.findOneAndUpdate({"mail":mail},{$inc: {ties:single_match,stars:stars}})
         }else{
-             user = await User.findOneAndUpdate({"mail":mail},{$inc: {stars:stars,losses:single_match}})
+            if(won){
+                user = await User.findOneAndUpdate({"mail":mail},{$inc: {wins:single_match,stars:stars}})
+           }else{
+                user = await User.findOneAndUpdate({"mail":mail},{$inc: {stars:stars,losses:single_match}})
+           }
         }
         if(user != null){
             console.log("user updated "+user )

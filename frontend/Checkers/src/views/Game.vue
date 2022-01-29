@@ -84,11 +84,7 @@ export default {
       changeLocation = true
       path = "/"
       var gameEndModal = document.getElementsByClassName("modal")[0]
-      if(store.getters.user.mail === msg.winner.mail) {
-        document.getElementById("exit-game-msg").innerHTML = "HAI VINTOOOOOOO !!!!"
-      } else {
-        document.getElementById("exit-game-msg").innerHTML = "HAI PERSOOOOOOO !!!!"
-      }
+      document.getElementById("exit-game-msg").innerHTML = msg.message
       gameEndModal.setAttribute("class", "modal modal-change-location modal-open")
     },
     game_started(res) {
