@@ -119,6 +119,7 @@ export default {
   },
   sockets: {
     leaderboard(res) {
+      console.log(res)
       this.leaderboard = res
       for(let i = 0; i < this.perPage; i++) {
         if(this.leaderboard[i] === undefined) {

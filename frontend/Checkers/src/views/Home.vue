@@ -32,24 +32,7 @@
         </div>
       </div>
 
-      <label @click="buttonClick" for="join-lobby-modal" id="btn-menu" class="btn text-sm">Unisciti ad una lobby</label>
-      <input type="checkbox" id="join-lobby-modal" class="modal-toggle"> 
-      <div class="modal">
-        <div class="modal-box items-center">
-          <div class="form-control items-center">
-            <label class="mt-3">
-              <span class="font-bold text-lg">Indica il punteggio massimo delle lobby</span>
-            </label> 
-            <input type="text" placeholder="Max Points" class="input-star2 input input-bordered mt-2 w-min">
-          </div>
-          <div class="flex flex-row modal-action">
-            <label @click="lobbyOpened" for="join-lobby-modal" class="accept btn">
-              Cerca lobby
-            </label>
-            <label @click="buttonClick" for="join-lobby-modal" class="btn">Annulla</label>
-          </div>
-        </div>
-      </div>
+      <label @click="lobbyOpened" for="join-lobby-modal" id="btn-menu" class="btn text-sm">Unisciti ad una lobby</label>
 
       <label @click="buttonClick" for="friends-modal" id="btn-menu" class="btn mb-7 text-sm">Sfida un amico</label>
       <input type="checkbox" id="friends-modal" class="modal-toggle"> 
@@ -100,24 +83,7 @@
           </div>
         </li> 
         <li class="mt-3">
-          <label @click="buttonClick" for="join-lobby-modal" id="btn-menu" class="btn text-sm">Unisciti ad una lobby</label>
-          <input type="checkbox" id="join-lobby-modal" class="modal-toggle"> 
-          <div class="modal">
-            <div class="modal-box items-center">
-              <div class="form-control items-center">
-                <label class="mt-3">
-                  <span class="font-bold text-lg">Indica il punteggio massimo delle lobby</span>
-                </label> 
-                <input type="text" placeholder="Max Points" class="input-star2 input input-bordered mt-2 w-min">
-              </div>
-              <div class="flex flex-row modal-action">
-                <label @click="lobbyOpened" for="join-lobby-modal" class="accept btn">
-                  Cerca lobby
-                </label>
-                <label @click="buttonClick" for="join-lobby-modal" class="btn">Annulla</label>
-              </div>
-            </div>
-          </div>
+          <label @click="lobbyOpened" for="join-lobby-modal" id="btn-menu" class="btn text-sm">Unisciti ad una lobby</label>
         </li> 
         <li class="mt-3">
           <label @click="buttonClick" for="friends-modal" id="btn-menu" class="btn mb-7 text-sm">Sfida un amico</label>
@@ -176,7 +142,7 @@ export default {
     lobbyOpened() {
       button_click.play()
       if(store.state.token !== "") {
-        api.get_lobbies(this.$socket, starTextBox2[0].value)
+        api.get_lobbies(this.$socket, store.getters.user.stars)
         this.$router.push("/lobbies")
       } else {
         this.$router.push("/404")

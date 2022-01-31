@@ -16,7 +16,7 @@
               :size="getSize"
               @hover-cell="checkMoves"
               @release="release" 
-              @selectCell="selectCell"/>
+              @selectCell="selectCell" />
           </template>
 				</div>
 			</div>
@@ -96,26 +96,43 @@ export default {
   },
   methods: {
     checkMoves(cell) {
-      document.getElementById(""+cell).style.backgroundColor = "red"
-      for(let i = 0; i < this.possibleMoves.length; i++) {
-        if(this.possibleMoves[i].from === cell) {
-          document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
-        } else if((""+this.possibleMoves[i].from).includes("K")) {
-          if((""+this.possibleMoves[i].from).substring(1) === this.cell) {
-            if((""+this.possibleMoves[i].to).includes("K")) {
-              document.getElementById(("" + this.possibleMoves[i].to).substring(1)).style.backgroundColor = "red"
-            } else {
-              document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
+      if(this.clickedCell === null && this.playerTurn === user.mail 
+        && document.getElementById(""+cell).style.backgroundColor === "rgb(51, 51, 51)") {
+        for(let i = 0; i < this.possibleMoves.length; i++) {
+          if(this.possibleMoves[i].from === cell) {
+            document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
+          } else if((""+this.possibleMoves[i].from).includes("K")) {
+            if((""+this.possibleMoves[i].from).substring(1) === this.cell) {
+              if((""+this.possibleMoves[i].to).includes("K")) {
+                document.getElementById(("" + this.possibleMoves[i].to).substring(1)).style.backgroundColor = "red"
+              } else {
+                document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
+              }
             }
           }
         }
-      }
+      } else if(this.clickedCell !== null && this.playerTurn === user.mail 
+         && document.getElementById(""+cell).style.backgroundColor === "rgb(209, 213, 219)") {
+          for(let i = 0; i < this.possibleMoves.length; i++) {
+            if(this.possibleMoves[i].from === cell) {
+              document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
+            } else if((""+this.possibleMoves[i].from).includes("K")) {
+              if((""+this.possibleMoves[i].from).substring(1) === this.cell) {
+                if((""+this.possibleMoves[i].to).includes("K")) {
+                  document.getElementById(("" + this.possibleMoves[i].to).substring(1)).style.backgroundColor = "red"
+                } else {
+                  document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
+                }
+              }
+            }
+          }
+        }
     },
     release(cell) {
       var releaseCell = document.getElementById(""+cell)
-      if(releaseCell.style.backgroundColor === "red" && this.playerTurn === user.mail) {
-        releaseCell.style.backgroundColor = "#333333"
-      } else {
+      if(releaseCell.style.backgroundColor !== "rgb(51, 51, 51)" 
+        && releaseCell.style.backgroundColor !== "rgb(209, 213, 219)"
+        && this.playerTurn === user.mail) {
         releaseCell.style.backgroundColor = "black"
       }
       for(let i = 0; i < this.possibleMoves.length; i++) {
@@ -131,33 +148,48 @@ export default {
           }
         }
       }
-      
     },
     selectCell(cell) {
       if(this.playerTurn === user.mail) {
         if(cell === this.clickedCell) {
+          move_piece.play()
           this.clickedCell = null
           this.counterClick = 0
-          this.release(cell)
-        } else if(this.counterClick === 0) {
+          document.getElementById("" + cell).style.backgroundColor = "rgb(51, 51, 51)"
+        } else if(this.counterClick === 0 && document.getElementById(""+cell).style.backgroundColor === "rgb(51, 51, 51)") {
           move_piece.play()
           this.clickedCell = cell
           this.counterClick++
+          document.getElementById("" + cell).style.backgroundColor = "rgb(209, 213, 219)"
         } else {
-          move_piece.play()
           for(let i = 0; i < this.possibleMoves.length; i++) {
             if(this.possibleMoves[i].from === "K"+this.clickedCell && this.possibleMoves[i].to === cell) {
+              move_piece.play()
               api.move_piece(this.$socket, this.lobbyId, "K"+this.clickedCell, cell)
-              break;
+              document.getElementById("" + this.clickedCell).style.backgroundColor = "black"
+              this.clickedCell = null
+              this.counterClick = 0
+              return;
             } else if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === "K"+cell) {
+              move_piece.play()
               api.move_piece(this.$socket, this.lobbyId, this.clickedCell, "K"+cell)
-              break;
+              document.getElementById("" + this.clickedCell).style.backgroundColor = "black"
+              this.clickedCell = null
+              this.counterClick = 0
+              return;
             } else if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === cell) {
+              move_piece.play()
               api.move_piece(this.$socket, this.lobbyId, this.clickedCell, cell)
-              break;
+              document.getElementById("" + this.clickedCell).style.backgroundColor = "black"
+              this.clickedCell = null
+              this.counterClick = 0
+              return;
             }
           }
-          document.getElementById("" + this.clickedCell).style.backgroundColor = "black"
+          if(this.clickedCell !== null) {
+            move_piece.play()
+            document.getElementById("" + this.clickedCell).style.backgroundColor = "rgb(51, 51, 51)"
+          }
           this.clickedCell = null
           this.counterClick = 0
         }
@@ -233,7 +265,6 @@ export default {
     },
     update_board(res) {
       var cells = Array.from((document.getElementsByClassName("grid")[0]).children).filter(el => el.id !== "0")
-      console.log(cells)
       for(let i = 0; i < cells.length; i++) {
         if(cells[i].children.length > 0) {
           (cells[i].children[0]).remove()

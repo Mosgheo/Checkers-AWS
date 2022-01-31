@@ -89,7 +89,7 @@ async function setupGame(game_id,host_mail,opponent_mail){
     game.push(game_id)
     return game
   }catch(err){
-    if('response' in err && 'status' in response.err){
+    if('response' in err && 'status' in err.response){
       if(err.response.status == 500){
         client.emit("server_error",err.response.data)
       }else if(err.response.status == 404){
@@ -346,7 +346,7 @@ io.on('connection', async client => {
         client.emit("login_ok",user)
       }catch(err){
         console.log(err)
-        if('response' in err && 'status' in response.err){
+        if('response' in err && 'status' in err.response){
           if(err.response.status == 400){
             client.emit("login_error",err.response.data)
           }
@@ -369,7 +369,7 @@ io.on('connection', async client => {
         })
         client.emit('signup_success',new_user)
     }catch(err){
-      if('response' in err && 'status' in response.err){
+      if('response' in err && 'status' in err.response){
         if(err.response.status == 400 || err.response.status == 500){
           client.emit('signup_error',err.response.data)
         }
@@ -394,7 +394,7 @@ io.on('connection', async client => {
           client.emit("token_ok",new_token)
         }catch(err){
           console.log(err)
-          if('response' in err && 'status' in response.err){
+          if('response' in err && 'status' in err.response){
             if(err.response.status == 500){
               client.emit("token_error",err.response.data)
             }
@@ -616,7 +616,7 @@ io.on('connection', async client => {
               console.log("TURN TIMEOUT FOR GAME " + lobby_id)
             },process.env.TIMEOUT))
           }catch(err){
-            if('response' in err && 'status' in response.err){
+            if('response' in err && 'status' in err.response){
               if(err.response.status == 500){
                 client.emit("server_error",err.response.data)
               }
@@ -723,7 +723,7 @@ io.on('connection', async client => {
                   client.emit("server_error",{message:"Something wrong while updating points."})
                 }
               }catch(err){
-                if('response' in err && 'status' in response.err){
+                if('response' in err && 'status' in err.response){
                   if(err.response.status == 500){
                     client.emit("server_error",err.response.data)
                   }
@@ -732,7 +732,7 @@ io.on('connection', async client => {
               }
             }
           }catch(err){
-            if('response' in err && 'status' in response.err){
+            if('response' in err && 'status' in err.response){
               if(err.response.status == 400){
                 client.emit("client_error",err.response.data)
               }
@@ -780,7 +780,7 @@ io.on('connection', async client => {
           console.log(io.sockets.adapter.rooms.get(lobby_id))
           io.sockets.adapter.rooms.get(lobby_id).clear()
         }catch(err){
-          if('response' in err && 'status' in response.err){
+          if('response' in err && 'status' in err.response){
             if(err.response.status == 500){
               client.emit("server_error",err.response.data)
             }
@@ -811,7 +811,7 @@ io.on('connection', async client => {
             let {data:result} = await axios.put(game_service+"/game/tieGame",{game_id: lobby_id})
             io.to(lobby_id).emit("tie_game",result)
           }catch(err){
-            if('response' in err && 'status' in response.err){
+            if('response' in err && 'status' in err.response){
               if(err.response.status == 500){
                 client.emit("server_error",err.response.data)
               }
@@ -838,7 +838,7 @@ io.on('connection', async client => {
           let history = await axios.get(game_service+"/game/history",{game_id : lobby_id})
           client.emit("game_history",history)
         }catch(err){
-          if('response' in err && 'status' in response.err){
+          if('response' in err && 'status' in err.response){
             if(err.response.status == 500){
               client.emit("server_error",err.response.data)
             }
@@ -917,7 +917,7 @@ io.on('connection', async client => {
           client.emit("user_profile",user_profile)
         }
       }catch(err){
-        if('response' in err && 'status' in response.err){
+        if('response' in err && 'status' in err.response){
           if(err.response.status == 500 ){
             client.emit("server_error",err.response.data)
           }else if(err.response.status == 404){
