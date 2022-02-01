@@ -17,7 +17,7 @@ export default createStore({
     in_game: false,
     authenticated:false
   },
-  getters:{
+    getters:{
     is_authenticated: state =>  state.authenticated,
     is_in_game: state => state.in_game,
     user: state => state.user

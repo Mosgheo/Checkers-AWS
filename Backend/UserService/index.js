@@ -27,6 +27,6 @@ app.use(express.urlencoded({limit: '50mb',extended: true}));
 app.use("/", require("./routes/index.js"))
 
 const PORT = process.env.PORT
-app.listen(PORT, function () {
+module.exports = app.listen(PORT, function () {
     console.log('UserService started on port ' + PORT)
 })

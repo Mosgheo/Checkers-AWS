@@ -5,7 +5,10 @@ const email_validator = require("email-validator");
 let passwordValidator = require('password-validator');
 const fs = require('fs');
 
-//Rules for a "safe" psw
+const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
+    modulusLength: 2048,
+  });
+
 const password_validator = new passwordValidator()
     .is().min(8)
     .is().max(100)
@@ -53,7 +56,7 @@ function salt_function(psw,salt){
 exports.signup = async function(req,res){
     console.log("someone is signing up")
 	const username = req.body.username;
-	const email = req.body.email;
+	const email = req.body.mail;
 	const password = req.body.password;
     const first_name = req.body.first_name;
     const last_name = req.body.last_name;
@@ -82,6 +85,7 @@ exports.signup = async function(req,res){
                 last_name: last_name,
                 wins: 0,
                 losses: 0,
+                ties:0,
                 avatar: "",
                 mail: email,
                 password: hash_psw,
@@ -95,6 +99,7 @@ exports.signup = async function(req,res){
                 res.status(200).send({message:"Sign up completed successfully."})
             }
         }else{
+            console.log("FOUND")
             res.status(400).send({message:"An existing account has already been associated with this email."})
         }
     }
@@ -104,7 +109,7 @@ exports.signup = async function(req,res){
 exports.login = async function(req,res){
     const email = req.body.mail
     const password = req.body.password
-    console.log(password)
+    console.log("psw" +password)
     if(email.trim() === "" || password.trim() === ""){
         res.status(400).send({message: "Login parameters can't have empty values"})
     }else{
@@ -301,6 +306,9 @@ exports.getLeaderboard = async function(_,res){
     try{
         const users = await User.find({},'username avatar stars wins losses ties').sort({ stars: 'desc'})
         if(users != null){ 
+            users.map(user =>{
+                user.avatar = user.avatar == "" ? "https://picsum.photos/id/1005/400/250" : user.avatar
+            })
             res.status(200).json(users);
         }else{
             res.status(200).send({message: "There is no one in the leaderboard."})
@@ -317,6 +325,7 @@ exports.updatePoints = async function(req,res){
     const won = req.body.won
     const single_match = 1
     const tied = req.body.tied
+    const user_stars = await User.findOne({"mail":mail})
     let user = null
     try{
         if(tied){
@@ -325,11 +334,15 @@ exports.updatePoints = async function(req,res){
             if(won){
                 user = await User.findOneAndUpdate({"mail":mail},{$inc: {wins:single_match,stars:stars}})
            }else{
+               if(user_stars.stars-Math.abs(parseInt(stars)) < 0){
+                user = await User.findOneAndUpdate({"mail":mail},{$inc: {ties:single_match,stars:-user_stars.stars}})
+               }else{
                 user = await User.findOneAndUpdate({"mail":mail},{$inc: {stars:stars,losses:single_match}})
+               }
            }
         }
         if(user != null){
-            console.log("user updated "+user )
+            console.log("user "+mail+" updated ")
             res.status(200).json({
                 username: user.username,
                 first_name: user.first_name,

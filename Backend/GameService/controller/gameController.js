@@ -1,7 +1,7 @@
 
 const Game = require('../models/gameModel')
 const Draughts = require('./draughts')
-
+const crypto = require('crypto');
 let games = new Map(); // {game_id -> game}
      /*      game: {
                 white: "",
@@ -61,9 +61,10 @@ async function saveGame(game_id) {
  * @returns true if game was terminated correctly and successfully saved into DB, false otherwise.
  */
 async function gameEnd(game_id,tie,winner,loser){
+    console.log("HELLO I?M GAME END")
+    console.log(winner)
+    console.log("HE LOST "+loser)
     let game = games.get(game_id)
-    game.winner = winner
-    game.loser = loser
     try{
         if(!tie){
             const match = new Game({
@@ -79,7 +80,7 @@ async function gameEnd(game_id,tie,winner,loser){
                 fen: game.draughts.fen(),
                 history:getHistory(game_id),
                 winner: "Game has been settled with a tie.",
-                loser: game.loser
+                loser: "Game has been settled with a tie."
             })
             await match.save()
             games.delete(game_id)
@@ -112,8 +113,9 @@ exports.tieGame = function(req,res){
  * Returns all games played by a user.
  */
 exports.user_history = async function(req,res){
-    console.log("hello i'm here")
+
     const mail = req.query.mail
+    console.log("History mail "+mail)
     try{
         res.status(200).json(await Game.find({$or:[{'winner':mail},{'loser':mail}]}))
     }catch(err){
@@ -125,22 +127,32 @@ exports.user_history = async function(req,res){
  * Handles user leaving a game
  */
 exports.leaveGame = async function(req,res){
+    console.log("IVE FINALLY BEEN REQUESTED FFS")
     let game_id = req.body.game_id
     let quitter = req.body.player_id
+    console.log("hello game "+game_id)
+    console.log("quitter"+quitter)
     try{
         if(games.has(game_id)){
+            console.log("yee we got a game")
             let game = games.get(game_id)
             if(game.white === quitter){
-                await gameEnd(game_id,false,gameInstance.black,gameInstance.white)
+                console.log("Host is leaving")
+                await gameEnd(game_id,false,game.black,game.white)
             }else{
-                await gameEnd(game_id,false,gameInstance.white,gameInstance.black)
+                console.log("Opponent is leaving")
+                await gameEnd(game_id,false,game.white,game.black)
             }
+        }else{
+            console.log("wtf is wrong w/this")
         }
         let data = []
         data.push( "You successfully left the game!\n "+process.env.LOSS_STARS+" stars have been removed from your profile!");
         data.push( "The opponent has left the game!\n "+process.env.WIN_STARS+" stars have been added to your profile")
         res.status(200).send(data)
     }catch(err){
+        console.log("SOEMTHING WERNT WROOOONG")
+        console.log(err)
         res.status(500).send({message:"Internal server error while leaving game"})
     }
 
@@ -272,7 +284,6 @@ function parseFEN(game_id) {
     let black_pieces_with_moves = new Map()
     for (let i = 0; i < black_pieces.length; i++) {
         let piece = black_pieces[i]
-        console.log("Asked moves for black piece "+piece)
         if(piece !== "" && piece !== null){
             if(piece.charAt(0) === "K"){
                 console.log("found a king")

@@ -13,7 +13,7 @@ const invitations = new Map() // {host_id -> Set[opponent_id]}
 const invitation_timeouts = new Map() // {host_id -> {opponent_id -> timeout}}
 
 const game_service = process.env.GAME_SERVICE
-const user_service =process.env.USER_SERVICE
+const user_service = process.env.USER_SERVICE
 
 let current_id = 0;
 let free_ids = []
@@ -263,33 +263,46 @@ async function updatePoints(winner,points1,loser,points2,tied=false){
  */
 async function handle_disconnection(player){
   const client_id = online_users.getKey(player)
+  //Player isn't in a lobby
   if(!isInLobby(player)){
     console.log(player + "just disconnected but wasn't in lobby")
     online_users.delete(client_id)
   }else{
+    //player is in a lobby
     const lobby = Array.from(lobbies.values()).filter(lobby => lobby.hasPlayer(player))[0]
     let lobby_id = lobbies.getKey(lobby)
     console.log(player + "from lobby" + lobby_id + " is  trying to disconnect")
+    //Lobby is free
     if(lobby.isFree()){
       console.log(online_users.get(client_id)+" just disconnected and his lobby has been deleted")
       lobbies.delete(lobby_id)
       online_users.delete(client_id)
       
     }else{
+      //Lobby is full and a game is on
       try{
         let opponent = ""
+        const winner = ""
+        const loser = ""
         //Player disconnecting is the host
         if(lobby.getPlayers(0) == player){
-          const {data:game_end} = await axios.post(game_service+"/game/deleteGame",{game_id:lobby_id,winner:lobby.getPlayers(1),forfeiter:lobby.getPlayers(0)})
-          opponent = lobby.getPlayers(1)
+           winner = lobby.getPlayers(1)
+           loser = player
+           opponent = winner
+          const {data:game_end} = await axios.post(game_service+"/game/leaveGame",{game_id:lobby_id,winner:lobby.getPlayers(1),forfeiter:lobby.getPlayers(0)})
+
           io.to(lobby_id).emit("player_left",game_end)
           console.log(player +" is disconnecting and is the host of lobby "+lobby_id+", deleting game")
         }
         else{
+           winner = player
+           loser = lobby.getPlayers(1)
+
+          //Player disconnecting is the guest
           console.log(player +" is in lobby "+lobby_id+" but isn't host, deleting game")
-          const {data:game_end} = await axios.post(game_service+"/game/deleteGame",{game_id:lobby_id,winner:lobby.getPlayers(0),forfeiter:lobby.getPlayers(1)})
+          const {data:game_end} = await axios.post(game_service+"/game/leaveGame",{game_id:lobby_id,winner:lobby.getPlayers(0),forfeiter:lobby.getPlayers(1)})
           io.to(lobby_id).emit("player_left",game_end)
-          opponent = lobby.getPlayers(0)
+          opponent = loser
         }
 
         const updated_users = await updatePoints(opponent,process.env.WIN_STARS,player,process.env.LOSS_STARS)
@@ -363,7 +376,7 @@ io.on('connection', async client => {
       let {data:new_user} = await axios.post(user_service+"/signup",{
           first_name: first_name,
           last_name: last_name,
-          email: mail,
+          mail: mail,
           password: password,
           username: username
         })
@@ -764,7 +777,9 @@ io.on('connection', async client => {
         try{
           const lobby = lobbies.get(lobby_id)
           const winner = lobby.getPlayers().filter(p => p !== player).shift()
-          result = await axios.delete(game_service+"/game/leaveGame",{game_id: lobby_id, player_id: player})
+          console.log("DELETING GAME DIO CANE")
+          console.log("lobby_id "+lobby_id)
+          result = await axios.delete(game_service+"/game/leaveGame",{data:{game_id: lobby_id, player_id: player}})
           const updated_users = await updatePoints(winner,process.env.WIN_STARS,player,process.env.LOSS_STARS)
           result = result.data
           client.emit("left_game",{
@@ -826,10 +841,10 @@ io.on('connection', async client => {
       client.emit("token_error",user[1])
     }
   })
-*/
+ */
   /**
    * A client requested this game moves history
-   */
+   *
   client.on('game_history',async(lobby_id,token)=>{
     const user = await user_authenticated(token,client.id)
     if(user[0]){
@@ -852,7 +867,7 @@ io.on('connection', async client => {
       client.emit("token_error",user)
     }
   })
-
+*/
   /**
    *  * * * * * *
    * CHAT HANDLING
@@ -988,40 +1003,15 @@ io.on('connection', async client => {
           mail:user_id
         }
       })
+      //Getting opponents profile for every game this user has played
       for( const game  of user_history) {
-        let winner_profile = ""
-        let loser_profile = ""
+        //If  !already requested this user profile
         if(!users_avatar.has(game.winner)){
-          try{
-            winner_profile = await axios.get(user_service+"/profile/getProfile",              
-            {params:
-              {
-                mail:game.winner
-              }
-            })
-          }catch(err){
-            console.log(err)
-            console.log("Something went wrong while requesting avatar for user history")
-          }
-          users_avatar.set(game.winner,{
-            avatar: winner_profile.data.avatar,
-            username:winner_profile.data.username})
+          users_avatar.set(game.winner,await request_history_profile(game.winner))
         }
+        //If  !already requested this user profile
         if(!users_avatar.has(game.loser)){
-          try{
-            loser_profile = await axios.get(user_service+"/profile/getProfile",              
-            {params:
-              {
-                mail:game.loser
-              }
-            })
-          }catch(err){
-            console.log("Something went wrong while requesting avatar for user history")
-          }
-          users_avatar.set(game.loser,{
-             avatar:loser_profile.data.avatar,
-             username:loser_profile.data.username
-            })
+          users_avatar.set(game.loser,await request_history_profile(game.loser))
         }
         data.push({
           winner: {
@@ -1048,4 +1038,30 @@ io.on('connection', async client => {
     }
   })
 });
-} 
+
+
+async function request_history_profile(user_mail){
+  let profile = ""
+  try{
+    profile = await axios.get(user_service+"/profile/getProfile",              
+    {params:
+      {
+        mail:user_mail
+      }
+    })
+  }catch(err){
+    console.log(err)
+    console.log("Something went wrong while requesting avatar for user history")
+  }
+  if(profile != ""){
+    return   {
+      avatar: (profile.data.avatar == "" ? "https://picsum.photos/id/1005/400/250" : profile.data.avatar),
+      username: profile.data.username
+    }
+  }else{
+    return {
+      avatar: "https://picsum.photos/id/1005/400/250",
+      username: "Deleted User"}
+    }
+  }
+}
