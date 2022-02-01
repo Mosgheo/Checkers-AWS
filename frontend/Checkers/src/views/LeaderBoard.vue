@@ -25,7 +25,7 @@
               <div class="flex items-center space-x-3">
                 <div class="avatar">
                   <div class="w-12 h-12 mask mask-squircle">
-                    <img src="https://picsum.photos/id/1005/400/250" alt="Avatar Tailwind CSS Component">
+                    <img v-bind:src=user.avatar alt="Avatar Tailwind CSS Component">
                   </div>
                 </div> 
                 <div>
