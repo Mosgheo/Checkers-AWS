@@ -359,7 +359,6 @@ io.on('connection', async client => {
         client.emit("login_ok",user)
       }catch(err){
         console.log(err)
-        console.log("RESPONSE "+err.response)
         if('response' in err && 'status' in err.response){
           if(err.response.status == 400){
             client.emit("login_error",err.response.data)
