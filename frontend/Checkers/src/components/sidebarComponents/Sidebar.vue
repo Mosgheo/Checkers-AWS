@@ -5,7 +5,17 @@
       <img src="@/assets/logo.png" class="mask w-40 h-40 my-5 ml-5 mask-squircle"/>
     </router-link>
 
-    <SidebarLink class="barMenu pl-1.5" to="" icon="fas fa-bars"></SidebarLink>
+    <div class="dropdown mt-5">
+      <SidebarLink class="barMenu pl-1.5" to="" icon="fas fa-bars"></SidebarLink>
+      <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
+        <li>
+          <SidebarLink class="w-44 profile-drop mb-3 pl-0.5" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
+        </li> 
+        <li>
+          <SidebarLink class="leaderboard-drop w-44 mb-3 pl-0.5" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
+        </li>
+      </ul>
+    </div>
     <SidebarLink class="w-44 home mb-3 pl-0.5" to="/" icon="fas fa-home">Home</SidebarLink>
     <SidebarLink class="w-44 profile mb-3 pl-0.5" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
     <SidebarLink class="leaderboard w-44 mb-3 pl-0.5" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
@@ -115,6 +125,7 @@ export default {
   }
   .home, .profile, .leaderboard {
     margin: 0;
+    margin-top: 0.5rem;
   }
 }
 

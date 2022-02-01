@@ -17,10 +17,10 @@ export default createStore({
     in_game: false,
     authenticated:false
   },
-    getters:{
-    is_authenticated: state =>  state.authenticated,
-    is_in_game: state => state.in_game,
-    user: state => state.user
+  getters: {
+  is_authenticated: state =>  state.authenticated,
+  is_in_game: state => state.in_game,
+  user: state => state.user
   },
   mutations: {
     setToken(state, token) {
