@@ -1,9 +1,9 @@
 <template>
-<div class="flex flex-col justify-center px-32 py-14">
+<div class="main-div flex flex-col justify-center px-32 py-14">
   <div class="mb-10">
     <h1 class="font-bold text-3xl">Classifica globale</h1>
   </div>
-  <div class="leaderboard overflow-hidden">
+  <div class="leaderboard overflow-x-auto">
     <table class="table table-compact w-full shadow">
 
       <thead>
@@ -136,5 +136,12 @@ export default {
 button {
   color: white;
   background-color: #1F1E1E;
+}
+
+@media only screen and (max-width: 900px) {
+  .main-div {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
 }
 </style>

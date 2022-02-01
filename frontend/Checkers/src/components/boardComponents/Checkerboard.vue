@@ -333,5 +333,11 @@ export default {
   max-width: 53.9em;
   min-width: 450px;
 }
+
+@media only screen and (max-width: 500px) {
+  .grid {
+    min-width: 425px;
+  }
+}
 </style>
  

@@ -114,9 +114,22 @@ export default {
 .centralSpace {
   background-color: #343232;
 }
-@media (max-width: 1700px) {
+@media only screen and (max-width: 1700px) {
   .chat {
     margin-left: 2em;
+  }
+}
+@media only screen and (max-width: 650px) {
+  .centralSpace {
+    flex-direction: column;
+    padding-left: 1.3rem;
+  }
+  .chat {
+    margin-top: 1rem;
+    margin-left: 0;
+  }
+  .board {
+    max-width: 30rem;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col form-control">
+    <div class="chat-div flex flex-col form-control">
         <textarea class="chat textarea textarea-bordered" placeholder="Chat di gioco"></textarea>
         <textarea class="message textarea textarea-bordered normal-case" v-on:keyup.enter="onEnter()" placeholder="Type here..."></textarea>
     </div>
@@ -76,6 +76,19 @@ textarea {
 @media (max-width: 900px) {
     textarea {
         width: 10em;
+    }
+}
+@media only screen and (max-width: 650px) {
+    .chat-div {
+        flex-direction: row;
+    }
+    .message {
+        margin-left: 1rem;
+        margin-top: 0;
+        min-width: 10rem;
+    }
+    .chat {
+        min-width: 15rem;
     }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="main-div flex flex-row items-center justify-center centralSpace px-28 py-7">
+  <div class="main-div flex flex-row items-center justify-center centralSpace px-28 py-5">
 
     <img src="@/assets/checkers.png" class="main-logo self-center mask min-w-fit min-h-fit w-7/12 h-7/12 mask-square">
 
@@ -51,11 +51,11 @@
     </div>
 
     <div class="dropdown mt-10">
-      <div tabindex="0" @click="buttonClick" class="flex flex-column btn h-24">
+      <div tabindex="0" @click="buttonClick" class="flex flex-nowrap flex-column btn h-24">
         <figure>
-          <img src="@/assets/logo.png" class="self-center mask w-20 h-20 mask-square">
+          <img src="@/assets/logo.png" class="checkers-img self-center mask w-20 h-20 mask-square">
         </figure> 
-        <h1 class="font-bold text-2xl">Gioca a Checkers</h1>
+        <h1 class="play-checkers font-bold text-2xl">Gioca a Checkers</h1>
       </div> 
       <ul tabindex="0" class="p-2 menu dropdown-content bg-base-100 rounded-box w-52">
         <li class="mt-3">
@@ -173,8 +173,8 @@ export default {
 
 <style scoped>
 .main-logo {
-  min-width: 25rem;
-  min-height: 25rem;
+  min-width: 35rem;
+  min-height: 35rem;
 }
 .rightMenu {
   min-width: 250px;
@@ -211,6 +211,13 @@ export default {
   .main-logo {
     min-width: 30rem;
     min-height: 30rem;
+  }
+  .play-checkers {
+    margin-left: 0.8rem;
+  }
+  .checkers-img {
+    min-width: 5rem;
+    min-height: 5rem;
   }
 }
 </style>
