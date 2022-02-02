@@ -560,7 +560,7 @@ io.on('connection', async client => {
         invitation_timeouts.get(user_mail).set(opponent_mail,setTimeout(function(){
           io.to(opponent_id).emit("invitation_timeout",user_mail)
   
-          clearTimeout(invitation_timeouts.get(user_mail).get(opp_mail))
+          clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
           invitation_timeouts.get(user_mail).delete(opponent_mail)
         },process.env.TIMEOUT))
       }else{
@@ -568,7 +568,7 @@ io.on('connection', async client => {
 
           io.to(opponent_id).emit("invitation_timeout",user_mail)
   
-          clearTimeout(invitation_timeouts.get(user_mail).get(opp_mail))
+          clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
           invitation_timeouts.get(user_mail).delete(opponent_mail)
         },process.env.TIMEOUT)))
       }

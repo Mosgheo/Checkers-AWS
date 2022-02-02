@@ -130,9 +130,18 @@ export default {
     },
     permit_error(error) {
       console.log(error)
+      messageNotification[0].innerHTML = "You don't have the permissions"
+      modalNotification[0].className = "modal modal-notification modal-open"
     },
     server_error(error) {
       console.log(error)
+      messageNotification[0].innerHTML = "There is some server-side problem, please try again soon "
+      modalNotification[0].className = "modal modal-notification modal-open"
+    },
+    client_error(error) {
+      console.log(error)
+      messageNotification[0].innerHTML = "Your token expired, please log-in again"
+      modalNotification[0].className = "modal modal-notification modal-open"
     },
     lobby_deleted(msg) {
       console.log(msg)
@@ -160,6 +169,15 @@ export default {
     invitation_expired(msg) {
       this.invitation_expired = true
       console.log(msg)
+      messageNotification[0].innerHTML = msg.message
+      modalNotification[0].className = "modal modal-notification modal-open"
+    },
+    invitation_timeout(res) {
+      this.invitation_expired = true
+      messageNotification[0].innerHTML = "Your invitation has expired"
+      modalNotification[0].className = "modal modal-notification modal-open"
+    },
+    invite_error(msg) {
       messageNotification[0].innerHTML = msg.message
       modalNotification[0].className = "modal modal-notification modal-open"
     }

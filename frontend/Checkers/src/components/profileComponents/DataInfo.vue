@@ -69,6 +69,12 @@ export default {
   setup() {
     user = store.getters.user
   },
+  /*data() {
+    api.get_profile(this.$socket)
+    return {
+
+    }
+  },*/
   computed: {
     getUsername() {
       if(user.username !== "") {
@@ -83,14 +89,14 @@ export default {
       return "info@site.com"
     },
     getFirstName(){
-      if(user.first_name == ""){
+      if(user.first_name === ""){
         return "Nome"
       }else{
         return user.first_name
       }
     },
     getLastName(){
-      if(user.last_name == ""){
+      if(user.last_name === ""){
         return "Cognome"
       }else{
         return user.last_name
@@ -159,6 +165,9 @@ export default {
       msg[0].textContent = "Update successful"
       update_modal[0].setAttribute("class", "update-modal modal modal-open")
       store.commit('setUser',user)
+    },
+    user_profile(res) {
+      console.log(res)
     }
   }
 }

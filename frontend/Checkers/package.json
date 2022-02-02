@@ -10,10 +10,12 @@
   "dependencies": {
     "@babel/eslint-parser": "^7.16.5",
     "@fortawesome/fontawesome-free": "^5.15.3",
+    "@vue/cli-service": "^4.5.15",
     "core-js": "^3.6.5",
     "daisyui": "^1.16.0",
     "sass-loader": "^12.2.0",
     "socket.io-client": "^4.4.0",
+    "toasty": "^6.0.3",
     "vue": "^3.2.20",
     "vue-3-socket.io": "^1.0.4",
     "vue-router": "^4.0.11",
