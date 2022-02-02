@@ -1,7 +1,7 @@
 
 const Game = require('../models/gameModel')
 const Draughts = require('./draughts')
-const crypto = require('crypto');
+
 let games = new Map(); // {game_id -> game}
      /*      game: {
                 white: "",
@@ -41,7 +41,7 @@ function winCheck(game_id){
 }
 /** to be called when something goes wrong and someone crashes,
  * need to stop the game and save its state
- */
+ *
 async function saveGame(game_id) {
     let game = games.get(game_id).draughts
     history = game.history();
@@ -51,7 +51,7 @@ async function saveGame(game_id) {
             history:game_history,
             fen:fen}})
     
-}
+}*/
 /**
  * Handles a game end.
  * @param {*} game_id  game that just ended
@@ -67,9 +67,9 @@ async function gameEnd(game_id,tie,winner,loser){
     let game = games.get(game_id)
     try{
         if(!tie){
+            console.log("game didn't tie")
             const match = new Game({
                 fen: game.draughts.fen(),
-                history:getHistory(game_id),
                 winner: winner,
                 loser: loser 
             })
@@ -78,7 +78,6 @@ async function gameEnd(game_id,tie,winner,loser){
         }else{
             const match = new Game({
                 fen: game.draughts.fen(),
-                history:getHistory(game_id),
                 winner: "Game has been settled with a tie.",
                 loser: "Game has been settled with a tie."
             })
@@ -91,13 +90,6 @@ async function gameEnd(game_id,tie,winner,loser){
         return false
     }
 
-}
-/**
- * 
- * @param {*} game_id to get history of
- */
-function getHistory(game_id){
-   return games.get(game_id).draughts.getHistory({verbose:true});
 }
 
 exports.tieGame = function(req,res){
@@ -157,9 +149,19 @@ exports.leaveGame = async function(req,res){
     }
 
 }
+exports.turnChange = function(req,res){
+    const game_id = req.body.game_id
+    console.log(game_id)
+    if(games.has(game_id)){
+        games.get(game_id).draughts.change_turn()
+        res.status(200).json()
+    }else{
+        res.status(400).json({message:"No such game"})
+    }
+}
 /**
  * 
- */
+ *
 exports.deleteGame = async function(req,res){
     const game_id = req.body.game_id
     const forfeiter = req.body.forfeiter
@@ -170,7 +172,7 @@ exports.deleteGame = async function(req,res){
     }else{
         res.status(500).send({message: "Something went wrong while closing the game."})
     }
-}
+}*/
 
 /**
  * A user moves a piece inside the board
@@ -181,7 +183,6 @@ exports.movePiece = function(req,res){
         res.status(400).send({message: "Can't find such game"})
     }else{
         let game = games.get(game_id).draughts
-        console.log(parseFEN(game_id))
         if(game.move({from: req.body.from, to: req.body.to }) != false){
             let data = parseFEN(game_id)
             console.log(req.body.from+"-"+req.body.to)

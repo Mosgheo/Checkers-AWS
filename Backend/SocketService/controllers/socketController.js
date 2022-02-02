@@ -211,11 +211,12 @@ async function get_lobbies(user_stars){
  * 
  * @param {*} lobby_id  ID of lobby which turn needs to be changed
  */
-function change_turn(lobby_id){
+async function change_turn(lobby_id){
   console.log("Changing turns for game "+lobby_id)
+  await axios.put(game_service+"/game/turnChange",{game_id:lobby_id})
   let lobby = lobbies.get(lobby_id)
   let late_player = lobby.turn
-  let next_player = lobby.getPlayers().filter(player => player !== late_player)[0]
+  let next_player = lobby.getPlayers().filter(player => player != late_player)[0]
   lobbies.get(lobby_id).turn = next_player 
   clearTimeout(turn_timeouts.get(lobby_id))
   turn_timeouts.set(lobby_id, setTimeout(function () {
@@ -482,8 +483,8 @@ io.on('connection', async client => {
             let game = await setupGame(lobby_id,host,opponent)
             if(game.length > 0){
               io.to(lobby_id).emit("game_started",game)
-              turn_timeouts.set(lobby_id, setTimeout(function(){
-                change_turn(lobby_id)
+              turn_timeouts.set(lobby_id, setTimeout(async()=>{
+                await change_turn(lobby_id)
                 console.log("TURN TIMEOUT FOR GAME " + lobby_id)
               },process.env.TIMEOUT))
               console.log("Timeout set for game" + lobby_id)
@@ -546,7 +547,8 @@ io.on('connection', async client => {
     //THIS WON't WORK
     && lobby_list.filter(lobby => {
         lobby.hasPlayer(opponent_mail)
-      }).length == 0)
+      }).length == 0
+    && opponent_mail != user_mail)
     {
       const opponent_id = online_users.getKey(opponent_mail)
       io.to(opponent_id).emit("lobby_invitation",user_mail)
@@ -556,20 +558,28 @@ io.on('connection', async client => {
         invitations.set(user_mail,new Set().add(opponent_mail))
       }
 
+      //If such player already exists in invitation_timeouts map
       if(invitation_timeouts.has(user_mail)){
         invitation_timeouts.get(user_mail).set(opponent_mail,setTimeout(function(){
+          //Inform both players that the invite has timed out
           io.to(opponent_id).emit("invitation_timeout",user_mail)
-  
-          clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
+          client.emit("invitation_timeout",user_mail)
+          //Clear the timeout associated to such invite
+          clearTimeout(invitation_timeouts.get(user_mail).get(opp_mail))
           invitation_timeouts.get(user_mail).delete(opponent_mail)
+          //Clear invitation
+          invitations.get(user_mail).delete(opponent_mail)
         },process.env.TIMEOUT))
       }else{
         invitation_timeouts.set(user_mail,new Map().set(opponent_mail,setTimeout(function(){
-
-          io.to(opponent_id).emit("invitation_timeout",user_mail)
-  
-          clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
-          invitation_timeouts.get(user_mail).delete(opponent_mail)
+        //Inform both players that the invite has timed out
+        io.to(opponent_id).emit("invitation_timeout",user_mail)
+        client.emit("invitation_timeout",user_mail)
+        //Clear the timeout associated to such invite
+        clearTimeout(invitation_timeouts.get(user_mail).get(opp_mail))
+        invitation_timeouts.get(user_mail).delete(opponent_mail)
+        //Clear invitation
+        invitations.get(user_mail).delete(opponent_mail)
         },process.env.TIMEOUT)))
       }
     }else{
@@ -624,7 +634,7 @@ io.on('connection', async client => {
             clearTimeout(invitation_timeouts.get(opp_mail+user_mail))
             invitation_timeouts.delete(opp_mail+user_mail)
 
-            turn_timeouts.set(lobby_id, setTimeout(function(){
+            turn_timeouts.set(lobby_id, setTimeout(async ()=>{
               change_turn(lobby_id)
               console.log("TURN TIMEOUT FOR GAME " + lobby_id)
             },process.env.TIMEOUT))
@@ -710,7 +720,7 @@ io.on('connection', async client => {
               }else{
                 //No one won and the game isn't tied, the show must go on
                 io.to(lobby_id).emit("update_board",move_result.board)
-                change_turn(lobby_id)
+                await change_turn(lobby_id)
               }
             }else{
               //we have a winner!
@@ -920,7 +930,7 @@ io.on('connection', async client => {
     if(user[0]){
       let user_id = online_users.get(client.id)
       try{
-        let user_profile = await axios.get(user_service+"/profile/getProfile",              
+        let {data:user_profile} = await axios.get(user_service+"/profile/getProfile",              
         {params:
           {
             mail:user_id

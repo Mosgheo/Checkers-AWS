@@ -62,7 +62,9 @@ module.exports = class Draughts{
     reset () {
         this.load(this.DEFAULT_FEN)
     }
-    
+    change_turn(){
+      this.turn = this.swap_color(this.turn)
+    }
     load(fen) {
         // TODO for default fen
         if (!fen || fen === this.DEFAULT_FEN) {
@@ -811,17 +813,22 @@ module.exports = class Draughts{
     }
     move(move) {
         if (typeof move.to === 'undefined' && typeof move.from === 'undefined') {
+          console.log("HAHAHAHAH UNDEDFINED MOVE")
           return false
         }
+        console.log(JSON.stringify(move))
         move.to = parseInt(move.to, 10)
         move.from = parseInt(move.from, 10)
         var moves = this.generate_moves()
+        console.log("all moves "+JSON.stringify(moves))
         for (var i = 0; i < moves.length; i++) {
           if ((move.to === moves[i].to) && (move.from === moves[i].from)) {
+            console.log("I'M INSIDEEE")
             this.makeMove(moves[i])
             return moves[i]
           }
         }
+        console.log("ITS FALSE FUCKER")
         return false
       }
 }

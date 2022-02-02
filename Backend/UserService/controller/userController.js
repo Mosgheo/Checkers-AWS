@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const email_validator = require("email-validator");
 let passwordValidator = require('password-validator');
 const fs = require('fs');
+const _ = require('lodash');
 
 const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
     modulusLength: 2048,
@@ -210,12 +211,12 @@ exports.getProfile = async function(req,res){
     try {
         const data = await User.findOne({mail:mail},'username avatar first_name last_name stars mail').lean()
         if(data === null){
-            res.status(404).json({error: "Cannot find any player with such ID"})
+            res.status(400).json({error: "Cannot find any player with such ID"})
         }else{
             console.log("profile sent")
             res.json({
                 username: data.username,
-                avatar: data.avatar,
+                avatar: data.avatar == "" ? "https://picsum.photos/id/1005/400/250" : data.avatar ,
                 first_name: data.first_name,
                 last_name: data.last_name,
                 stars: data.stars,
@@ -246,59 +247,39 @@ exports.getHistory = async function(req,res){
 
 exports.updateProfile = async function(req,res){
     //NOT SURE ABOUT THEESE
+
     const user_mail = req.body.mail
-    const name = req.body.params.first_name
-    const surname = req.body.params.last_name
-    const username = req.body.params.username
     const mail = req.body.params.mail
-    const avatar = req.body.params.avatar
-    if(mail === user_mail){
+    console.log("request mail "+mail)
+    console.log("mail "+user_mail)
+    if(mail == user_mail){
         console.log("Updating but not mail")
         try{
+            let new_values = {
+                first_name : req.body.params.first_name,
+                last_name : req.body.params.last_name,
+                username : req.body.params.username,
+                avatar: req.body.params.avatar
+            }
+            new_values = _.pickBy(new_values, _.identity);
             new_user = await User.findOneAndUpdate({"mail": user_mail},
-        { $set:{
-            username : username,
-            first_name : name,
-            last_name : surname,
-            avatar:avatar
-        }})
+        { $set:new_values})
+        console.log("I DID IT")
             res.status(200).json({
                 username: new_user.username,
-                first_name: new_user.first_name,
+                first_name: new_user.first_name, 
                 last_name: new_user.last_name,
                 mail: new_user.mail,
                 stars:new_user.stars,
                 avatar:new_user.avatar
             })
         }catch(err){
+            console.log("hello dio cane")
             console.log(err)
             res.status(400).send({message: "Something went wrong while updating a user, please try again"})
         }
     }else{
-        console.log("Updating even mail")
-        const email = await User.find({mail:user_mail},'username first_name last_name mail stars avatar')
-        if(email === null){
-            if(new_user = await User.findOneAndUpdate({"mail": user_mail},
-            { $set:{
-                username : username,
-                first_name : name,
-                last_surname : surname,
-                avatar:avatar
-            }})){
-                res.status(200).json({
-                    username: new_user.username,
-                    first_name: new_user.first_name,
-                    last_name: new_user.last_name,
-                    mail: new_user.mail,
-                    stars:new_user.stars,
-                    avatar:new_user.avatar
-                })
-            }else{
-                res.status(400).send({message: "Something went wrong while updating a user, please try again"})
-            }
-        }else{
-            res.status(500).json({error: "Email already in use"})
-        }
+            res.status(400).json({message: "You can't change the email associated to an account."})
     }
 }
 //WILL THIS WORK?
@@ -352,6 +333,8 @@ exports.updatePoints = async function(req,res){
                 losses:user.losses,
                 stars:user.stars
             })
+        }else{
+            res.status(400).send({message:"We weren't able to update points for such user"})
         }
     }catch(err){
         console.log(err)
