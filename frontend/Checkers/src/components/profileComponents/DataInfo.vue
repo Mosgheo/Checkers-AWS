@@ -4,32 +4,34 @@
     <label class="label">
       <span class="font-semibold label-text">Nome utente</span>
     </label> 
-    <input type="text" placeholder="Username" :value="getUsername" class="text-sm username input input-bordered w-screen">
+    <input type="text" placeholder="Username" :value="this.username" class="text-sm username input input-bordered w-screen">
     
     <label class="label mt-3">
       <span class="font-semibold label-text">Nome</span>
     </label> 
-    <input type="text" placeholder="Nome" :value ="getFirstName" class="text-sm first_name input input-bordered w-screen">
+    <input type="text" placeholder="Nome" :value ="this.first_name" class="text-sm first_name input input-bordered w-screen">
 
     <label class="label mt-3">
       <span class="font-semibold label-text">Cognome</span>
     </label> 
-    <input type="text" placeholder="Cognome" :value="getLastName" class="text-sm last_name input input-bordered w-screen">
+    <input type="text" placeholder="Cognome" :value="this.last_name" class="text-sm last_name input input-bordered w-screen">
 
     
     <label class="label mt-3">
       <span class="font-semibold label-text">Email</span>
     </label> 
-    <input type="text" placeholder="info@site.com" :value="getMail" class="text-sm mail input input-bordered w-screen">
+    <input type="text" placeholder="info@site.com" :value="this.mail" class="text-sm mail input input-bordered w-screen">
 
     <label class="label mt-3">
-      <span class="font-semibold label-text">Avatar</span>
-    </label> 
-   <input
-      ref="fileInput"
-      type="file"
-      @input="uploadImage"
-      class="avatarrs">
+      <span class="font-semibold label-text">Cambia Avatar</span>
+    </label>
+    <div>
+      <label for="load-image">
+        <img src="https://icons.iconarchive.com/icons/dtafalonso/android-lollipop/128/Downloads-icon.png"/>
+      </label>
+      <input id="load-image" ref="file-input" type="file" accept="image/png, image/gif, image/jpeg" 
+        @input="uploadImage" >
+    </div>
     <!--<select class="select select-bordered w-full max-w-xs mt-10">
       <option disabled="disabled" selected="selected">Selezione Località</option> 
       <option>Los Angeles</option> 
@@ -69,38 +71,13 @@ export default {
   setup() {
     user = store.getters.user
   },
-  /*data() {
+  data() {
     api.get_profile(this.$socket)
     return {
-
-    }
-  },*/
-  computed: {
-    getUsername() {
-      if(user.username !== "") {
-        return "" + user.username
-      }
-      return "Username"
-    },
-    getMail() {
-      if(user.mail !== "") {
-        return "" + user.mail
-      }
-      return "info@site.com"
-    },
-    getFirstName(){
-      if(user.first_name === ""){
-        return "Nome"
-      }else{
-        return user.first_name
-      }
-    },
-    getLastName(){
-      if(user.last_name === ""){
-        return "Cognome"
-      }else{
-        return user.last_name
-      }
+      first_name: "Nome",
+      last_name: "Cognome",
+      mail: "info@site.com",
+      username: "Username"
     }
   },
   methods:{
@@ -167,7 +144,10 @@ export default {
       store.commit('setUser',user)
     },
     user_profile(res) {
-      console.log(res)
+      this.first_name = res.first_name
+      this.last_name = res.last_name
+      this.mail = res.mail
+      this.username = res.username
     }
   }
 }
@@ -184,9 +164,8 @@ input {
 .select {
   background-color: #343232;
 }
-.avatarss{
-  max-height: 100%; 
-  max-width: 100%;
+#load-image {
+  display: none;
 }
 @media only screen and (max-width: 900px) {
   input {

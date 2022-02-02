@@ -134,7 +134,7 @@ export default {
 <style scoped>
 button {
   color: white;
-  background-color: #1F1E1E;
+  background-color: #343232;
 }
 
 @media only screen and (max-width: 900px) {

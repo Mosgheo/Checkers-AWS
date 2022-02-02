@@ -1,17 +1,17 @@
 <template>
   <div class="profile flex flex-col justify-center items-center px-32 py-8">
     <div class="basic-info card lg:card-side flex flex-row w-9/12 max-w-screen-2xl">
-      <img :src="getAvatar" class="mask mask-square w-60 h-60 p-5">
+      <img :src="this.avatar" class="mask mask-square w-60 h-60 p-5">
       <div class="p-3">
         <div class="flex p-2">
-          <h2 :innerText="getUsername" class="font-semibold text-xl card-title"></h2>
+          <h2 :innerText="this.username" class="font-semibold text-xl card-title"></h2>
           <div class="avatar">
             <div class="ml-1 rounded-btn w-14 h-14">
-              <img :src="getAvatar" class="avatar2">
+              <img :src="this.avatar" class="avatar2">
             </div>
           </div>
         </div> 
-        <p :innerText="getFirstLastName" class="text-lg text-left p-2">Nome Cognome</p> 
+        <p :innerText="this.first_last_name" class="text-lg text-left p-2">Nome Cognome</p> 
       </div>
     </div>
 
@@ -40,7 +40,7 @@
 <script>
 import DataInfo from "@/components/profileComponents/DataInfo";
 import MatchInfo from "@/components/profileComponents/MatchInfo";
-import store from '@/store'
+import api from '@/../api'
 
 var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
 
@@ -53,34 +53,13 @@ export default {
     DataInfo,
     MatchInfo
   },
-  setup() {
-    user = store.getters.user
-  },
   data() {
+    api.get_profile(this.$socket)
     return {
+      avatar: "http://daisyui.com/tailwind-css-component-profile-1@40w.png",
+      first_last_name: "Nome Cognome",
+      username: "Username",
       tabName: "Dati Utente"
-    }
-  },
-  computed: {
-    getUsername() {
-      if(user.username !== "") {
-        return "" + user.username
-      }
-      return "Username"
-    },
-    getFirstLastName() {
-      if(user.first_name == "" && user.last_name == "") {
-        return "Nome Cognome"
-      }else{
-        return "" + user.first_name + " " + user.last_name
-      }
-    },
-    getAvatar(){
-      if(user.avatar === ""){
-        return "http://daisyui.com/tailwind-css-component-profile-1@40w.png"
-       }else{
-        return user.avatar
-       } 
     }
   },
   methods: {
@@ -104,6 +83,13 @@ export default {
         ((document.getElementsByClassName("card-title"))[1]).innerHTML = this.tabName
       }
     },
+  },
+  sockets: {
+    user_profile(res) {
+      this.avatar = res.avatar
+      this.first_last_name = res.first_name + " " + res.last_name
+      this.username = res.username
+    }
   }
 }
 </script>

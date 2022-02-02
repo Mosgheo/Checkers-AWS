@@ -565,7 +565,7 @@ io.on('connection', async client => {
           io.to(opponent_id).emit("invitation_timeout",user_mail)
           client.emit("invitation_timeout",user_mail)
           //Clear the timeout associated to such invite
-          clearTimeout(invitation_timeouts.get(user_mail).get(opp_mail))
+          clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
           invitation_timeouts.get(user_mail).delete(opponent_mail)
           //Clear invitation
           invitations.get(user_mail).delete(opponent_mail)
@@ -576,7 +576,7 @@ io.on('connection', async client => {
         io.to(opponent_id).emit("invitation_timeout",user_mail)
         client.emit("invitation_timeout",user_mail)
         //Clear the timeout associated to such invite
-        clearTimeout(invitation_timeouts.get(user_mail).get(opp_mail))
+        clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
         invitation_timeouts.get(user_mail).delete(opponent_mail)
         //Clear invitation
         invitations.get(user_mail).delete(opponent_mail)

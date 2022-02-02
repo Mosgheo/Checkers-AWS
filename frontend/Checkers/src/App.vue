@@ -148,6 +148,7 @@ export default {
     },
     lobby_invitation(msg) {
       console.log(msg)
+      notification_sound.play()
       for(let i = 0; i < this.invites.length; i++) {
         if(this.invites[i] === msg) {
           this.invites[i] = msg
@@ -155,7 +156,6 @@ export default {
         }
       }
       this.invites.push(msg)
-      notification_sound.play()
     },
     invite_accepted() {
       var component = this
@@ -173,9 +173,16 @@ export default {
       modalNotification[0].className = "modal modal-notification modal-open"
     },
     invitation_timeout(res) {
-      this.invitation_expired = true
-      messageNotification[0].innerHTML = "Your invitation has expired"
+      console.log(res)
+      if(res === store.getters.user.mail ) {
+        messageNotification[0].innerHTML = "Your invitation has expired"
+      } else {
+        messageNotification[0].innerHTML = "The invite by " + res + " has expired"
+      }
       modalNotification[0].className = "modal modal-notification modal-open"
+      if(this.invites.includes(res)) {
+        this.invites = this.invites.filter(el => el !== res)
+      }
     },
     invite_error(msg) {
       messageNotification[0].innerHTML = msg.message
