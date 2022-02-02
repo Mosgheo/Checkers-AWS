@@ -91,9 +91,9 @@ async function setupGame(game_id,host_mail,opponent_mail){
   }catch(err){
     if('response' in err && 'status' in err.response){
       if(err.response.status == 500){
-        client.emit("server_error",err.response.data)
+        client.emit("server_error",{message:err.response.data})
       }else if(err.response.status == 404){
-        client.emit("permit_error",err.response.data)
+        client.emit("permit_error",{message:err.response.data})
       }
     }
 
@@ -320,7 +320,7 @@ async function handle_disconnection(player){
         console.log("something bad occured "+err)
         if('response' in err && 'status' in err.response){
           if(err.response.status == 500){
-            io.to(lobby_id).emit("server_error",err.response.data)
+            io.to(lobby_id).emit("server_error",{message:err.response.data})
           }
         }
       }
@@ -348,7 +348,7 @@ io.on('connection', async client => {
     console.log("a user is tryng to log in")
     //Update user id in online_users
     if(online_users.hasValue(mail)){
-      client.emit("login_error","Someone is already logged in with such email")
+      client.emit("login_error",{message:"Someone is already logged in with such email"})
     }else{
       try{
         const {data:user} = await axios.post(user_service+"/login",{
@@ -362,7 +362,7 @@ io.on('connection', async client => {
         console.log(err)
         if('response' in err && 'status' in err.response){
           if(err.response.status == 400){
-            client.emit("login_error",err.response.data)
+            client.emit("login_error",{message:err.response.data})
           }
         }
       }
@@ -385,7 +385,7 @@ io.on('connection', async client => {
     }catch(err){
       if('response' in err && 'status' in err.response){
         if(err.response.status == 400 || err.response.status == 500){
-          client.emit('signup_error',err.response.data)
+          client.emit('signup_error',{message:err.response.data})
         }
       }
       console.log("Signup_err",err)
@@ -410,7 +410,7 @@ io.on('connection', async client => {
           console.log(err)
           if('response' in err && 'status' in err.response){
             if(err.response.status == 500){
-              client.emit("token_error",err.response.data)
+              client.emit("token_error",{message:err.response.data})
             }
             else{
               client.emit("token_error",{message:"Your token expired, please log-in again"})
@@ -442,7 +442,7 @@ io.on('connection', async client => {
       })
       }else{
         console.log("he is damn not authenticated")
-        client.emit("token_error",user[1])
+        client.emit("token_error",{message:user[1]})
       }
     }else{
       console.log("a user tried bulding a lobby while already has one")
@@ -461,7 +461,7 @@ io.on('connection', async client => {
         const lobbies = await get_lobbies(stars)
         client.emit("lobbies",lobbies)
       }else{
-        client.emit("token_error",user[1])
+        client.emit("token_error",{message:user[1]})
       }
     }else{
       client.emit("permit_error", {message:"Player is offline in some funny way."})
@@ -506,7 +506,7 @@ io.on('connection', async client => {
       }
     }else{
       console.log("error in join lobby4")
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
   })
 
@@ -531,7 +531,7 @@ io.on('connection', async client => {
         }
       }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
   })
   /**
@@ -649,7 +649,7 @@ io.on('connection', async client => {
         }
       }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
     
   })
@@ -674,7 +674,7 @@ io.on('connection', async client => {
         }
       }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
   })
 
@@ -748,7 +748,7 @@ io.on('connection', async client => {
               }catch(err){
                 if('response' in err && 'status' in err.response){
                   if(err.response.status == 500){
-                    client.emit("server_error",err.response.data)
+                    client.emit("server_error",{message:err.response.data})
                   }
                 }
                 console.log(err)
@@ -757,7 +757,7 @@ io.on('connection', async client => {
           }catch(err){
             if('response' in err && 'status' in err.response){
               if(err.response.status == 400){
-                client.emit("client_error",err.response.data)
+                client.emit("client_error",{message:err.response.data})
               }
             }
             console.log(err)
@@ -769,7 +769,7 @@ io.on('connection', async client => {
         client.emit("permit_error",{message:"Hey pal I don't know who you are nor the lobby you're referring to"})
       }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
   })
   /**
@@ -807,7 +807,7 @@ io.on('connection', async client => {
         }catch(err){
           if('response' in err && 'status' in err.response){
             if(err.response.status == 500){
-              client.emit("server_error",err.response.data)
+              client.emit("server_error",{message:err.response.data})
             }
           }
           console.log(err)
@@ -817,7 +817,7 @@ io.on('connection', async client => {
         client.emit("permit_error",{message:"I don't know which lobby you're referring to and even if I knew you're not in it"})
       }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
   })
   /**
@@ -895,7 +895,7 @@ io.on('connection', async client => {
         io.emit("global_msg",{sender:online_users.get(client.id), message:msg})
       }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
   })
 
@@ -912,7 +912,7 @@ io.on('connection', async client => {
         io.to(lobby_id).emit("game_msg",{sender:online_users.get(client.id), message:msg})
       }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
   })
 
@@ -937,22 +937,22 @@ io.on('connection', async client => {
           }
         })
         if(!user_profile === null){
-          client.emit("permit_error",user_profile)
+          client.emit("permit_error",{message:user_profile})
         }else{
-          client.emit("user_profile",user_profile)
+          client.emit("user_profile",{message:user_profile})
         }
       }catch(err){
         if('response' in err && 'status' in err.response){
           if(err.response.status == 500 ){
-            client.emit("server_error",err.response.data)
+            client.emit("server_error",{message:err.response.data})
           }else if(err.response.status == 404){
-            client.emit("client_error",err.response.data)
+            client.emit("client_error",{message:err.response.data})
           }
         }
         console.log(err)
       }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
   })
   /**
@@ -965,16 +965,16 @@ io.on('connection', async client => {
         console.log("Someone asked for a leaderboard")
         let {data:leaderboard} = await axios.get(user_service+"/getLeaderboard")
         if(leaderboard === null){
-          client.emit("permit_error",leaderboard)
+          client.emit("permit_error",{message:leaderboard})
         }else{
-          client.emit("leaderboard",leaderboard)
+          client.emit("leaderboard",{message:leaderboard})
         }
       }catch(err){
         console.log(err)
-        client.emit("server_error",err.response.data)
+        client.emit("server_error",{message:err.response.data})
       }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
   })
   /**
@@ -987,13 +987,13 @@ io.on('connection', async client => {
       const user_mail = online_users.get(client.id)
       const {data:updated_user} = await axios.put(user_service+"/profile/updateProfile",{mail:user_mail,params:params})
       if(updated_user === null){
-        client.emit("permit_error",user_history)
+        client.emit("permit_error",{message:user_history})
       }else{
         console.log("I updated your fucking profile")
-        client.emit("updated_user",updated_user)
+        client.emit("updated_user",{message:updated_user})
       }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
   })
 
@@ -1039,12 +1039,12 @@ io.on('connection', async client => {
         })
       };
       if(user_history === null){
-        client.emit("permit_error",user_history)
+        client.emit("permit_error",{message:user_history})
       }else{
-        client.emit("user_history",data)
+        client.emit("user_history",{message:data})
       }
     }else{
-      client.emit("token_error",user[1])
+      client.emit("token_error",{message:user[1]})
     }
   })
 });
