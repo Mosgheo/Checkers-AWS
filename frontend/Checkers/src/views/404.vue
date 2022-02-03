@@ -1,13 +1,13 @@
 <template>
 <div id="notfound">
-    <div class="notfound">
-        <div class="notfound-404">
-            <h1>4<span>0</span>4</h1>
-        </div>
-        <p>The page you are looking is temporarily unavailable.
-            Make sure tou are logged in before do something</p>
-        <router-link to="/login">Sign in</router-link>
+  <div class="notfound">
+    <div class="notfound-404">
+      <h1>4<span>0</span>4</h1>
     </div>
+    <p>The page you are looking is temporarily unavailable.
+      Make sure tou are logged in before do something</p>
+    <router-link to="/login">Sign in</router-link>
+  </div>
 </div>
 </template>
 
@@ -64,7 +64,7 @@ export default{
   color: #c9c9c9;
   font-size: 16px;
   font-weight: 400;
-  margin-top: 0px;
+  margin-top: 1rem;
   margin-bottom: 15px;
 }
 

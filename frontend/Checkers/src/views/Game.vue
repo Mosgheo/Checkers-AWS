@@ -4,8 +4,9 @@
       <Chat :lobbyId="this.lobbyId" class="chat mt-28"/>
 
       <div class="modal modal-change-location">
-        <div class="modal-box">
-          <p id="exit-game-msg"></p> 
+        <div class="flex flex-col items-center modal-box">
+          <img class="w-40 h-28" src="@/assets/msg_image.png" />
+          <p class="text-base font-semibold" id="exit-game-msg"></p> 
           <div class="modal-action">
             <label for="my-modal-2" @click="exitGame" class="btn">Accept</label> 
             <label for="my-modal-2" @click="closeModal" class="btn">Close</label>
@@ -72,15 +73,12 @@ export default {
       console.log(res)
     },
     opponent_left(msg) {
-      console.log(msg)
       changeLocation = true
       path = "/"
       document.getElementById("exit-game-msg").innerHTML = "L'avversario ha abbandonato la partita, ti verranno assegnati dei punti per vittoria a tavolino"
       modal[0].className = "modal modal-change-location modal-open"
     },
     game_ended(msg) {
-      console.log("HELLO RECEIVED END GAME")
-      console.log(msg)
       changeLocation = true
       path = "/"
       var gameEndModal = document.getElementsByClassName("modal")[0]
@@ -112,6 +110,9 @@ export default {
 
 <style scoped>
 .centralSpace {
+  background-color: #343232;
+}
+.modal-box {
   background-color: #343232;
 }
 @media only screen and (max-width: 1700px) {

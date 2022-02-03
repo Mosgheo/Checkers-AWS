@@ -1,48 +1,18 @@
 <template>
-	<!--<div
-		:class="[piece.player_id, piece.type]"
-		class="piece"
-		@click="selectPiece">
-		<img
-			v-if="isKing"
-			src="@/assets/logo.png">
-	</div>-->
-    <div v-if="this.piece <= 20" @click="selectPiece">
+    <div v-if="this.piece <= 20">
         <img class="ease-in-out duration-300" src="@/assets/pieces/Red_Piece.png" />
-        <!--<div class="piece pieceOne">
-            <img v-if="isKing" src="@/assets/logo.png" />
-        </div>-->
     </div>
-    <div v-else-if="this.piece >= 31" @click="selectPiece">
+    <div v-else-if="this.piece >= 31">
         <img class="ease-in-out duration-300" src="@/assets/pieces/White_Piece.png" />
-        <!--<div class="piece pieceTwo">
-            <img v-if="isKing" src="@/assets/logo.png" />
-        </div>-->
     </div>
 </template>
 
 <script>
 import '@/assets/logo.png';
-//import { getCurrentInstance } from 'vue'
-
-//var appInstance = null
 
 
 export default {
     props: ['piece'],
-    setup() {
-        //appInstance = getCurrentInstance().appContext.config.globalProperties
-    },
-    computed: {
-        isKing() {
-            return false//this.piece.type === appInstance.$PIECE_TYPE_KING;
-        }
-    },
-    methods: {
-        selectPiece() {
-            this.$emit("selectPiece");
-        }
-    }
 }
 </script>
 

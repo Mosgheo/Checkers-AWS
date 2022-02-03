@@ -1,16 +1,3 @@
-<!--<template>
-	<div
-		:class="getClasses"
-		class="cell"
-		:style="{flex: size}"
-		@click="selectCell">
-		<template v-if="this.cell !== 0">
-			<Piece
-				:piece="cell.piece"
-				@selectPiece="selectPiece"/>
-		</template>
-	</div>
-</template>-->
 <template>
 	<div
 		:class="getClasses"
@@ -21,7 +8,7 @@
     @mouseover="hoverCell"
     @mouseleave="leaveCell" >
 		<template v-if="this.cell in this.moves">
-			<Piece :piece="this.cell" @selectPiece="selectPiece" />
+			<Piece :piece="this.cell" />
 		</template>
 	</div>
 </template>
@@ -41,9 +28,6 @@ export default {
     appInstance = getCurrentInstance()
   },
   methods: {
-    selectPiece() {
-      this.$emit("selectPiece", this.cell.piece, this.myMoves);
-    },
     selectCell() {
       if(this.cell > 0) {
         this.$emit("selectCell", this.cell);
@@ -69,12 +53,6 @@ export default {
       } else {
         classes.push(appInstance.appContext.config.globalProperties.$COLOR_TOP);
       }
-      /*if(this.myMoves && Object.keys(this.myMoves).length) {
-        classes.push('selected');
-      }
-      if(this.cell.targeted) {
-        classes.push('targeted');
-      }*/
       return classes;
     },
     style() {
@@ -107,15 +85,5 @@ export default {
 }
 .cell.color-bottom {
   background-color: black;
-}
-.cell.selected {
-  background-color: yellow;
-}
-.cell.selected .piece {
-  cursor: pointer;
-}
-.cell.targeted {
-  background-color: #075851;
-  cursor: pointer;
 }
 </style>

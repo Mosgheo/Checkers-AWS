@@ -12,7 +12,8 @@
       <label @click="buttonClick" for="create-lobby-modal" id="btn-menu" class="btn text-sm">Crea Lobby</label>
       <input type="checkbox" id="create-lobby-modal" class="modal-toggle"> 
       <div class="modal">
-        <div class="modal-box">
+        <div class="modal-box flex flex-col items-center">
+          <img class="w-40 h-28" src="@/assets/msg_image.png" />
           <div class="form-control items-center">
             <label class="mt-3">
               <span class="font-bold text-lg">Dai un nome alla tua lobby</span>
@@ -37,7 +38,8 @@
       <label @click="buttonClick" for="friends-modal" id="btn-menu" class="btn mb-7 text-sm">Sfida un amico</label>
       <input type="checkbox" id="friends-modal" class="modal-toggle"> 
       <div class="modal modal-invite">
-        <div class="modal-box items-center"> 
+        <div class="flex flex-col modal-box items-center">
+          <img class="w-40 h-28" src="@/assets/msg_image.png" />
           <h3 class="font-bold text-lg">Inserisci il nickname del tuo amico</h3>
           <div class="form-control items-center mt-2">
             <input type="text" placeholder="Username" class="text-base opponent-mail input input-bordered w-min">
@@ -62,7 +64,8 @@
           <label @click="buttonClick" for="create-lobby-modal" id="btn-menu" class="btn text-sm">Crea Lobby</label>
           <input type="checkbox" id="create-lobby-modal" class="modal-toggle"> 
           <div class="modal">
-            <div class="modal-box">
+            <div class="flex flex-col items-center modal-box">
+              <img class="w-40 h-28" src="@/assets/msg_image.png" />
               <div class="form-control items-center">
                 <label class="mt-3">
                   <span class="font-bold text-lg">Dai un nome alla tua lobby</span>
@@ -89,7 +92,8 @@
           <label @click="buttonClick" for="friends-modal" id="btn-menu" class="btn mb-7 text-sm">Sfida un amico</label>
           <input type="checkbox" id="friends-modal" class="modal-toggle"> 
           <div class="modal modal-invite">
-            <div class="modal-box items-center"> 
+            <div class="flex flex-col modal-box items-center"> 
+              <img class="w-40 h-28" src="@/assets/msg_image.png" />
               <h3 class="font-bold text-lg">Inserisci il nickname del tuo amico</h3>
               <div class="form-control items-center mt-2">
                 <input type="text" placeholder="Username" class="text-base opponent-mail input input-bordered w-min">
@@ -102,15 +106,6 @@
           </div>
         </li>
       </ul>
-    </div>
-
-    <div class="alert alert-info" style="display: none">
-      <div class="flex-1">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 mx-2 stroke-current">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>                          
-        </svg> 
-        <label>Invito mandato correttamente</label>
-      </div>
     </div>
 
   </div>
@@ -152,14 +147,6 @@ export default {
       button_click.play()
       if(store.state.token !== "") {
         api.invite_opponent(this.$socket, opponent[0].value)
-        /*console.log(document.getElementsByClassName("alert-info"))
-        document.getElementsByClassName("alert-info")[0].style.visibility = "visible"
-        setTimeout(function() {
-          console.log("Ciao")
-          console.log(document.getElementsByClassName("alert-info"))
-          //document.getElementsByClassName("alert-info")[0].style.visibility = "hidden"
-        }, 3000)*/
-        //this.$router.push("/profile")
       } else {
         this.$router.push("/404")
       }

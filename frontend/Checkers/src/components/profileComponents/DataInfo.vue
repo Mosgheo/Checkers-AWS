@@ -45,7 +45,10 @@
 
     <div class="update-modal modal modal-close">
       <div class="modal-box">
-        <p class="msg">Ciao</p> 
+        <div class="flex flex-col items-center">
+          <img class="w-40 h-28" src="@/assets/msg_image.png" />
+          <p class="font-semibold text-base msg">Ciao</p> 
+        </div>
         <div class="modal-action justify-center">
             <label class="btn" @click="close">Accept</label>
         </div>
@@ -154,6 +157,9 @@ export default {
 </script>
 
 <style scoped>
+.modal-box {
+  background-color: #343232;
+}
 span {
   color: #CDCBCB;
 }

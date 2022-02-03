@@ -88,7 +88,7 @@ export default {
             this.$router.push("/")
         },
         login_error(err) {
-            msg[0].textContent = err.message
+            msg[0].textContent = err.message.message
             login_fail[0].setAttribute("class", "login-fail modal modal-open")
         }
     }
@@ -116,5 +116,8 @@ input {
 }
 .divider:after, .divider:before {
     background-color: #343232;
+}
+.modal-box {
+  background-color: #343232;
 }
 </style>

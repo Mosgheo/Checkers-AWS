@@ -53,7 +53,7 @@
                     <label class="text-base font-semibold btn" @click="signup">Iscriviti</label> 
                     <div class="signup-modal modal modal-close">
                         <div class="modal-box">
-                            <p class="msg">Ciao</p> 
+                            <p class="text-base font-semibold msg">Ciao</p> 
                             <div class="modal-action">
                                 <label class="btn" @click="close">Accept</label>
                             </div>
@@ -149,5 +149,8 @@ input {
 }
 .divider:after, .divider:before {
     background-color: #343232;
+}
+.modal-box {
+  background-color: #343232;
 }
 </style>

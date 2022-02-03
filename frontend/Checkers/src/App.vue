@@ -8,16 +8,10 @@
     </div>
   </div>
 
-  <!--<div v-else class="flex flex-col max-h-screen">
-    <Sidebar @checkInvite="checkInvite" class="sidebar" :invites="this.invites" />
-    <div class="middle h-screen">
-      <router-view />
-    </div>
-  </div>-->
-
   <div class="modal modal-invites">
-    <div class="modal-box">
-      <p class="invites-msg"></p> 
+    <div class="flex flex-col items-center modal-box">
+      <img class="w-40 h-28" src="@/assets/msg_image.png" />
+      <p class="text-base font-semibold invites-msg"></p> 
       <div class="modal-action">
         <label @click="accept" class="btn">Accept</label> 
         <label @click="decline" class="btn">Refuse</label>
@@ -26,8 +20,9 @@
   </div>
 
   <div class="modal modal-notification">
-    <div class="modal-box">
-      <p class="notification-msg"></p> 
+    <div class="flex flex-col items-center modal-box">
+      <img class="w-40 h-28" src="@/assets/msg_image.png" />
+      <p class="text-base font-semibold notification-msg"></p>
       <div class="modal-action">
         <label @click="close" class="btn">Accept</label>
       </div>
@@ -54,16 +49,9 @@ export default {
   components: {
     Sidebar
   },
-  created() {
-    window.addEventListener("resize", this.resizeHandler);
-  },
-  destroyed() {
-    window.removeEventListener("resize", this.resizeHandler);
-  },
   data() {
     return {
       opponent_mail: null,
-      screenWidth: window.innerWidth,
       invites: [],
       inviteId: null,
       invitation_expired: false
@@ -94,10 +82,6 @@ export default {
       this.invites.splice(this.inviteId, 1)
       modal[0].className = "modal modal-invites"
     },
-    resizeHandler() {
-      this.screenWidth = window.innerWidth
-      this.$forceUpdate()
-    },
     checkInvite(invite, i) {
       this.opponent_mail = invite
       this.inviteId = i
@@ -127,6 +111,8 @@ export default {
       sessionStorage.token = ""
       store.commit('unsetToken')
       this.$router.push("/404")
+      messageNotification[0].innerHTML = "You need to sign in before do something"
+      modalNotification[0].className = "modal modal-notification modal-open"
     },
     permit_error(error) {
       console.log(error)
@@ -205,7 +191,6 @@ export default {
 .middle {
   background-color: #343232;
 }
-
 @media only screen and (max-width: 785px) {
   #main {
     flex-direction: column;
@@ -219,5 +204,11 @@ export default {
     min-height: min-content;
     width: 0px;
   }
+}
+</style>
+
+<style scoped>
+.modal-box {
+  background-color: #343232;
 }
 </style>
