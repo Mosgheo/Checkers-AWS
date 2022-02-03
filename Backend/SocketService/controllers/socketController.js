@@ -588,7 +588,7 @@ io.on('connection', async client => {
         },process.env.TIMEOUT)))
       }
     }else{
-      client.emit("invite_error",{message:"Such user is not online at the moment, please try again later!"})
+      client.emit("invite_error",{message:"Can't invite player "+opponent_mail })
     }
   })
   
