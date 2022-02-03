@@ -49,11 +49,7 @@ async function update_points(user){
     .put("/profile/updatePoints")
     .send({mail:user.mail,stars:user.stars,won:user.won,tied:user.tied})
 }
-async function get_profile(user_mail){
-    return await chai.request(user_service)
-    .get("/profile/getProfile")
-    .send({params:user_mail})
-}
+
 describe('Users', async () => {
    beforeEach(async() => {
        await User.deleteMany({mail:"userok@testusers.com"});
@@ -118,7 +114,6 @@ describe('Users', async () => {
             won:true,
             tied:false
         })
-        //console.log("data "+updated_points.data)
         updated_points.should.have.status(200)
     })
     it('should FAIL update points',async() =>{
@@ -130,32 +125,7 @@ describe('Users', async () => {
             won:true,
             tied:false
         })
-        //console.log("data "+updated_points.data)
         updated_points.should.have.status(400)
     })
-    })
-    //TESTING GET REQUESTS
-    describe('Testing GET users',async () => {
-        it('should get a profile',async ()=>{
-            let new_user = new_OK_user()
-            await register_user(new_user)
-            const profile = await get_profile(new_user.mail)
-            profile.should.have.status(200)
-        })
-        it('should FAIL to get a profile',async()=>{
-            const profile = await get_profile("fake_user@gmail.com")
-            profile.should.have.status(400)
-        })
-        it('should get a profile',async ()=>{
-            let new_user = new_OK_user()
-            await register_user(new_user)
-            const profile = await get_profile(new_user.mail)
-            profile.should.have.status(200)
-        })
-        it('should FAIL to get a profile',async()=>{
-            const profile = await get_profile("fake_user@gmail.com")
-            profile.should.have.status(400)
-            profile.body.message.should.eql("Cannot find any player with such ID")
-        })
     })
 })

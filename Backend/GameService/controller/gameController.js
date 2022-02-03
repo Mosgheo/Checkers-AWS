@@ -132,16 +132,23 @@ exports.leaveGame = async function(req,res){
                 console.log("Host is leaving")
                 await gameEnd(game_id,false,game.black,game.white)
             }else{
-                console.log("Opponent is leaving")
-                await gameEnd(game_id,false,game.white,game.black)
+                if(game.black === quitter){
+                    console.log("Opponent is leaving")
+                    await gameEnd(game_id,false,game.white,game.black)
+                }else{
+                    res.status(400).send({message:quitter+" is not in any game"})
+                    return
+                }
             }
+            let data = []
+            data.push( "You successfully left the game!\n "+process.env.LOSS_STARS+" stars have been removed from your profile!");
+            data.push( "The opponent has left the game!\n "+process.env.WIN_STARS+" stars have been added to your profile")
+            res.status(200).send(data)
         }else{
             console.log("wtf is wrong w/this")
+            res.status(400).send({message:"There is no such game"})
         }
-        let data = []
-        data.push( "You successfully left the game!\n "+process.env.LOSS_STARS+" stars have been removed from your profile!");
-        data.push( "The opponent has left the game!\n "+process.env.WIN_STARS+" stars have been added to your profile")
-        res.status(200).send(data)
+
     }catch(err){
         console.log("SOEMTHING WERNT WROOOONG")
         console.log(err)

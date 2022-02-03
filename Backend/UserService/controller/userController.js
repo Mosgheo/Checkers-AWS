@@ -6,9 +6,6 @@ let passwordValidator = require('password-validator');
 const fs = require('fs');
 const _ = require('lodash');
 
-const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
-    modulusLength: 2048,
-  });
 
 const password_validator = new passwordValidator()
     .is().min(8)

@@ -9,7 +9,7 @@ router
 	//.post("/game/deleteGame",gameController.deleteGame)
 	.delete("/game/leaveGame", gameController.leaveGame)
 	.post("/game/lobbies/create_game", gameController.create_game)
-	.put("/game/tieGame", gameController.tieGame)
+	//.put("/game/tieGame", gameController.tieGame)
 	.put("/game/movePiece", gameController.movePiece)
 	.put("/game/turnChange",gameController.turnChange)
 
