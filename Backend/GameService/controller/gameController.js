@@ -11,13 +11,16 @@ let games = new Map(); // {game_id -> game}
                 winner: "",
             }
      */
-
+function log(msg){
+    if(process.env.DEBUG){
+        console.log(msg)
+    }
+}
 /**
  ** ** ** ** ** ** **
  ** GAME HANDLING  **
  ** ** ** ** ** ** **
  */
-
 
  /**
   * 
@@ -61,13 +64,11 @@ async function saveGame(game_id) {
  * @returns true if game was terminated correctly and successfully saved into DB, false otherwise.
  */
 async function gameEnd(game_id,tie,winner,loser){
-    console.log("HELLO I?M GAME END")
-    console.log(winner)
-    console.log("HE LOST "+loser)
+    log("game "+game_id+" just ended, "+winner+" won and "+loser+" lost")
     let game = games.get(game_id)
     try{
         if(!tie){
-            console.log("game didn't tie")
+            log("game "+game_id+ "didn't end in tie")
             const match = new Game({
                 fen: game.draughts.fen(),
                 winner: winner,
@@ -86,7 +87,8 @@ async function gameEnd(game_id,tie,winner,loser){
         }
         return true
     }catch(err){
-        console.log(err)
+        log("Something went wrong while closing game "+game_id)
+        log(err)
         return false
     }
 
@@ -107,7 +109,7 @@ exports.tieGame = function(req,res){
 exports.user_history = async function(req,res){
 
     const mail = req.query.mail
-    console.log("History mail "+mail)
+    log("Sending game history for "+mail)
     try{
         res.status(200).json(await Game.find({$or:[{'winner':mail},{'loser':mail}]}))
     }catch(err){
@@ -119,23 +121,21 @@ exports.user_history = async function(req,res){
  * Handles user leaving a game
  */
 exports.leaveGame = async function(req,res){
-    console.log("IVE FINALLY BEEN REQUESTED FFS")
     let game_id = req.body.game_id
     let quitter = req.body.player_id
-    console.log("hello game "+game_id)
-    console.log("quitter"+quitter)
     try{
         if(games.has(game_id)){
-            console.log("yee we got a game")
+            log(quitter +" is leaving game "+game_id)
             let game = games.get(game_id)
             if(game.white === quitter){
-                console.log("Host is leaving")
+                log(quitter+ " is the host of game "+game_id)
                 await gameEnd(game_id,false,game.black,game.white)
             }else{
                 if(game.black === quitter){
-                    console.log("Opponent is leaving")
+                    log(quitter+ " is not the host of game "+game_id)
                     await gameEnd(game_id,false,game.white,game.black)
                 }else{
+                    log("Wat apparently "+quiter+"has nothing to do with this game")
                     res.status(400).send({message:quitter+" is not in any game"})
                     return
                 }
@@ -145,24 +145,25 @@ exports.leaveGame = async function(req,res){
             data.push( "The opponent has left the game!\n "+process.env.WIN_STARS+" stars have been added to your profile")
             res.status(200).send(data)
         }else{
-            console.log("wtf is wrong w/this")
+            log("There is no such thing as game "+game_id)
             res.status(400).send({message:"There is no such game"})
         }
 
     }catch(err){
-        console.log("SOEMTHING WERNT WROOOONG")
-        console.log(err)
+        log("Something wrong while processing "+quitter+" request of leaving game "+game_id)
+        log(err)
         res.status(500).send({message:"Internal server error while leaving game"})
     }
 
 }
 exports.turnChange = function(req,res){
     const game_id = req.body.game_id
-    console.log(game_id)
     if(games.has(game_id)){
+        log("Changing turn for game "+game_id)
         games.get(game_id).draughts.change_turn()
         res.status(200).json()
     }else{
+        log("Someone tried to change turn for game "+game_id+" but such game doesn't exist")
         res.status(400).json({message:"No such game"})
     }
 }
@@ -192,11 +193,12 @@ exports.movePiece = function(req,res){
         let game = games.get(game_id).draughts
         if(game.move({from: req.body.from, to: req.body.to }) != false){
             let data = parseFEN(game_id)
-            console.log(req.body.from+"-"+req.body.to)
+            log(req.body.from+"-"+req.body.to)
             if(game.gameOver()){
-                console.log("It's game over you dumbasses")
+                log("Game "+game_id+" is over!")
                 /**HANDLE WIN NOTIFICATION */
                 if(winCheck(game_id)){
+                    log("Someone won game "+game_id)
                     gameEnd(game_id,false,game.winner,game.loser)
                     res.json({
                         winner: game.winner,
@@ -204,6 +206,7 @@ exports.movePiece = function(req,res){
                         board: data
                     })
                 }else{
+                    log("Game "+game_id+" just resulted in a tie, how lucky are you to witness this event?")
                     gameEnd(game_id,true,game.winner,game.loser)
                     res.json({
                         winner:"",
@@ -212,14 +215,14 @@ exports.movePiece = function(req,res){
                     })
                 }
             }else{
-                console.log("The show must go on fellas")
+                log("Moving a piece from game "+game_id )
                 res.json({
                     winner: "",
                     board: data
                 })
             }
         }else{
-            console.log("something so wrong happened to your code")
+            log("Something wrong while trying to move a piece for game "+game_id)
             res.status(400).send({message: "Error while making such move, you can try again or select a different move."})
         }
     }
@@ -250,11 +253,12 @@ exports.create_game = function(req,res){
         game.loser = ""
         game.turn = game.white
         games.set(game_id,game)
+        log("Just created game "+game_id)
         res.status(200).json({
             board: parseFEN(game_id)
         })
     }catch(err){
-        console.log(err)
+        log(err)
         res.status(500).send({message:"Something went wrong while creating a game"})
     }
 }
@@ -273,6 +277,7 @@ exports.create_game = function(req,res){
 * let data = [TURN, Map(WHITE_PIECE->MOVES),Map(BLACK_PIECE->MOVES)]
 * es: [B,WHITE(3->(5,10,3)10K->(5,2,5,4)),BLACK(4->(5,10)10K->(5,2))]
 * OBV a draught that's not a king can only have max 2 moves.
+* K after a number means that piece is a KING
 */
 function parseFEN(game_id) {
     let data = []
@@ -294,7 +299,6 @@ function parseFEN(game_id) {
         let piece = black_pieces[i]
         if(piece !== "" && piece !== null){
             if(piece.charAt(0) === "K"){
-                console.log("found a king")
                 let moves = game.getLegalMoves(piece.substring(1))
                 black_pieces_with_moves.set(piece,moves)
             }else{
