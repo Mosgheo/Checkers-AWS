@@ -199,7 +199,7 @@ exports.verify_token = async function(req,res){
             }
         }
     }catch(err){
-        log(token.user.email+" is trying to do some nasty illegal things")
+        log("Someone is trying to do some nasty illegal things")
         res.status(400).send({message:"User not authenticated, please log-in again."})
     }
 
