@@ -141,6 +141,8 @@ function delete_lobby(lobby_id){
   free_ids.push(lobby_id)
   clearTimeout(turn_timeouts.get(lobby_id))
   turn_timeouts.delete(lobby_id)
+  //make all sockets in this lobby leave the SocketRoom
+  io.sockets.adapter.rooms.get(lobby_id).clear()
 }
 /**
  * 
@@ -282,15 +284,13 @@ async function handle_disconnection(player){
     }else{
       //Lobby is full and a game is on, need to check if it's the host or not
       try{
-        let opponent = ""
-        const winner = ""
-        const loser = ""
+        let winner = ""
+        let loser = ""
         if(lobby.getPlayers(0) == player){
           //Player disconnecting is the host
           log(player +" is disconnecting and is the host of lobby "+lobby_id+", deleting game")
           winner = lobby.getPlayers(1)
           loser = player
-          opponent = winner
         }else{
           //Player disconnecting is the guest
           log(player +" is in lobby "+lobby_id+" but isn't host, deleting game")
@@ -587,7 +587,6 @@ io.on('connection', async client => {
       if(invitations.has(opp_mail) == false || invitations.get(opp_mail).has(user_mail) == false){
         client.emit('invitation_expired',{message:"Your invitation for this lobby has expired"})
       }else{
-        const user_mail = online_users.get(client.id)
         log(user_mail+" just accepted a game invite from "+opp_mail)
         let opponent = io.sockets.sockets.get(online_users.getKey(opp_mail))
         let lobby_id = build_lobby(opp_mail+"-"+user_mail,opponent,Number.MAX_VALUE)
@@ -624,7 +623,12 @@ io.on('connection', async client => {
             }, 700)
             log(opp_mail +"(host) and "+user_mail+" just started a game through invitations")
 
-            //Clear all invitation sent by the player who invited this client
+            //Clear all invitation sent by both players
+            invitations.delete(user_mail)
+            invitation_timeouts.get(user_mail).forEach(invite_timeout =>{
+              clearTimeout(invite_timeout)
+            })
+            invitation_timeouts.delete(user_mail)
             invitations.delete(opp_mail)
             invitation_timeouts.get(opp_mail).forEach(invite_timeout =>{
               clearTimeout(invite_timeout)
@@ -686,7 +690,6 @@ io.on('connection', async client => {
     const user = await user_authenticated(token,client.id)
     if(user[0]){
       let player = online_users.get(client.id)
-      log(player+" moved a piece from board position "+from+"to board position "+to+" in game "+lobby_id)  
       if(lobbies.has(lobby_id)){
         let lobby = lobbies.get(lobby_id)
         if(lobby.hasPlayer(player) && lobby.turn == player){
@@ -708,7 +711,6 @@ io.on('connection', async client => {
                 })
                 log("Wow game "+lobby_id+" tied, you just witnessed such a rare event!")
                 delete_lobby(lobby_id)
-                io.sockets.adapter.rooms.get(lobby_id).clear()
               }else{
                 //No one won and the game isn't tied, the show must go on
                 io.to(lobby_id).emit("update_board",move_result.board)
@@ -728,17 +730,18 @@ io.on('connection', async client => {
                   io.to(lobby_id).emit("update_board",move_result.board)
                   const winner = online_users.getKey(move_result.winner)
                   const loser = online_users.getKey(move_result.loser)
+                  //Inform winner
                   io.to(winner).emit("game_ended",{
                     user: (move_result.winner === updated_users[0].mail ? updated_users[0] : updated_users[1]),
                     message:"Congratulations, you just have won this match, enjoy the "+process.env.WIN_STARS+" stars one of our elves just put under your christmas tree!"
                   })
+                  //Inform loser
                   io.to(loser).emit("game_ended",{
                     user: (move_result.loser === updated_users[0].mail ? updated_users[0] : updated_users[1]),
                     message:"I'm afraid I'll have to tell you you lost this game, "+process.env.LOSS_STARS+" stars have been removed from your profile but if you ask me that was just opponent's luck, don't give up yet"
                   })
                   log("Successfully sent end_game for  game "+lobby_id)
                   delete_lobby(lobby_id)
-                  io.sockets.adapter.rooms.get(lobby_id).clear()
                 }else{
                   log("Something wrong while updating points for "+winner+" or "+loser)
                   client.emit("server_error",{message:"Something wrong while updating points."})
@@ -798,7 +801,7 @@ io.on('connection', async client => {
             user: updated_users[1]
           })
           log(player+" just left game "+lobby_id+", I just assigned the win to "+winner)
-          io.sockets.adapter.rooms.get(lobby_id).clear()
+
         }catch(err){
           if('response' in err && 'status' in err.response){
             if(err.response.status == 500){
