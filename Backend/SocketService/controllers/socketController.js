@@ -587,8 +587,8 @@ io.on('connection', async client => {
       if(invitations.has(opp_mail) == false || invitations.get(opp_mail).has(user_mail) == false){
         client.emit('invitation_expired',{message:"Your invitation for this lobby has expired"})
       }else{
-        log(user_mail+" just accepted a game invite from "+opp_mail)
         const user_mail = online_users.get(client.id)
+        log(user_mail+" just accepted a game invite from "+opp_mail)
         let opponent = io.sockets.sockets.get(online_users.getKey(opp_mail))
         let lobby_id = build_lobby(opp_mail+"-"+user_mail,opponent,Number.MAX_VALUE)
         if(join_lobby(lobby_id,client,user_mail)){
@@ -622,7 +622,7 @@ io.on('connection', async client => {
             setTimeout(function() {
               io.to(lobby_id).emit("game_started",game)
             }, 700)
-            log(opponent_mail +"(host) and "+user_mail+" just started a game through invitations")
+            log(opp_mail +"(host) and "+user_mail+" just started a game through invitations")
 
             //Clear all invitation sent by the player who invited this client
             invitations.delete(opp_mail)
