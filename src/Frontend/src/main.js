@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import VueSocketIO from 'vue-3-socket.io'
 import SocketIO from 'socket.io-client'
-import  store  from './store'
+import store  from './store'
 import api from '../api'
 import '@/assets/styles/app.css'
 

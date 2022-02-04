@@ -1,5 +1,3 @@
-import { socket } from "../../Backend/SocketService/controllers/socketController"
-
 function getToken(){
     return sessionStorage.token
 }
