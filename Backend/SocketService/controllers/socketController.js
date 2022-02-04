@@ -59,14 +59,6 @@ function isInLobby(player_mail){
 }
 /**
  * 
- * @param {*} player_id 
- * @returns user is online or not
- */
-function isOnline(player_id){
-  return online_users.has(player_id)
-}
-/**
- * 
  * @param {*} game_id 
  * @param {*} host_mail 
  * @param {*} opponent_mail 
@@ -97,7 +89,7 @@ async function setupGame(game_id,host_mail,opponent_mail){
     if('response' in err && 'status' in err.response){
       if(err.response.status == 500){
         client.emit("server_error",{message:err.response.data})
-      }else if(err.response.status == 404){
+      }else if(err.response.status == 400){
         client.emit("permit_error",{message:err.response.data})
       }
     }
@@ -223,12 +215,16 @@ async function change_turn(lobby_id){
   let next_player = lobby.getPlayers().filter(player => player != late_player)[0]
   lobbies.get(lobby_id).turn = next_player 
   clearTimeout(turn_timeouts.get(lobby_id))
-  turn_timeouts.set(lobby_id, setTimeout(async ()=> {
-    await axios.put(game_service+"/game/turnChange",{game_id:lobby_id})
-    change_turn(lobby_id)
-    log("TURN TIMEOUT FOR GAME " + lobby_id)
-  },process.env.TIMEOUT))
+  await setup_game_turn_timeout(lobby_id)
   io.to(lobby_id).emit("turn_change",{next_player:next_player})
+}
+async function setup_game_turn_timeout(lobby_id){
+  turn_timeouts.set(lobby_id, setTimeout(async()=>{
+    await change_turn(lobby_id)
+    await axios.put(game_service+"/game/turnChange",{game_id:lobby_id})
+    log("Turn timeout for game " + lobby_id)
+  },process.env.TIMEOUT))
+  log("Timeout set for game" + lobby_id)
 }
 /**
  * 
@@ -269,12 +265,12 @@ async function updatePoints(winner,points1,loser,points2,tied=false){
  */
 async function handle_disconnection(player){
   const client_id = online_users.getKey(player)
-  //Player isn't in a lobby
+  //Player isn't in a lobby so just disconnect it
   if(!isInLobby(player)){
     log(player + "just disconnected but wasn't in lobby")
     online_users.delete(client_id)
   }else{
-    //player is in a lobby
+    //player is in a lobby, check if it's empty or he is in a game
     const lobby = Array.from(lobbies.values()).filter(lobby => lobby.hasPlayer(player))[0]
     let lobby_id = lobbies.getKey(lobby)
     log(player + "from lobby" + lobby_id + " is  trying to disconnect")
@@ -283,43 +279,36 @@ async function handle_disconnection(player){
       log(online_users.get(client_id)+" just disconnected and his lobby has been deleted")
       lobbies.delete(lobby_id)
       online_users.delete(client_id)
-      
     }else{
-      //Lobby is full and a game is on
+      //Lobby is full and a game is on, need to check if it's the host or not
       try{
         let opponent = ""
         const winner = ""
         const loser = ""
-        //Player disconnecting is the host
         if(lobby.getPlayers(0) == player){
-           winner = lobby.getPlayers(1)
-           loser = player
-           opponent = winner
-          const {data:game_end} = await axios.post(game_service+"/game/leaveGame",{game_id:lobby_id,winner:lobby.getPlayers(1),forfeiter:lobby.getPlayers(0)})
-
-          io.to(lobby_id).emit("player_left",game_end)
+          //Player disconnecting is the host
           log(player +" is disconnecting and is the host of lobby "+lobby_id+", deleting game")
-        }
-        else{
-           winner = player
-           loser = lobby.getPlayers(1)
-
+          winner = lobby.getPlayers(1)
+          loser = player
+          opponent = winner
+        }else{
           //Player disconnecting is the guest
           log(player +" is in lobby "+lobby_id+" but isn't host, deleting game")
-          const {data:game_end} = await axios.post(game_service+"/game/leaveGame",{game_id:lobby_id,winner:lobby.getPlayers(0),forfeiter:lobby.getPlayers(1)})
-          io.to(lobby_id).emit("player_left",game_end)
-          opponent = loser
+          winner = player
+          loser = lobby.getPlayers(1)
         }
-
-        const updated_users = await updatePoints(opponent,process.env.WIN_STARS,player,process.env.LOSS_STARS)
+        const {data:game_end} = await axios.post(game_service+"/game/leaveGame",{game_id:lobby_id,winner:winner,forfeiter:loser})
+        io.to(lobby_id).emit("player_left",game_end)
+        const updated_users = await updatePoints(winner,process.env.WIN_STARS,loser,process.env.LOSS_STARS)
         if(updated_users){
-          io.to(online_users.getKey(opponent)).emit("user_update",updated_users[0])
-          client.emit("user_update",updated_users[1])
+          io.to(online_users.getKey(winner)).emit("user_update",updated_users[0])
+          io.to(online_users.getKey(loser)).emit("user_update",updated_users[1])
         }else{
           io.to(lobby_id).emit("server_error",{message:"Something went wrong while updating points"})
         }
         delete_lobby(lobby_id)
         online_users.delete(client_id)
+        //Clear lobby room
         io.in(lobby_id).socketsLeave(lobby_id)
       }catch(err){
         log("something bad occured "+err)
@@ -360,7 +349,6 @@ io.on('connection', async client => {
           mail:mail,
           password:password
         })
-        online_users.delete(client.id)
         online_users.set(client.id,mail)
         client.emit("login_ok",user)
       }catch(err){
@@ -423,7 +411,7 @@ io.on('connection', async client => {
           }
         }
       }else{
-        client.emit("client_error",{message:"Your token expired, please log-in again"})
+        client.emit("client_error",{message:user[1]})
       }
   })
 
@@ -433,24 +421,24 @@ io.on('connection', async client => {
    *  * * * * * * 
    **/
    client.on('build_lobby',async(lobby_name,max_stars,token)=>  {
-    if(isOnline(client.id) && !isInLobby(online_users.get(client.id))){
-        const user = await user_authenticated(token,client.id)
-      if(user[0]){
-        log("a user built a lobby")
+    const user = await user_authenticated(token,client.id)
+    if(user[0]){
+      const user_mail = online_users.get(client.id)
+      if(!isInLobby(user_mail)){
+        log(user_mail+"is building a lobby")
         const new_lobby_id = build_lobby(lobby_name,client,max_stars)
-        //FIX THIS PARAMTER IN GET LOBBIES
         const lobbies = await get_lobbies(0)
         client.emit("lobbies",{
         lobby_id:new_lobby_id,
         lobbies:lobbies
       })
       }else{
-        log("he is damn not authenticated")
-        client.emit("token_error",{message:user[1]})
+        log(user_mail+" tried bulding a lobby while already has one")
+        client.emit("permit_error",{message:"Player is either not online or is already in some lobby."})
       }
     }else{
-      log("a user tried bulding a lobby while already has one")
-      client.emit("permit_error",{message:"Player is either online or is already in some lobby."})
+      log(user_mail+" is damn not authenticated")
+      client.emit("token_error",{message:user[1]})
     }
   })
 
@@ -458,18 +446,14 @@ io.on('connection', async client => {
    * A client requested a list of lobbies
    */
   client.on('get_lobbies',async (stars,token) => {
-    if(isOnline(client.id)){
       const user = await user_authenticated(token,client.id)
       if(user[0]){
-        log("a user requested lobbies")
+        log(online_users.get(client.id)+" requested lobbies")
         const lobbies = await get_lobbies(stars)
         client.emit("lobbies",lobbies)
       }else{
         client.emit("token_error",{message:user[1]})
       }
-    }else{
-      client.emit("permit_error", {message:"Player is offline in some funny way."})
-    }
   })
 
   /**
@@ -478,39 +462,41 @@ io.on('connection', async client => {
   client.on('join_lobby', async(lobby_id,token) => {
     const user = await user_authenticated(token,client.id)
     if(user[0]){
-      log("a user joined a lobby")
-      if(isOnline(client.id) && !isInLobby(online_users.get(client.id))){
+      const user_mail = online_users.get(client.id)
+      log(user_mail+" joined a lobby")
+      if(!isInLobby(user_mail)){
         const opponent = online_users.get(client.id)
         if(lobbies.has(lobby_id)){
           const host = lobbies.get(lobby_id).getPlayers()[0]
+          //Opponent is the associated mail to this client, named opponent because by joining he's not the host
           if(join_lobby(lobby_id,client,opponent)){
             let game = await setupGame(lobby_id,host,opponent)
             if(game.length > 0){
               io.to(lobby_id).emit("game_started",game)
-              turn_timeouts.set(lobby_id, setTimeout(async()=>{
-                await change_turn(lobby_id)
-                await axios.put(game_service+"/game/turnChange",{game_id:lobby_id})
-                log("TURN TIMEOUT FOR GAME " + lobby_id)
-              },process.env.TIMEOUT))
-              log("Timeout set for game" + lobby_id)
+              try{
+                await setup_game_turn_timeout(lobby_id)
+              }catch(err){
+                io.to(lobby_id).emit("server_error",{message:"Something went wrong while processing your game"})
+              }
+
             }else{
-              log("Error in setting up a game")
+              log("Error in setting up game "+lobby_id)
               io.to(lobby_id).emit("server_error", {message:"Server error while creating a game, please try again"})
             }
           }else{
-            log("error in join lobby")
+            log("error in join lobby for lobby"+lobby_id)
             client.emit("server_error", {message:"Server error while joining lobby, please try again"})
           }
         }else{
-          log("error in join lobby2")
+          log("error in join lobby2 for lobby"+lobby_id)
           client.emit("server_error",{message:"Such lobby doesn't exist anymore"})
         }
       }else{
-        log("error in join lobby3")
+        log("error in join lobby3 for lobby"+lobby_id)
         client.emit("permit_error",{message:"Player is not online or is already in a lobby"})
       }
     }else{
-      log("error in join lobby4")
+      log("error in join lobby4 for lobby"+lobby_id)
       client.emit("token_error",{message:user[1]})
     }
   })
@@ -521,14 +507,14 @@ io.on('connection', async client => {
   client.on('delete_lobby', async(lobby_id,token) =>{
     const user = await user_authenticated(token,client.id)
     if(user[0]){
-      log("a user deleted a lobby")
-      if(online_users.has(client.id) && lobbies.has(lobby_id)){
-        const player = online_users.get(client.id)
+      const user_mail = online_users.get(client.id)
+      if(lobbies.has(lobby_id)){
         const lobby = lobbies.get(lobby_id)
-        if(lobby.hasPlayer(player) 
+        //can delete a lobby only if it's free and if he's in it => he's the host
+        if(lobby.hasPlayer(user_mail) 
         && lobby.isFree ){
           delete_lobby(lobby_id)
-          log("è stata cancellata dia hane")
+          log(user_mail+" deleted lobby "+lobby_id)
           client.emit("lobby_deleted",{message:"Your lobby has been successfully deleted"})
           client.leave(lobby_id)
         }else{
@@ -546,8 +532,7 @@ io.on('connection', async client => {
     const user_mail = online_users.get(client.id)
     const user = await user_authenticated(token,client.id)
     const lobby_list = Array.from(lobbies.values())
-    if(user[0] 
-    && online_users.has(client.id) 
+    if(user[0]  
     && online_users.hasValue(opponent_mail)
     //THIS WON't WORK
     && lobby_list.filter(lobby => {
@@ -602,12 +587,11 @@ io.on('connection', async client => {
       if(invitations.has(opp_mail) == false || invitations.get(opp_mail).has(user_mail) == false){
         client.emit('invitation_expired',{message:"Your invitation for this lobby has expired"})
       }else{
-        log("There is an invitation accepted from "+opp_mail)
+        log(user_mail+" just accepted a game invite from "+opp_mail)
         const user_mail = online_users.get(client.id)
         let opponent = io.sockets.sockets.get(online_users.getKey(opp_mail))
         let lobby_id = build_lobby(opp_mail+"-"+user_mail,opponent,Number.MAX_VALUE)
-        if(join_lobby(lobby_id,client,online_users.get(client.id))){
-          log("lobby joined good")
+        if(join_lobby(lobby_id,client,user_mail)){
           try{
             let game = []
             const {data:host_specs} = await axios.get(user_service+"/profile/getProfile",
@@ -628,21 +612,26 @@ io.on('connection', async client => {
             game.push(board)
             game.push(lobby_id)
             io.to(online_users.getKey(opp_mail)).emit("invite_accepted")
+            /**
+             * 
+             * 
+             * CHECK THIS
+             * 
+             * 
+             */
             setTimeout(function() {
               io.to(lobby_id).emit("game_started",game)
             }, 700)
-            log("game started")
+            log(opponent_mail +"(host) and "+user_mail+" just started a game through invitations")
+
+            //Clear all invitation sent by the player who invited this client
             invitations.delete(opp_mail)
             invitation_timeouts.get(opp_mail).forEach(invite_timeout =>{
               clearTimeout(invite_timeout)
             })
-            clearTimeout(invitation_timeouts.get(opp_mail+user_mail))
-            invitation_timeouts.delete(opp_mail+user_mail)
+            invitation_timeouts.delete(opp_mail)
+            await setup_game_turn_timeout(lobby_id)
 
-            turn_timeouts.set(lobby_id, setTimeout(async ()=>{
-              change_turn(lobby_id)
-              log("TURN TIMEOUT FOR GAME " + lobby_id)
-            },process.env.TIMEOUT))
           }catch(err){
             if('response' in err && 'status' in err.response){
               if(err.response.status == 500){
@@ -666,7 +655,7 @@ io.on('connection', async client => {
     const user = await user_authenticated(token,client.id)
     if(user[0]){
       const user_mail = online_users.get(client.id)
-      if(invitations.get(opp_mail).has(user_mail) === false){
+      if(!invitations.has(opp_mail) || invitations.get(opp_mail).has(user_mail) === false){
         client.emit("invitation_expired",{message:"Your invitation for this lobby has expired"})
       }else{
         io.to(online_users.getKey(opp_mail)).emit("invitation_declined",{message:opp_mail+" has just refused your invite, we're so sry. "})
@@ -696,19 +685,17 @@ io.on('connection', async client => {
   client.on('move_piece',async (lobby_id,from,to,token) =>{
     const user = await user_authenticated(token,client.id)
     if(user[0]){
-      log("a user moved a piece")  
-      if(online_users.has(client.id) && lobbies.has(lobby_id)){
-        let player = online_users.get(client.id)
+      let player = online_users.get(client.id)
+      log(player+" moved a piece from board position "+from+"to board position "+to+" in game "+lobby_id)  
+      if(lobbies.has(lobby_id)){
         let lobby = lobbies.get(lobby_id)
-        log(lobby)
-        //is == ok down here? ->
-        if(lobby.hasPlayer(player) && lobby.turn === player){
+        if(lobby.hasPlayer(player) && lobby.turn == player){
           try{
             let {data: move_result} = await axios.put(game_service+"/game/movePiece",{game_id: lobby_id,from:from,to:to})
             //If no one won
-            if(move_result.winner === "" || move_result.winner === undefined){
+            if(move_result.winner === undefined || move_result.winner === "" ){
               //If the game tied
-              if(move_result.hasOwnProperty('tie') && move_result.tie == true){
+              if('tie' in move_result && move_result.tie == true){
                 const updated_users = await updatePoints(move_result.winner,process.env.TIE_STARS,move_result.loser,process.env.TIE_STARS,true)
                 io.to(lobby_id).emit("update_board",move_result.board)
                 io.to(online_users.getKey(updated_users[0].mail)).emit("game_ended",{
@@ -719,13 +706,19 @@ io.on('connection', async client => {
                   user:online_users[1],
                   message: "The game ended in a tie, both players received "+process.env.TIE_STARS +"stars"
                 })
-                log("Wow a game tied, you just witnessed such a rare event!")
+                log("Wow game "+lobby_id+" tied, you just witnessed such a rare event!")
                 delete_lobby(lobby_id)
                 io.sockets.adapter.rooms.get(lobby_id).clear()
               }else{
                 //No one won and the game isn't tied, the show must go on
                 io.to(lobby_id).emit("update_board",move_result.board)
-                await change_turn(lobby_id)
+                try{
+                  await change_turn(lobby_id)
+                }catch(err){
+                  log("error in game "+lobby_id+"\n"+err)
+                  io.to(lobby_id).emit("server_error",{message:"Something went wrong while processing your game"})
+                }
+
               }
             }else{
               //we have a winner!
@@ -743,11 +736,11 @@ io.on('connection', async client => {
                     user: (move_result.loser === updated_users[0].mail ? updated_users[0] : updated_users[1]),
                     message:"I'm afraid I'll have to tell you you lost this game, "+process.env.LOSS_STARS+" stars have been removed from your profile but if you ask me that was just opponent's luck, don't give up yet"
                   })
-                  log("Successfully sent end_game")
+                  log("Successfully sent end_game for  game "+lobby_id)
                   delete_lobby(lobby_id)
                   io.sockets.adapter.rooms.get(lobby_id).clear()
                 }else{
-                  log("Something wrong while updating points.")
+                  log("Something wrong while updating points for "+winner+" or "+loser)
                   client.emit("server_error",{message:"Something wrong while updating points."})
                 }
               }catch(err){
@@ -756,7 +749,7 @@ io.on('connection', async client => {
                     client.emit("server_error",{message:err.response.data})
                   }
                 }
-                log(err)
+                log("error1 while moving a piece in game "+lobby_id+"\n"+err)
               }
             }
           }catch(err){
@@ -765,7 +758,7 @@ io.on('connection', async client => {
                 client.emit("client_error",{message:err.response.data})
               }
             }
-            log(err)
+            log("error2 while moving a piece game "+lobby_id+"\n"+err)
           }
         }else{
           client.emit("permit_error",{message:"It's not your turn or you're not in this lobby, you tell me"})
@@ -782,18 +775,15 @@ io.on('connection', async client => {
    */
   client.on('leave_game',async(lobby_id,token) => {
     const user = await user_authenticated(token,client.id)
-    log("HELLO LOBBY"+lobby_id)
     let result = null
     if(user[0]){
       let player = online_users.get(client.id)
 
       if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(player)){
-        log(player+" is in a lobby")
+        log(player+"is trying to delete lobby"+lobby_id+"in which I just confirmed is in")
         try{
           const lobby = lobbies.get(lobby_id)
           const winner = lobby.getPlayers().filter(p => p !== player).shift()
-          log("DELETING GAME DIO CANE")
-          log("lobby_id "+lobby_id)
           result = await axios.delete(game_service+"/game/leaveGame",{data:{game_id: lobby_id, player_id: player}})
           const updated_users = await updatePoints(winner,process.env.WIN_STARS,player,process.env.LOSS_STARS)
           result = result.data
@@ -807,7 +797,7 @@ io.on('connection', async client => {
             message: result[1],
             user: updated_users[1]
           })
-          log(io.sockets.adapter.rooms.get(lobby_id))
+          log(player+" just left game "+lobby_id+", I just assigned the win to "+winner)
           io.sockets.adapter.rooms.get(lobby_id).clear()
         }catch(err){
           if('response' in err && 'status' in err.response){
@@ -815,7 +805,7 @@ io.on('connection', async client => {
               client.emit("server_error",{message:err.response.data})
             }
           }
-          log(err)
+          log("error while leaving game "+lobby_id+"\n"+err)
         }
       }else{
         log(player+" permit error")
@@ -895,10 +885,9 @@ io.on('connection', async client => {
   client.on('global_msg',async(msg,token)=>{
     const user = await user_authenticated(token,client.id)
     if(user[0]){
-      log("a user sent a global-msg")
-      if(online_users.has(client.id)){
-        io.emit("global_msg",{sender:online_users.get(client.id), message:msg})
-      }
+      const user_mail = online_users.get(client.id)
+      log(user_mail+" just sent a global-msg")
+      io.emit("global_msg",{sender:user_mail, message:msg})
     }else{
       client.emit("token_error",{message:user[1]})
     }
@@ -910,9 +899,9 @@ io.on('connection', async client => {
   client.on('game_msg',async(lobby_id,msg,token)=>{
     const user = await user_authenticated(token,client.id)
     if(user[0]){
-      log("a user sent a game msg")
-      log(online_users)
-      if(online_users.has(client.id) && lobbies.has(lobby_id)
+      const user_mail = online_users.get(client.id)
+      log(user_mail+" just sent a game-msg for game"+lobby_id)
+      if(lobbies.has(lobby_id)
       && lobbies.get(lobby_id).getPlayers().includes(online_users.get(client.id))){
         io.to(lobby_id).emit("game_msg",{sender:online_users.get(client.id), message:msg})
       }
@@ -933,12 +922,12 @@ io.on('connection', async client => {
   client.on('get_profile',async(token) =>{
     const user = await user_authenticated(token,client.id)
     if(user[0]){
-      let user_id = online_users.get(client.id)
+      let user_mail = online_users.get(client.id)
       try{
         let {data:user_profile} = await axios.get(user_service+"/profile/getProfile",              
         {params:
           {
-            mail:user_id
+            mail:user_mail
           }
         })
         if(!user_profile === null){
@@ -948,13 +937,11 @@ io.on('connection', async client => {
         }
       }catch(err){
         if('response' in err && 'status' in err.response){
-          if(err.response.status == 500 ){
-            client.emit("server_error",{message:err.response.data})
-          }else if(err.response.status == 404){
+          if(err.response.status == 400){
             client.emit("client_error",{message:err.response.data})
           }
         }
-        log(err)
+        log("Error while getting profile for "+user_mail+"\n"+err)
       }
     }else{
       client.emit("token_error",{message:user[1]})
@@ -966,8 +953,9 @@ io.on('connection', async client => {
   client.on('get_leaderboard',async(token) =>{
     const user = await user_authenticated(token,client.id)
     if(user[0]){
+      const user_mail = online_users.get(client.id)
       try{
-        log("Someone asked for a leaderboard")
+        log(user_mail+" just asked for a leaderboard")
         let {data:leaderboard} = await axios.get(user_service+"/getLeaderboard")
         if(leaderboard === null){
           client.emit("permit_error",{message:leaderboard})
@@ -975,7 +963,7 @@ io.on('connection', async client => {
           client.emit("leaderboard",leaderboard)
         }
       }catch(err){
-        log(err)
+        log("Error while retrieving leaderboard for "+user_mail)
         client.emit("server_error",{message:err.response.data})
       }
     }else{
@@ -986,16 +974,24 @@ io.on('connection', async client => {
    * Client updated some infos on his profile
    */
   client.on('update_profile',async(params,token) =>{
-    log("UPDATING SOME PROFILE YO")
     const user = await user_authenticated(token,client.id)
     if(user[0]){
       const user_mail = online_users.get(client.id)
-      const {data:updated_user} = await axios.put(user_service+"/profile/updateProfile",{mail:user_mail,params:params})
-      if(updated_user === null){
-        client.emit("permit_error",{message:user_history})
-      }else{
-        log("I updated your fucking profile")
-        client.emit("updated_user",updated_user)
+      try{
+        const {data:updated_user} = await axios.put(user_service+"/profile/updateProfile",{mail:user_mail,params:params})
+        if(updated_user === null){
+          client.emit("permit_error",{message:user_history})
+        }else{
+          log(user_mail+"'s profile has just been successfully updated")
+          client.emit("updated_user",updated_user)
+        }
+      }catch(err){
+        if('response' in err && 'status' in err.response){
+          if(err.response.status == 400){
+            client.emit("client_error",{message:err.response.data})
+          } 
+        }
+        log("Error in updating profile for "+user_mail)
       }
     }else{
       client.emit("token_error",{message:user[1]})
@@ -1011,11 +1007,11 @@ io.on('connection', async client => {
     const data = []
 
     if(user[0]){
-      let user_id = online_users.get(client.id)
+      let user_mail = online_users.get(client.id)
       let {data:user_history} = await axios.get(game_service+"/games/userHistory",
       {params:
         {
-          mail:user_id
+          mail:user_mail
         }
       })
       //Getting opponents profile for every game this user has played
@@ -1046,6 +1042,7 @@ io.on('connection', async client => {
       if(user_history === null){
         client.emit("permit_error",{message:user_history})
       }else{
+        log("Just sent user_history for "+user_mail)
         client.emit("user_history",data)
       }
     }else{
@@ -1065,8 +1062,7 @@ async function request_history_profile(user_mail){
       }
     })
   }catch(err){
-    log(err)
-    log("Something went wrong while requesting avatar for user history")
+    log("Something went wrong while requesting avatar for "+user_mail+" history")
   }
   if(profile != ""){
     return   {
