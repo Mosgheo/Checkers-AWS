@@ -7,11 +7,11 @@
 
     <div class="dropdown mt-5">
       <SidebarLink class="barMenu pl-1.5" to="" icon="fas fa-bars"></SidebarLink>
-      <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
-        <li>
+      <ul tabindex="0" class="block p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
+        <li class="inline-block">
           <SidebarLink class="w-44 profile-drop mb-3 pl-0.5" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
         </li> 
-        <li>
+        <li class="inline-block">
           <SidebarLink class="leaderboard-drop w-44 mb-3 pl-0.5" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
         </li>
       </ul>
@@ -23,17 +23,17 @@
     <div class="mx-3 mt-40 indicator">
       <div v-if="this.invites.length > 0" class="indicator-item badge badge-secondary"></div>
       <div v-else></div>
-      <div v-if="this.invites.length > 0" class="dropdown dropdown-right">
+      <div v-if="this.invites.length > 0" class="dropdown">
         <SidebarLink class="notifications w-44 p-0.5" to="" icon="fas fa-bell">Notifiche</SidebarLink>
         <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
           <template v-for="(invite, i) in this.invites" :key="i">
-            <li>
+            <li class="block">
               <a @click="checkInvite(invite, i)">Invito da {{ invite }}</a>
             </li> 
           </template>
         </ul>
       </div>
-      <div v-else class="dropdown dropdown-right">
+      <div v-else class="dropdown">
         <SidebarLink class="notifications w-44 p-0.5" to="" icon="fas fa-bell">Notifiche</SidebarLink>
         <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
           <li>
@@ -106,6 +106,15 @@ export default {
   height: 0;
 }
 
+@media only screen and (max-height: 1200px) { 
+  .login {
+    margin-top: 10rem;
+  }
+  .indicator {
+    margin-top: 5rem;
+  }
+}
+
 @media only screen and (max-width: 1200px) {
   img {
     max-width: 4rem;
@@ -149,7 +158,10 @@ export default {
   }
   .notifications, .indicator {
     width: auto;
-    margin-top: 0.5rem;
-  } 
+    margin-top: 0.7rem;
+  }
+  .login button {
+    display: none;
+  }
 }
 </style>

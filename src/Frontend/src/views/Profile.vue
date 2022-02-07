@@ -1,12 +1,12 @@
 <template>
-  <div class="profile flex flex-col justify-center items-center px-32 py-8">
-    <div class="basic-info card lg:card-side flex flex-row w-9/12 max-w-screen-2xl">
+  <div class="profile flex flex-col justify-center items-center py-5">
+    <div class="basic-info card lg:card-side flex flex-row w-9/12">
       <img :src="this.avatar" class="mask mask-square w-60 h-60 p-5">
       <div class="p-3">
         <div class="flex p-2">
           <h2 :innerText="this.username" class="font-semibold text-xl card-title"></h2>
           <div class="avatar">
-            <div class="ml-1 rounded-btn w-14 h-14">
+            <div class="px-2 py-2 rounded-btn w-14 h-14">
               <img :src="this.avatar" class="avatar2">
             </div>
           </div>
@@ -15,7 +15,7 @@
       </div>
     </div>
 
-    <div class="profile-info rounded-xl bordered mt-5 w-9/12 max-w-screen-2xl">
+    <div class="profile-info rounded-xl bordered mt-5 w-9/12">
       <div class="tabs tabs-boxed pl-5 justify-center">
         <a @click="dataInfo" id="dataInfo" class="tab tab-lg tab-active">Dati Utente</a>
         <a @click="matchInfo" id="matchInfo" class="tab tab-lg ">Partite</a>
@@ -114,17 +114,8 @@ img {
     width: 9rem;
     height: 9rem;
   }
-  .profile {
-    min-width: 55rem;
-    padding-left: 5rem;
-    padding-right: 5rem;
-  }
 }
 
 @media only screen and (max-width: 700px) {
-  .profile {
-    padding-left: 0;
-    padding-right: 25rem;
-  }
 }
 </style>

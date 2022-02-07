@@ -196,8 +196,8 @@ export default {
     visibility: visible;
   }
   .main-logo {
-    min-width: 27rem;
-    min-height: 27rem;
+    padding: 0;
+    margin-top: 5rem;
   }
   .play-checkers {
     margin-left: 0.8rem;
@@ -205,6 +205,13 @@ export default {
   .checkers-img {
     min-width: 5rem;
     min-height: 5rem;
+  }
+}
+
+@media only screen and (max-width: 785px) { 
+  .main-logo {
+    min-width: 27rem;
+    min-height: 27rem;
   }
 }
 </style>

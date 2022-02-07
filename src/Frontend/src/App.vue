@@ -1,9 +1,9 @@
 <template>
 <div id="app">
 
-  <div id="main" class="flex flex-row">
-    <Sidebar @checkInvite="checkInvite" class="sidebar h-screen" :invites="this.invites" />
-    <div class="middle w-screen">
+  <div id="main" class="flex flex-row min-h-screen min-w-screen">
+    <Sidebar @checkInvite="checkInvite" class="sidebar h-max" :invites="this.invites" />
+    <div class="middle w-screen min-w-fit h-screen">
       <router-view />
     </div>
   </div>
@@ -186,10 +186,21 @@ export default {
   -moz-osx-font-smoothing: auto;
   text-align: center;
   color: #A39D8F;
+}
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+#main, .middle {
+  background-color: #343232;
+}
+#main {
   overflow: hidden;
 }
 .middle {
-  background-color: #343232;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 @media only screen and (max-width: 785px) {
   #main {
@@ -198,11 +209,14 @@ export default {
   }
   .sidebar {
     max-height: 5.5rem;
+    height: 5rem;
+    min-width: 100%;
+    width: max-content;
   }
   .middle {
-    height: 100vh;
     min-height: min-content;
-    width: 0px;
+    overflow-y: auto;
+    overflow-x: auto;
   }
 }
 </style>

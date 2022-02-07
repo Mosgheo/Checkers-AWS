@@ -1,5 +1,5 @@
 <template>
-  <router-link @click="buttonClick" :to="to" class="self-center link rounded-lg flex" :class="{ active: isActive }">
+  <router-link @click="buttonClick" :to="to" class="this.to self-center link rounded-lg flex" :class="{ active: isActive }">
     <i class="icon" :class="icon" />
     <button class="btn btn-ghost"><slot /></button> 
     <!--<transition name="fade">
@@ -19,7 +19,7 @@ var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
 
 export default {
   props: {
-    to: { type: String, required: false },
+    to: { type: String, required: true },
     icon: { type: String, required: true },
     click: { type: String, required: false }
   },
@@ -84,8 +84,12 @@ button:hover {
     visibility: visible;
     width: auto;
   }
+  .login button, .indicator button {
+    display: none;
+  }
   .icon {
-    width: 25px;
+    width: 2rem;
+    height: 2rem;
   }
 }
 </style>

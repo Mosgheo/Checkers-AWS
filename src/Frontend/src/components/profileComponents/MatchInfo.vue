@@ -1,5 +1,6 @@
 <template>
-<div class="overflow-x-auto">
+<div class="overflow-hidden">
+  <div class="overflow-scroll">
   <table class="table table-compact w-full">
 
     <thead>
@@ -55,6 +56,7 @@
     </tbody>
 
   </table>
+  </div>
 
   <div v-if="this.history.length > this.perPage" class="flex mt-3 justify-center">
     <button @click="previousPage($event)" class="btn mr-5 btn-disabled">Previous</button> 
