@@ -2,16 +2,16 @@
   <div class="profile flex flex-col justify-center items-center py-5">
     <div class="basic-info card lg:card-side flex flex-row w-9/12">
       <img :src="this.avatar" class="mask mask-square w-60 h-60 p-5">
-      <div class="p-3">
-        <div class="flex p-2">
-          <h2 :innerText="this.username" class="font-semibold text-xl card-title"></h2>
-          <div class="avatar">
-            <div class="px-2 py-2 rounded-btn w-14 h-14">
-              <img :src="this.avatar" class="avatar2">
-            </div>
-          </div>
+      <div class="p-1">
+        <div class="flex mt-2.5 ml-2">
+          <h2 :innerText="this.username" class="font-semibold text-2xl card-title"></h2>
+        </div>
+        <div class="flex flex-row ml-2 font-semibold text-xl">
+          <p>Stars</p>
+          <i class="fas fa-star ml-1 mt-1" />
+          <p :innerText="this.stars" class="ml-3"></p>
         </div> 
-        <p :innerText="this.first_last_name" class="text-lg text-left p-2">Nome Cognome</p> 
+        <p :innerText="this.first_last_name" class="text-xl text-left ml-2 mt-2">Nome Cognome</p> 
       </div>
     </div>
 
@@ -59,7 +59,8 @@ export default {
       avatar: "http://daisyui.com/tailwind-css-component-profile-1@40w.png",
       first_last_name: "Nome Cognome",
       username: "Username",
-      tabName: "Dati Utente"
+      tabName: "Dati Utente",
+      stars: "Stars"
     }
   },
   methods: {
@@ -89,6 +90,7 @@ export default {
       this.avatar = res.avatar
       this.first_last_name = res.first_name + " " + res.last_name
       this.username = res.username
+      this.stars = res.stars
     }
   }
 }
