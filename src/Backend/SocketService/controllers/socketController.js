@@ -9,7 +9,6 @@ const online_users = new BiMap()  //{  client_id <-> user_id  }
 const lobbies = new BiMap(); // { lobby_id -> Lobby }
 const turn_timeouts = new Map(); // {lobby_id -> timoutTimer}
 
-const invitations = new Map() // {host_id -> Set[opponent_id]}
 const invitation_timeouts = new Map() // {host_id -> {opponent_id -> timeout}}
 
 const game_service = process.env.GAME_SERVICE
@@ -542,11 +541,6 @@ io.on('connection', async client => {
     {
       const opponent_id = online_users.getKey(opponent_mail)
       io.to(opponent_id).emit("lobby_invitation",user_mail)
-      if(invitations.has(user_mail)){
-        invitations.get(user_mail).add(opponent_mail)
-      }else{
-        invitations.set(user_mail,new Set().add(opponent_mail))
-      }
 
       //If such player already exists in invitation_timeouts map
       if(invitation_timeouts.has(user_mail)){
@@ -557,20 +551,18 @@ io.on('connection', async client => {
           //Clear the timeout associated to such invite
           clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
           invitation_timeouts.get(user_mail).delete(opponent_mail)
-          //Clear invitation
-          invitations.get(user_mail).delete(opponent_mail)
         },process.env.TIMEOUT))
       }else{
-        invitation_timeouts.set(user_mail,new Map().set(opponent_mail,setTimeout(function(){
+        invitation_timeouts.set(user_mail,new Map())
+        invitation_timeouts.get(user_mail).set(opponent_mail,setTimeout(function(){
         //Inform both players that the invite has timed out
         io.to(opponent_id).emit("invitation_timeout",user_mail)
         client.emit("invitation_timeout",user_mail)
         //Clear the timeout associated to such invite
         clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
         invitation_timeouts.get(user_mail).delete(opponent_mail)
-        //Clear invitation
-        invitations.get(user_mail).delete(opponent_mail)
-        },process.env.TIMEOUT)))
+        },process.env.TIMEOUT))
+
       }
     }else{
       client.emit("invite_error",{message:"Can't invite player "+opponent_mail })
@@ -584,7 +576,7 @@ io.on('connection', async client => {
     const user = await user_authenticated(token,client.id)
     if(user[0]){
       const user_mail = online_users.get(client.id)
-      if(invitations.has(opp_mail) == false || invitations.get(opp_mail).has(user_mail) == false){
+      if(invitation_timeouts.has(opp_mail) == false || invitation_timeouts.get(opp_mail).has(user_mail) == false){
         client.emit('invitation_expired',{message:"Your invitation for this lobby has expired"})
       }else{
         log(user_mail+" just accepted a game invite from "+opp_mail)
@@ -611,28 +603,19 @@ io.on('connection', async client => {
             game.push(board)
             game.push(lobby_id)
             io.to(online_users.getKey(opp_mail)).emit("invite_accepted")
-            /**
-             * 
-             * 
-             * CHECK THIS
-             * 
-             * 
-             */
             setTimeout(function() {
               io.to(lobby_id).emit("game_started",game)
             }, 700)
             log(opp_mail +"(host) and "+user_mail+" just started a game through invitations")
-
-            //Clear all invitation sent by both players
-            invitations.delete(user_mail)
-            invitation_timeouts.get(user_mail).forEach(invite_timeout =>{
-              clearTimeout(invite_timeout)
-            })
+            if(invitation_timeouts.has(user_mail)){
+              for(const [_,invite] of invitation_timeouts.get(user_mail)){
+                clearTimeout(invite)
+              }
+            }
+            for(const [_,invite] of invitation_timeouts.get(opp_mail)){
+              clearTimeout(invite)
+            }
             invitation_timeouts.delete(user_mail)
-            invitations.delete(opp_mail)
-            invitation_timeouts.get(opp_mail).forEach(invite_timeout =>{
-              clearTimeout(invite_timeout)
-            })
             invitation_timeouts.delete(opp_mail)
             await setup_game_turn_timeout(lobby_id)
 
@@ -659,12 +642,11 @@ io.on('connection', async client => {
     const user = await user_authenticated(token,client.id)
     if(user[0]){
       const user_mail = online_users.get(client.id)
-      if(!invitations.has(opp_mail) || invitations.get(opp_mail).has(user_mail) === false){
+      if(!invitation_timeouts.has(opp_mail) || invitation_timeouts.get(opp_mail).has(user_mail) === false){
         client.emit("invitation_expired",{message:"Your invitation for this lobby has expired"})
       }else{
         io.to(online_users.getKey(opp_mail)).emit("invitation_declined",{message:opp_mail+" has just refused your invite, we're so sry. "})
-        if(invitations.has(opp_mail) && invitations.get(opp_mail).has(user_mail)){
-          invitations.get(opp_mail).delete(user_mail)
+        if(invitation_timeouts.has(opp_mail) && invitation_timeouts.get(opp_mail).has(user_mail)){
           clearTimeout(invitation_timeouts.get(opp_mail).get(user_mail))
           invitation_timeouts.get(opp_mail).delete(user_mail)
         }else{

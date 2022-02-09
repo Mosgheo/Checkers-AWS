@@ -6,7 +6,6 @@ let passwordValidator = require('password-validator');
 const fs = require('fs');
 const _ = require('lodash');
 
-
 const password_validator = new passwordValidator()
     .is().min(8)
     .is().max(100)
@@ -24,6 +23,7 @@ function log(msg){
         console.log(msg)
     }
 }
+
 //Loads the secret string  with which the server will authenticate clients
 function load_jwt_secret(){
     if(fs.existsSync(jsecret_path)){
@@ -53,6 +53,7 @@ function salt_function(psw,salt){
     hash.update(psw)
     return hash.digest('hex')
 }
+
 /**
  * Tries to sign up a new user
  */
@@ -237,7 +238,7 @@ exports.getHistory = async function(req,res){
         log("Getting history for user "+user_mail)
         if(user === null){
             log("lol there's no such user as "+user_mail)
-            res.status(404).json({error: "Cannot find any player with such ID"})
+            res.status(400).json({error: "Cannot find any player with such ID"})
         }
         log("Successfully got history for "+user_mail)
         data.push(user.wins)
