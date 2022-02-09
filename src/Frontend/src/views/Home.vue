@@ -1,19 +1,19 @@
 <template>
   <div class="main-div flex flex-row items-center justify-center centralSpace px-28 py-5">
 
-    <img src="@/assets/checkers.png" class="main-logo self-center mask min-w-fit min-h-fit w-7/12 h-7/12 mask-square">
+    <img src="@/assets/checkers.png" alt="Main Logo" class="main-logo self-center mask min-w-fit min-h-fit w-7/12 h-7/12 mask-square">
 
     <div class="card items-center w-64 flex flex-col rightMenu self-center ml-10">
       <h1 class="font-bold text-2xl my-5">Gioca a Checkers</h1>
       <figure>
-        <img src="@/assets/logo.png" class="self-center mask w-44 h-44 mt-2 p-2 mask-square">
+        <img src="@/assets/logo.png" alt="menù-logo" class="self-center mask w-44 h-44 mt-2 p-2 mask-square">
       </figure> 
 
       <label @click="buttonClick" for="create-lobby-modal" id="btn-menu" class="btn text-sm">Crea Lobby</label>
       <input type="checkbox" id="create-lobby-modal" class="modal-toggle"> 
       <div class="modal">
         <div class="modal-box flex flex-col items-center">
-          <img class="w-40 h-28" src="@/assets/msg_image.png" />
+          <img alt="Modal Logo Image" class="w-40 h-28" src="@/assets/msg_image.png" />
           <div class="form-control items-center">
             <label class="mt-3">
               <span class="font-bold text-lg">Dai un nome alla tua lobby</span>
@@ -39,7 +39,7 @@
       <input type="checkbox" id="friends-modal" class="modal-toggle"> 
       <div class="modal modal-invite">
         <div class="flex flex-col modal-box items-center">
-          <img class="w-40 h-28" src="@/assets/msg_image.png" />
+          <img alt="Modal Logo Image" class="w-40 h-28" src="@/assets/msg_image.png" />
           <h3 class="font-bold text-lg">Inserisci il nickname del tuo amico</h3>
           <div class="form-control items-center mt-2">
             <input type="text" placeholder="Username" class="text-base opponent-mail input input-bordered w-min">
@@ -55,7 +55,7 @@
     <div class="dropdown mt-10">
       <div tabindex="0" @click="buttonClick" class="flex flex-nowrap flex-column btn h-24">
         <figure>
-          <img src="@/assets/logo.png" class="checkers-img self-center mask w-20 h-20 mask-square">
+          <img alt="Modal Logo Image" src="@/assets/logo.png" class="checkers-img self-center mask w-20 h-20 mask-square">
         </figure> 
         <h1 class="play-checkers font-bold text-2xl">Gioca a Checkers</h1>
       </div> 
@@ -65,7 +65,7 @@
           <input type="checkbox" id="create-lobby-modal" class="modal-toggle"> 
           <div class="modal">
             <div class="flex flex-col items-center modal-box">
-              <img class="w-40 h-28" src="@/assets/msg_image.png" />
+              <img alt="Modal Logo Image" class="w-40 h-28" src="@/assets/msg_image.png" />
               <div class="form-control items-center">
                 <label class="mt-3">
                   <span class="font-bold text-lg">Dai un nome alla tua lobby</span>
@@ -93,7 +93,7 @@
           <input type="checkbox" id="friends-modal" class="modal-toggle"> 
           <div class="modal modal-invite">
             <div class="flex flex-col modal-box items-center"> 
-              <img class="w-40 h-28" src="@/assets/msg_image.png" />
+              <img alt="Modal Logo Image" class="w-40 h-28" src="@/assets/msg_image.png" />
               <h3 class="font-bold text-lg">Inserisci il nickname del tuo amico</h3>
               <div class="form-control items-center mt-2">
                 <input type="text" placeholder="Username" class="text-base opponent-mail input input-bordered w-min">
@@ -114,8 +114,9 @@
 <script>
 import api from '../../api.js'
 import store from '../store'
+import { getCurrentInstance } from 'vue'
 
-var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+var appInstance = null
 
 var lobbyName = document.getElementsByClassName("input-name")
 var starTextBox = document.getElementsByClassName("input-star")
@@ -124,9 +125,12 @@ var opponent = document.getElementsByClassName("opponent-mail")
 
 export default {
   name: 'Home',
+  setup() {
+    appInstance = getCurrentInstance().appContext.config.globalProperties
+  },
   methods: {
     startingMatch() {
-      button_click.play()
+      this.buttonClick()
       if(store.state.token !== "") {
         api.build_lobby(this.$socket, lobbyName[0].value, starTextBox[0].value)
         this.$router.push("/inGame")
@@ -135,7 +139,7 @@ export default {
       }
     },
     lobbyOpened() {
-      button_click.play()
+      this.buttonClick()
       if(store.state.token !== "") {
         api.get_lobbies(this.$socket, store.getters.user.stars)
         this.$router.push("/lobbies")
@@ -144,7 +148,7 @@ export default {
       }
     },
     invitePlayer() {
-      button_click.play()
+      this.buttonClick()
       if(store.state.token !== "") {
         api.invite_opponent(this.$socket, opponent[0].value)
       } else {
@@ -152,7 +156,7 @@ export default {
       }
     },
     buttonClick() {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
     }
   }
 }

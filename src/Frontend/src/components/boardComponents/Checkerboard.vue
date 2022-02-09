@@ -33,7 +33,6 @@ import store from '@/store'
 import api from '../../../api.js'
 
 var user = null
-var move_piece = new Audio(require("@/assets/sounds/piece-move.wav"))
 var appInstance = null
 
 export default {
@@ -152,33 +151,33 @@ export default {
     selectCell(cell) {
       if(this.playerTurn === user.mail) {
         if(cell === this.clickedCell) {
-          move_piece.play()
+          appInstance.$MOVE_PIECE.play()
           this.clickedCell = null
           this.counterClick = 0
           document.getElementById("" + cell).style.backgroundColor = "rgb(51, 51, 51)"
         } else if(this.counterClick === 0 && document.getElementById(""+cell).style.backgroundColor === "rgb(51, 51, 51)") {
-          move_piece.play()
+          appInstance.$MOVE_PIECE.play()
           this.clickedCell = cell
           this.counterClick++
           document.getElementById("" + cell).style.backgroundColor = "rgb(209, 213, 219)"
         } else {
           for(let i = 0; i < this.possibleMoves.length; i++) {
            if(this.possibleMoves[i].from === "K"+this.clickedCell && this.possibleMoves[i].to === cell) {
-              move_piece.play()
+              appInstance.$MOVE_PIECE.play()
               api.move_piece(this.$socket, this.lobbyId, "K"+this.clickedCell, cell)
               document.getElementById("" + this.clickedCell).style.backgroundColor = "black"
               this.clickedCell = null
               this.counterClick = 0
               return;
             } else if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === "K"+cell) {
-              move_piece.play()
+              appInstance.$MOVE_PIECE.play()
               api.move_piece(this.$socket, this.lobbyId, this.clickedCell, "K"+cell)
               document.getElementById("" + this.clickedCell).style.backgroundColor = "black"
               this.clickedCell = null
               this.counterClick = 0
               return;
             } else if(this.possibleMoves[i].from === this.clickedCell && this.possibleMoves[i].to === cell) {
-              move_piece.play()
+              appInstance.$MOVE_PIECE.play()
               api.move_piece(this.$socket, this.lobbyId, this.clickedCell, cell)
               document.getElementById("" + this.clickedCell).style.backgroundColor = "black"
               this.clickedCell = null
@@ -187,7 +186,7 @@ export default {
             }
           }
           if(this.clickedCell !== null) {
-            move_piece.play()
+            appInstance.$MOVE_PIECE.play()
             document.getElementById("" + this.clickedCell).style.backgroundColor = "rgb(51, 51, 51)"
           }
           this.clickedCell = null
@@ -240,6 +239,7 @@ export default {
   },
   sockets: {
     game_started(res) {
+      console.log(res)
       this.player1 = res[0]
       this.player2 = res[1]
       if(this.player1.username === user.username) {

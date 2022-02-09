@@ -27,17 +27,11 @@
     </label>
     <div>
       <label for="load-image">
-        <img src="https://icons.iconarchive.com/icons/dtafalonso/android-lollipop/128/Downloads-icon.png"/>
+        <img src="https://icons.iconarchive.com/icons/dtafalonso/android-lollipop/128/Downloads-icon.png" alt="Upload Image" />
       </label>
       <input id="load-image" ref="file-input" type="file" accept="image/png, image/gif, image/jpeg" 
         @input="uploadImage" >
     </div>
-    <!--<select class="select select-bordered w-full max-w-xs mt-10">
-      <option disabled="disabled" selected="selected">Selezione Località</option> 
-      <option>Los Angeles</option> 
-      <option>New York</option> 
-      <option>Bologna</option>
-    </select>-->
 
     <div class="object-center space-x-2 mt-10">
       <label class="btn font-semibold text-base" @click.prevent="save_profile">Modifica</label> 
@@ -46,7 +40,7 @@
     <div class="update-modal modal modal-close">
       <div class="modal-box">
         <div class="flex flex-col items-center">
-          <img class="w-40 h-28" src="@/assets/msg_image.png" />
+          <img class="w-40 h-28" src="@/assets/msg_image.png" alt="Modal Logo Image" />
           <p class="font-semibold text-base msg">Ciao</p> 
         </div>
         <div class="modal-action justify-center">
@@ -61,9 +55,9 @@
 <script>
 import store from '@/store'
 import api from '@/../api.js'
+import { getCurrentInstance } from 'vue'
 
-var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
-
+var appInstance = null
 var user = null
 var update_modal = document.getElementsByClassName("update-modal")
 var msg = document.getElementsByClassName("msg")
@@ -73,6 +67,7 @@ export default {
   name: "UserInfo",
   setup() {
     user = store.getters.user
+    appInstance = getCurrentInstance().appContext.config.globalProperties
   },
   data() {
     api.get_profile(this.$socket)
@@ -85,7 +80,7 @@ export default {
   },
   methods:{
     save_profile() {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
 
       const user = {
           username : document.getElementsByClassName("username")[0].value,
@@ -106,7 +101,7 @@ export default {
       //api.update_profile(this.$socket, user, localStorage.token)
     },
     close() {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       update_modal[0].setAttribute("class", "update-modal modal")
       this.$forceUpdate()
     },

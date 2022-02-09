@@ -6,17 +6,27 @@
     </div>
     <p>The page you are looking is temporarily unavailable.
       Make sure tou are logged in before do something</p>
-    <router-link to="/login">Sign in</router-link>
+    <router-link @click="buttonClick" to="/login">Sign in</router-link>
   </div>
 </div>
 </template>
 
 <script>
 import toasty from 'toasty';
-export default{
-  setup(){
-  let t = toasty();
-  t.trigger();
+import { getCurrentInstance } from 'vue'
+
+var appInstance = null
+
+export default {
+  setup() {
+    appInstance = getCurrentInstance()
+    let t = toasty()
+    t.trigger()
+  },
+  methods: {
+    buttonClick() {
+      appInstance.appContext.config.globalProperties.$BUTTON_CLICK.play()
+    }
   }
 }
 
@@ -95,7 +105,7 @@ export default{
   }
 
   .notfound .notfound-404 h1 {
-      font-size: 122px;
+    font-size: 122px;
   }
 }
 

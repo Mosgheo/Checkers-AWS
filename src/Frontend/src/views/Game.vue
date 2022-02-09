@@ -5,7 +5,7 @@
 
       <div class="modal modal-change-location">
         <div class="flex flex-col items-center modal-box">
-          <img class="w-40 h-28" src="@/assets/msg_image.png" />
+          <img alt="Modal Logo" class="w-40 h-28" src="@/assets/msg_image.png" />
           <p class="text-base font-semibold" id="exit-game-msg"></p> 
           <div class="modal-action">
             <label for="my-modal-2" @click="exitGame" class="btn">Accept</label> 
@@ -18,13 +18,13 @@
 </template>
 
 <script>
+import { getCurrentInstance } from 'vue'
 import Checkerboard from '@/components/boardComponents/Checkerboard'
 import Chat from '@/components/boardComponents/Chat'
 import store from '@/store'
 import api from '../../api.js'
 
-var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
-
+var appInstance = null
 var changeLocation = false
 var path = null
 
@@ -36,6 +36,9 @@ export default {
     Checkerboard,
     Chat
   },
+  setup() {
+    appInstance = getCurrentInstance().appContext.config.globalProperties
+  },
   data() {
     return {
       lobbyId: null
@@ -43,11 +46,11 @@ export default {
   },
   methods: {
     closeModal() {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       modal[0].className = "modal modal-change-location"
     },
     exitGame() {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       if(this.lobbyId === null || this.lobbyId === undefined) {
         api.get_lobbies(this.$socket, store.state.user.stars)
       }

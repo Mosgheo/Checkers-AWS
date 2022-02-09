@@ -25,7 +25,7 @@
               <div class="flex items-center space-x-3">
                 <div class="avatar">
                   <div class="w-12 h-12 mask mask-squircle">
-                    <img v-bind:src=user.avatar alt="Avatar Tailwind CSS Component">
+                    <img :src="user.avatar" alt="User's Avatar">
                   </div>
                 </div> 
                 <div>
@@ -65,11 +65,15 @@
 
 <script>
 import api from '@/../api.js'
+import { getCurrentInstance } from 'vue'
 
-var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+var appInstance = null
 
 export default {
   name: "LeaderBoard",
+  setup() {
+    appInstance = getCurrentInstance().appContext.config.globalProperties
+  },
   data() {
     api.get_leaderboard(this.$socket)
 
@@ -82,7 +86,7 @@ export default {
   },
   methods: {
     nextPage(button) {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       this.currentPage = []
       for(let i = (this.perPage*this.page); i < (this.page + 1)*this.perPage; i++) {
         if(this.leaderboard[i] === undefined) {
@@ -99,7 +103,7 @@ export default {
       }
     },
     previousPage(button) {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       this.currentPage = []
       var fillTo = ((this.perPage*this.page)-1) - this.perPage
       for(let i = (fillTo - this.perPage)+1; i <= fillTo; i++) {

@@ -10,7 +10,7 @@
 
   <div class="modal modal-invites">
     <div class="flex flex-col items-center modal-box">
-      <img class="w-40 h-28" src="@/assets/msg_image.png" />
+      <img class="w-40 h-28" src="@/assets/msg_image.png" alt="logo-notification" />
       <p class="text-base font-semibold invites-msg"></p> 
       <div class="modal-action">
         <label @click="accept" class="btn">Accept</label> 
@@ -21,7 +21,7 @@
 
   <div class="modal modal-notification">
     <div class="flex flex-col items-center modal-box">
-      <img class="w-40 h-28" src="@/assets/msg_image.png" />
+      <img class="w-40 h-28" src="@/assets/msg_image.png" alt="logo-notification" />
       <p class="text-base font-semibold notification-msg"></p>
       <div class="modal-action">
         <label @click="close" class="btn">Accept</label>
@@ -36,9 +36,9 @@
 import Sidebar from '@/components/sidebarComponents/Sidebar.vue'
 import store from './store'
 import api from '../api.js'
+import { getCurrentInstance } from 'vue'
 
-var notification_sound = new Audio(require("@/assets/sounds/notification.mp3"))
-var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+var appInstance = null
 
 var message = document.getElementsByClassName("invites-msg")
 var modal = document.getElementsByClassName("modal-invites")
@@ -48,6 +48,9 @@ var messageNotification = document.getElementsByClassName("notification-msg")
 export default {
   components: {
     Sidebar
+  },
+  setup() {
+    appInstance = getCurrentInstance().appContext.config.globalProperties
   },
   data() {
     return {
@@ -59,7 +62,7 @@ export default {
   },
   methods: {
     accept() {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       if(!store.state.in_game) {
         api.accept_invite(this.$socket, this.opponent_mail)
         this.invites.splice(this.inviteId, 1)
@@ -77,7 +80,7 @@ export default {
       modal[0].className = "modal modal-invites"
     },
     decline() {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       api.decline_invite(this.$socket, this.opponent_mail)
       this.invites.splice(this.inviteId, 1)
       modal[0].className = "modal modal-invites"
@@ -93,7 +96,7 @@ export default {
       modal[0].className = "modal modal-invites modal-open"
     },
     close() {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       modalNotification[0].className = "modal modal-notification"
     }
   },
@@ -134,7 +137,7 @@ export default {
     },
     lobby_invitation(msg) {
       console.log(msg)
-      notification_sound.play()
+      appInstance.$NOTIFICATION.play()
       for(let i = 0; i < this.invites.length; i++) {
         if(this.invites[i] === msg) {
           this.invites[i] = msg

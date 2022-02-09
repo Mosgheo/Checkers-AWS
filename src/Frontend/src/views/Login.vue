@@ -50,8 +50,9 @@
 <script>
 import api from '@/../api.js'
 import store from '@/store'
+import { getCurrentInstance } from 'vue'
 
-var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+var appInstance = null
 
 var mail = document.getElementsByClassName("mail")
 var password = document.getElementsByClassName("password")
@@ -60,9 +61,12 @@ var msg = document.getElementsByClassName("msg")
 
 export default {
     name: "Login",
+    setup() {
+        appInstance = getCurrentInstance().appContext.config.globalProperties
+    },
     methods: {
         login() {
-            button_click.play()
+            appInstance.$BUTTON_CLICK.play()
             if(mail[0].value === "" && password[0].value === "") {
                 msg[0].textContent = "Insert a valid email and/or password"
                 login_fail[0].setAttribute("class", "login-fail modal modal-open")
@@ -71,13 +75,13 @@ export default {
             }
         },
         close() {
-            button_click.play()
+            appInstance.$BUTTON_CLICK.play()
             login_fail[0].setAttribute("class", "login-fail modal")
             mail[0].value = ""
             password[0].value = ""
         },
         buttonClick() {
-            button_click.play()
+            appInstance.$BUTTON_CLICK.play()
         }
     },
     sockets:{

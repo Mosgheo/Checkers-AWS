@@ -1,21 +1,15 @@
 <template>
   <router-link @click="buttonClick" :to="to" class="this.to self-center link rounded-lg flex" :class="{ active: isActive }">
     <i class="icon" :class="icon" />
-    <button class="btn btn-ghost"><slot /></button> 
-    <!--<transition name="fade">
-      <span v-if="!collapsed">
-        <slot />
-      </span>
-    </transition>-->
+    <button class="btn btn-ghost"><slot /></button>
   </router-link>
 </template>
 
 <script>
-import { computed } from 'vue'
+import { computed, getCurrentInstance } from 'vue'
 import { useRoute } from 'vue-router'
-import { collapsed } from './state'
 
-var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+var appInstance = null
 
 export default {
   props: {
@@ -24,13 +18,14 @@ export default {
     click: { type: String, required: false }
   },
   setup(props) {
+    appInstance = getCurrentInstance().appContext.config.globalProperties
     const route = useRoute()
     const isActive = computed(() => route.path === props.to)
-    return { isActive, collapsed }
+    return { isActive }
   },
   methods: {
     buttonClick() {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
     }
   }
 }

@@ -68,14 +68,9 @@
 
 <script>
 import api from '../../api.js'
+import { getCurrentInstance } from 'vue'
 
-/*var username_input = document.getElementsByClassName("username")
-var first_name_input = document.getElementsByClassName("first_name")
-var last_name_input= document.getElementsByClassName("last_name")
-var mail_input = document.getElementsByClassName("mail")
-var pw_input = document.getElementsByClassName("password")
-var confirm_pw_input = document.getElementsByClassName("confirm_password")*/
-var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+var appInstance = null
 
 var signup_modal = document.getElementsByClassName("signup-modal")
 var msg = document.getElementsByClassName("msg")
@@ -83,9 +78,12 @@ var signup = false
 
 export default {
     name: "Signup",
+    setup() {
+        appInstance = getCurrentInstance().appContext.config.globalProperties
+    },
     methods: {
         signup() {
-            button_click.play()
+            appInstance.$BUTTON_CLICK.play()
             var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
             var username = document.getElementsByClassName("username")[0].value
             var first_name = document.getElementsByClassName("first_name")[0].value
@@ -103,7 +101,7 @@ export default {
             }
         },
         close() {
-            button_click.play()
+            appInstance.$BUTTON_CLICK.play()
             signup_modal[0].setAttribute("class", "signup-modal modal modal-close")
             if(signup) {
                 this.$router.push("/login")

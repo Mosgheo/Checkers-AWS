@@ -1,7 +1,7 @@
 <template>
   <div class="profile flex flex-col justify-center items-center py-5">
     <div class="basic-info card lg:card-side flex flex-row w-9/12">
-      <img :src="this.avatar" class="mask mask-square w-60 h-60 p-5">
+      <img :src="this.avatar" alt="User's Avatar" class="mask mask-square w-60 h-60 p-5">
       <div class="p-1">
         <div class="flex mt-2.5 ml-2">
           <h2 :innerText="this.username" class="font-semibold text-2xl card-title"></h2>
@@ -41,8 +41,9 @@
 import DataInfo from "@/components/profileComponents/DataInfo";
 import MatchInfo from "@/components/profileComponents/MatchInfo";
 import api from '@/../api'
+import { getCurrentInstance } from 'vue'
 
-var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+var appInstance = null
 
 var user = null
 const wrapper = document.getElementsByClassName("info")
@@ -52,6 +53,9 @@ export default {
   components: {
     DataInfo,
     MatchInfo
+  },
+  setup() {
+    appInstance = getCurrentInstance().appContext.config.globalProperties
   },
   data() {
     api.get_profile(this.$socket)
@@ -66,7 +70,7 @@ export default {
   methods: {
     dataInfo() {
       const elem = document.getElementById("dataInfo")
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       if(!elem.getAttribute("class").includes("tab-active")) {
         this.tabName = "Dati Utente"
         elem.setAttribute("class", "tab tab-lg tab-active");
@@ -76,7 +80,7 @@ export default {
     },
     matchInfo() {
       const elem = document.getElementById("matchInfo")
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       if(!elem.getAttribute("class").includes("tab-active")) {
         this.tabName = "Storico Partite"
         elem.setAttribute("class", "tab tab-lg tab-active");

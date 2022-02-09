@@ -52,31 +52,21 @@
 
 <script>
 import SidebarLink from './SidebarLink'
+import { getCurrentInstance } from 'vue'
 
-var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+var appInstance = null
 
 export default {
   components: { 
     SidebarLink 
   },
+  setup() {
+    appInstance = getCurrentInstance().appContext.config.globalProperties
+  },
   props: ['invites'],
-  created() {
-    window.addEventListener("resize", this.resizeHandler);
-  },
-  destroyed() {
-    window.removeEventListener("resize", this.resizeHandler);
-  },
-  data() {
-    return {
-      screenWidth: window.innerWidth
-    }
-  },
   methods: {
-    resizeHandler() {
-      this.screenWidth = window.innerWidth
-    },
     checkInvite(invite, i) {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       this.$emit("checkInvite", invite, i)
     }
   }

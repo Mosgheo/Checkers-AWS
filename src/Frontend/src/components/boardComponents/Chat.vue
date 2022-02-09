@@ -38,12 +38,10 @@ textarea {
     width: 20em;
     background-color: #1F1E1E;;
 }
-
 .chat {
     max-height: 50em;
     height: 50em;
 }
-
 .message {
     margin-top: 5em;
     max-height: 12.5em;
@@ -54,7 +52,6 @@ textarea {
     textarea {
         max-width: 15em;
     }
-
     .message {
         margin: 1em 0em;
         max-height: 20em;

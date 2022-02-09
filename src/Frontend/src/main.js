@@ -13,11 +13,10 @@ export const app = createApp(App)
 app.config.productionTip = false
 app.config.globalProperties.$BOARD_SIZE = 10
 app.config.globalProperties.$COLOR_TOP = "color-top"
-app.config.globalProperties.$COLOR_BOTTOM ="color-bottom"
-app.config.globalProperties.$PLAYER_ONE = "one"
-app.config.globalProperties.$PLAYER_TWO = "two"
-app.config.globalProperties.$PIECE_TYPE_MAN ="man"
-app.config.globalProperties.$PIECE_TYPE_KING = "king"
+app.config.globalProperties.$COLOR_BOTTOM = "color-bottom"
+app.config.globalProperties.$BUTTON_CLICK = new Audio(require("@/assets/sounds/button-click.wav"))
+app.config.globalProperties.$MOVE_PIECE = new Audio(require("@/assets/sounds/piece-move.wav"))
+app.config.globalProperties.$NOTIFICATION = new Audio(require("@/assets/sounds/notification.mp3"))
 const connection = SocketIO('http://localhost:3030')
 const token_time = 86400000
 app

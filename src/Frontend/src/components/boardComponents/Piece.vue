@@ -1,9 +1,9 @@
 <template>
     <div v-if="this.piece <= 20">
-        <img class="ease-in-out duration-300" src="@/assets/pieces/Red_Piece.png" />
+        <img class="ease-in-out duration-300" src="@/assets/pieces/Red_Piece.png" alt="Red Piece Image" />
     </div>
     <div v-else-if="this.piece >= 31">
-        <img class="ease-in-out duration-300" src="@/assets/pieces/White_Piece.png" />
+        <img class="ease-in-out duration-300" src="@/assets/pieces/White_Piece.png" alt="White Piece Image" />
     </div>
 </template>
 

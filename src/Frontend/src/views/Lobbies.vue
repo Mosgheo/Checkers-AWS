@@ -23,11 +23,15 @@
 
 <script>
 import api from '../../api.js'
+import { getCurrentInstance } from 'vue'
 
-var button_click = new Audio(require("@/assets/sounds/button-click.wav"))
+var appInstance = null
 
 export default {
   name: "Lobbies",
+  setup() {
+    appInstance = getCurrentInstance().appContext.config.globalProperties
+  },
   data() {
     return {
       res: [],
@@ -36,7 +40,7 @@ export default {
   },
   methods: {
     joinLobby(id) {
-      button_click.play()
+      appInstance.$BUTTON_CLICK.play()
       if(this.res.length > 0) {
         api.join_lobby(this.$socket, id)
       }
