@@ -1,17 +1,13 @@
 <template>
     <div class="player">
         <div class="card lg:card-side flex flex-row pt-3" >
-            <img src="https://picsum.photos/id/1005/800" class="profileImg mask mask-square p-0.5">
-            <div class="flex-row">
+            <img :src="this.player.avatar" alt="User's Avatar" class="profileImg mask mask-square p-0.5" />
+            <div class="flex-col">
+                <p class="card-title ml-1" :innerText="this.player.username">Username</p>
                 <div class="flex flex-row">
-                    <h2 class="card-title ml-1.5" :innerText="this.player.username">Username</h2>
-                    <div class="avatar">
-                        <div class="ml-1 rounded-btn">
-                            <img class="nationImg" src="http://daisyui.com/tailwind-css-component-profile-1@40w.png">
-                        </div>
-                    </div>
-                </div> 
-                <h3 class="text-left font-semibold text-base p-0.5 pl-2" :innerText="this.player.stars">Punteggio</h3> 
+                    <i class="fas fa-star" />
+                    <p class="text-left font-semibold text-base ml-1" :innerText="this.player.stars">Stars</p>
+                </div>
             </div>
         </div>
     </div>
@@ -20,25 +16,9 @@
 <script>
 import store from '@/store'
 
-var user = null
-
 export default {
     name: 'Player',
     props: ['player'],
-    setup() {
-        user = store.getters.user
-    },
-    computed: {
-        getUsername() {
-            if(user.username !== "") {
-                return "" + user.username
-            }
-            return "Username"
-        },
-        getStars() {
-            return "" + user.stars
-        }
-    }
 }
 </script>
 
