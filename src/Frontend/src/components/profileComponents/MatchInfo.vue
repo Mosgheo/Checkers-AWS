@@ -6,9 +6,8 @@
     <thead>
       <tr>
         <th>Game</th> 
-        <th>Vincitore</th> 
-        <th>Perdente</th>
-        <th>Durata</th>
+        <th>Winner</th> 
+        <th>Looser</th>
       </tr>
     </thead>
 
@@ -50,7 +49,6 @@
               </div>
             </div>
           </td>
-          <td>Durata</td>
         </tr>
       </template>
     </tbody>

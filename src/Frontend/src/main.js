@@ -5,6 +5,7 @@ import VueSocketIO from 'vue-3-socket.io'
 import SocketIO from 'socket.io-client'
 import store  from './store'
 import api from '../api'
+import Chat from 'vue3-beautiful-chat'
 import '@/assets/styles/app.css'
 
 import '@fortawesome/fontawesome-free/js/all'
@@ -24,6 +25,7 @@ app
   connection: connection,
   vuex: store,
 }))
+.use(Chat)
 .use(router)
 .use(store)
 

@@ -106,8 +106,6 @@ export default {
       sessionStorage.token = res.token
       store.commit('setUser',res.user)
       console.log("got a fresh new token for ya")
-      ///var tokenData = JSON.parse(Buffer.from(res.token.split('.')[1], 'base64'))
-      ///token_timeout(tokenData);
     },
     token_error(res) {
       console.log("something wrong with tokens boy")

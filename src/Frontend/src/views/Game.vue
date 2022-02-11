@@ -1,7 +1,7 @@
 <template>
     <div class="centralSpace flex flex-row justify-center px-20 py-10">
       <Checkerboard class="board flex flex-col"/>
-      <Chat :lobbyId="this.lobbyId" class="chat mt-28"/>
+      <Chat :opponent="this.opponent" :lobbyId="this.lobbyId" class="chat mt-28"/>
 
       <div class="modal modal-change-location">
         <div class="flex flex-col items-center modal-box">
@@ -41,7 +41,8 @@ export default {
   },
   data() {
     return {
-      lobbyId: null
+      lobbyId: null,
+      opponent: null,
     }
   },
   methods: {
@@ -56,11 +57,11 @@ export default {
       }
       if(store.state.in_game && changeLocation === false) {
         api.leave_game(this.$socket, this.lobbyId)
-        document.getElementById("exit-game-msg").innerHTML = "Sei sicuro di voler abbandonare la partita? In caso affernativo ti verrà assegnata una sconfitta a tavolino"
+        document.getElementById("exit-game-msg").innerHTML = "Are you sure to leave the game?"
         changeLocation = true
       } else if(changeLocation === false) {
         api.delete_lobby(this.$socket, this.lobbyId)
-        document.getElementById("exit-game-msg").innerHTML = "La lobby verrà eliminata, confermare per uscire dalla lobby"
+        document.getElementById("exit-game-msg").innerHTML = "The lobby will be deleted, confirm to exit"
         changeLocation = true
       }
       this.$router.push(path)
@@ -78,7 +79,7 @@ export default {
     opponent_left(msg) {
       changeLocation = true
       path = "/"
-      document.getElementById("exit-game-msg").innerHTML = "L'avversario ha abbandonato la partita, ti verranno assegnati dei punti per vittoria a tavolino"
+      document.getElementById("exit-game-msg").innerHTML = "Your opponent left the game, you got a free win"
       modal[0].className = "modal modal-change-location modal-open"
     },
     game_ended(msg) {
@@ -89,6 +90,8 @@ export default {
       gameEndModal.setAttribute("class", "modal modal-change-location modal-open")
     },
     game_started(res) {
+      console.log(res)
+      store.getters.user.mail === res[0].mail ? this.opponent = res[1] : this.opponent = res[0]
       this.lobbyId = res[3]
       store.commit('setInGame', true)
     }
@@ -100,9 +103,9 @@ export default {
       next()
     } else {
       if(store.state.in_game && changeLocation === false) {
-        document.getElementById("exit-game-msg").innerHTML = "Sei sicuro di voler abbandonare la partita? In caso affernativo ti verrà assegnata una sconfitta a tavolino"
+        document.getElementById("exit-game-msg").innerHTML = "Are you sure to leave the game?"
       } else if(changeLocation === false) {
-        document.getElementById("exit-game-msg").innerHTML = "La lobby verrà eliminata, confermare per uscire dalla lobby"
+        document.getElementById("exit-game-msg").innerHTML = "The lobby will be deleted, confirm to exit"
       }
       modal[0].className = "modal modal-change-location modal-open"
       path = to.path

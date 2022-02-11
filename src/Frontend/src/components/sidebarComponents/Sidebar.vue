@@ -9,7 +9,7 @@
       <SidebarLink class="barMenu pl-1.5" to="" icon="fas fa-bars"></SidebarLink>
       <ul tabindex="0" class="block p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
         <li class="inline-block">
-          <SidebarLink class="w-44 profile-drop mb-3 pl-0.5" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
+          <SidebarLink class="w-44 profile-drop mb-3 pl-0.5" to="/profile" icon="fas fa-user-cog">Profile</SidebarLink>
         </li> 
         <li class="inline-block">
           <SidebarLink class="leaderboard-drop w-44 mb-3 pl-0.5" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
@@ -17,34 +17,34 @@
       </ul>
     </div>
     <SidebarLink class="w-44 home mb-3 pl-0.5" to="/" icon="fas fa-home">Home</SidebarLink>
-    <SidebarLink class="w-44 profile mb-3 pl-0.5" to="/profile" icon="fas fa-user-cog">Profilo</SidebarLink>
+    <SidebarLink class="w-44 profile mb-3 pl-0.5" to="/profile" icon="fas fa-user-cog">Profile</SidebarLink>
     <SidebarLink class="leaderboard w-44 mb-3 pl-0.5" to="/leaderboard" icon="fas fa-chart-bar">Leaderboard</SidebarLink>
 
     <div class="mx-3 mt-40 indicator">
       <div v-if="this.invites.length > 0" class="indicator-item badge badge-secondary"></div>
       <div v-else></div>
       <div v-if="this.invites.length > 0" class="dropdown">
-        <SidebarLink class="notifications w-44 p-0.5" to="" icon="fas fa-bell">Notifiche</SidebarLink>
+        <SidebarLink class="notifications w-44 p-0.5" to="" icon="fas fa-bell">Notifications</SidebarLink>
         <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
           <template v-for="(invite, i) in this.invites" :key="i">
             <li class="block">
-              <a @click="checkInvite(invite, i)">Invito da {{ invite }}</a>
+              <a @click="checkInvite(invite, i)">Invite by {{ invite }}</a>
             </li> 
           </template>
         </ul>
       </div>
       <div v-else class="dropdown">
-        <SidebarLink class="notifications w-44 p-0.5" to="" icon="fas fa-bell">Notifiche</SidebarLink>
+        <SidebarLink class="notifications w-44 p-0.5" to="" icon="fas fa-bell">Notifications</SidebarLink>
         <ul tabindex="0" class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52">
           <li>
-            <a>Non ci sono notifiche al momento</a>
+            <a>There are not notifications at the moment</a>
           </li> 
         </ul>
       </div>
     </div>
     
     <!--<div v-if="!$store.loading.value">-->
-    <SidebarLink class="w-44 login mt-96 p-0.5"  to="/login" icon="fas fa-user-lock" >Log in</SidebarLink>
+    <SidebarLink class="w-44 login mt-96 p-0.5"  to="/login" icon="fas fa-user-lock" >Sign in</SidebarLink>
     <!--</div>-->
   </div>
 </div>

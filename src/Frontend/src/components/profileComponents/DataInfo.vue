@@ -2,17 +2,17 @@
   <div class="form-control items-center">
 
     <label class="label">
-      <span class="font-semibold label-text">Nome utente</span>
+      <span class="font-semibold label-text">Username</span>
     </label> 
     <input type="text" placeholder="Username" :value="this.username" class="text-sm username input input-bordered w-screen">
     
     <label class="label mt-3">
-      <span class="font-semibold label-text">Nome</span>
+      <span class="font-semibold label-text">FirstName</span>
     </label> 
     <input type="text" placeholder="Nome" :value ="this.first_name" class="text-sm first_name input input-bordered w-screen">
 
     <label class="label mt-3">
-      <span class="font-semibold label-text">Cognome</span>
+      <span class="font-semibold label-text">LastName</span>
     </label> 
     <input type="text" placeholder="Cognome" :value="this.last_name" class="text-sm last_name input input-bordered w-screen">
 
@@ -23,7 +23,7 @@
     <input type="text" placeholder="info@site.com" :value="this.mail" class="text-sm mail input input-bordered w-screen">
 
     <label class="label mt-3">
-      <span class="font-semibold label-text">Cambia Avatar</span>
+      <span class="font-semibold label-text">Change Avatar</span>
     </label>
     <div>
       <label for="load-image">
@@ -34,7 +34,7 @@
     </div>
 
     <div class="object-center space-x-2 mt-10">
-      <label class="btn font-semibold text-base" @click.prevent="save_profile">Modifica</label> 
+      <label class="btn font-semibold text-base" @click.prevent="save_profile">Save</label> 
     </div>
 
     <div class="update-modal modal modal-close">
@@ -72,8 +72,8 @@ export default {
   data() {
     api.get_profile(this.$socket)
     return {
-      first_name: "Nome",
-      last_name: "Cognome",
+      first_name: "Name",
+      last_name: "LastName",
       mail: "info@site.com",
       username: "Username"
     }

@@ -1,19 +1,19 @@
 <template>
 <div class="main-div flex flex-col justify-center px-32 py-14">
   <div class="mb-10">
-    <h1 class="font-bold text-3xl">Classifica globale</h1>
+    <h1 class="font-bold text-3xl">Global leaderboard</h1>
   </div>
   <div class="leaderboard overflow-x-auto">
     <table class="table table-compact w-full shadow">
 
       <thead>
         <tr>
-          <th>Posizione</th> 
-          <th>Nome</th> 
-          <th>Punti</th> 
-          <th>Partite giocate</th> 
-          <th>Vittorie</th> 
-          <th>Sconfitte</th> 
+          <th>Position</th> 
+          <th>Name</th> 
+          <th>Stars</th> 
+          <th>Games</th> 
+          <th>Wins</th> 
+          <th>Defeats</th> 
         </tr>
       </thead>
 
@@ -29,19 +29,11 @@
                   </div>
                 </div> 
                 <div>
-                    <div class="font-bold">
-                        {{ user.username }}
-                    </div> 
-                    <div class="text-sm opacity-50">
-                        Nazione
-                    </div>
+                  <div class="font-bold">{{ user.username }}</div>
                 </div>
               </div>
             </td>
-            <td>
-                {{ user.stars }}
-              <br>
-            </td> 
+            <td>{{ user.stars }}</td> 
             <td>{{ user.losses + user.wins }}</td>
             <td>{{ user.wins }}</td>
             <td>{{ user.losses }}</td>

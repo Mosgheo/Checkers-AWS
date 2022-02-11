@@ -11,18 +11,18 @@
           <i class="fas fa-star ml-1 mt-1" />
           <p :innerText="this.stars" class="ml-3"></p>
         </div> 
-        <p :innerText="this.first_last_name" class="text-xl text-left ml-2 mt-2">Nome Cognome</p> 
+        <p :innerText="this.first_last_name" class="text-xl text-left ml-2 mt-2">FirstName LastName</p> 
       </div>
     </div>
 
     <div class="profile-info rounded-xl bordered mt-5 w-9/12">
       <div class="tabs tabs-boxed pl-5 justify-center">
-        <a @click="dataInfo" id="dataInfo" class="tab tab-lg tab-active">Dati Utente</a>
-        <a @click="matchInfo" id="matchInfo" class="tab tab-lg ">Partite</a>
+        <a @click="dataInfo" id="dataInfo" class="tab tab-lg tab-active">User Info</a>
+        <a @click="matchInfo" id="matchInfo" class="tab tab-lg ">Match History</a>
       </div>
       <div id="content" class="card shadow-lg">
         <div id="tabDiv" class="card-body">
-          <div v-if="this.tabName === 'Dati Utente'" >
+          <div v-if="this.tabName === 'User Info'" >
             <h2 class="card-title">{{ this.tabName }}</h2>
             <DataInfo class="info"></DataInfo>
           </div>
@@ -63,7 +63,7 @@ export default {
       avatar: "http://daisyui.com/tailwind-css-component-profile-1@40w.png",
       first_last_name: "Nome Cognome",
       username: "Username",
-      tabName: "Dati Utente",
+      tabName: "User Info",
       stars: "Stars"
     }
   },
@@ -72,7 +72,7 @@ export default {
       const elem = document.getElementById("dataInfo")
       appInstance.$BUTTON_CLICK.play()
       if(!elem.getAttribute("class").includes("tab-active")) {
-        this.tabName = "Dati Utente"
+        this.tabName = "User Info"
         elem.setAttribute("class", "tab tab-lg tab-active");
         document.getElementById("matchInfo").setAttribute("class", "tab tab-lg");
         ((document.getElementsByClassName("card-title"))[1]).innerHTML = this.tabName
@@ -82,7 +82,7 @@ export default {
       const elem = document.getElementById("matchInfo")
       appInstance.$BUTTON_CLICK.play()
       if(!elem.getAttribute("class").includes("tab-active")) {
-        this.tabName = "Storico Partite"
+        this.tabName = "Match History"
         elem.setAttribute("class", "tab tab-lg tab-active");
         document.getElementById("dataInfo").setAttribute("class", "tab tab-lg");
         ((document.getElementsByClassName("card-title"))[1]).innerHTML = this.tabName

@@ -1,7 +1,7 @@
 <template>
 <div class="flex flex-col justify-center">
     <div class="pt-20 font-bold text-3xl">
-        <h1>Accedi a Checkers</h1>
+        <h1>Sign in into Checkers</h1>
     </div>
     <div class="card">
         <div class="card-body items-center">
@@ -11,18 +11,18 @@
                     <label class="label">
                         <span class="font-semibold label-text mt-2">E-mail</span>
                     </label> 
-                    <input type="text" placeholder="Inserisci e-mail" class="font-base mail input input-bordered w-13">
+                    <input type="text" placeholder="Insert e-mail" class="font-base mail input input-bordered w-13">
                 </div>
 
                 <div class="block">
                     <label class="label">
                         <span class="font-semibold label-text mt-2">Password</span>
                     </label> 
-                    <input type="password" placeholder="Inserisci la password" class="font-base password input input-bordered w-13">
+                    <input type="password" placeholder="Insert password" class="font-base password input input-bordered w-13">
                 </div>
 
                 <div class="object-center space-x-2 mt-10">
-                    <label class="btn text-base font-semibold" @click="login">Login</label> 
+                    <label class="btn text-base font-semibold" @click="login">Sign in</label> 
                     <div class="login-fail modal">
                         <div class="modal-box">
                             <p class="msg text-base font-semibold">Ciao</p> 
@@ -36,10 +36,10 @@
                 <div class="divider"></div> 
 
                 <label class="label">
-                    <span class="label-text">Se non sei ancora iscritto</span>
+                    <span class="label-text">If you are not already sign</span>
                 </label> 
                 <router-link to="/signup">
-                    <button @click="buttonClick" class="font-bold text-lg btn-link mb-3">Iscriviti</button>
+                    <button @click="buttonClick" class="font-bold text-lg btn-link mb-3">Sign up</button>
                 </router-link>
             </div>
         </div>
