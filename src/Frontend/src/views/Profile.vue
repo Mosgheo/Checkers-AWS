@@ -61,7 +61,7 @@ export default {
     api.get_profile(this.$socket)
     return {
       avatar: "http://daisyui.com/tailwind-css-component-profile-1@40w.png",
-      first_last_name: "Nome Cognome",
+      first_last_name: "Name Surname",
       username: "Username",
       tabName: "User Info",
       stars: "Stars"

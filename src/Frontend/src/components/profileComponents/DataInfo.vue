@@ -9,12 +9,12 @@
     <label class="label mt-3">
       <span class="font-semibold label-text">FirstName</span>
     </label> 
-    <input type="text" placeholder="Nome" :value ="this.first_name" class="text-sm first_name input input-bordered w-screen">
+    <input type="text" placeholder="First Name" :value ="this.first_name" class="text-sm first_name input input-bordered w-screen">
 
     <label class="label mt-3">
       <span class="font-semibold label-text">LastName</span>
     </label> 
-    <input type="text" placeholder="Cognome" :value="this.last_name" class="text-sm last_name input input-bordered w-screen">
+    <input type="text" placeholder="Last Name" :value="this.last_name" class="text-sm last_name input input-bordered w-screen">
 
     
     <label class="label mt-3">

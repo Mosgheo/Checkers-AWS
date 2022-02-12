@@ -89,9 +89,9 @@ export default {
       this.opponent_mail = invite
       this.inviteId = i
       if(!store.state.in_game) {
-        message[0].innerHTML = "Hai ricevuto una sfida da parte di: " + invite
+        message[0].innerHTML = invite +" challenged you!"
       } else {
-        message[0].innerHTML = "Non puoi entrare in un'altra lobby mentre sei già in partita"
+        message[0].innerHTML = "Can't start a game if you're already in one!"
       }
       modal[0].className = "modal modal-invites modal-open"
     },

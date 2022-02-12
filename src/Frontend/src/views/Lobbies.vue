@@ -4,8 +4,8 @@
       <thead>
         <tr>
           <th>Lobby Owner</th> 
-          <th>Name Lobby</th> 
-          <th>Max stars</th>
+          <th>Lobby Name</th> 
+          <th>Max Stars</th>
           <th>Join</th>
         </tr>
       </thead> 
