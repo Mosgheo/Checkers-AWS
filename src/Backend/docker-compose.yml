@@ -22,3 +22,21 @@ services:
     ports:
       - 3032:3032
     command: node ./index.js
+  playerservice1:
+    build: ../Frontend
+    command: npm run serve -- --port 3000
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+  playerservice2:
+    build: ../Frontend
+    command: npm run serve -- --port 3001
+    restart: unless-stopped
+    ports:
+      - 3001:3001
+  playerservice3:
+    build: ../Frontend
+    command: npm run serve -- --port 3002
+    restart: unless-stopped
+    ports:
+      - 3002:3002
