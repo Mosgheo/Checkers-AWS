@@ -1,3 +1,4 @@
+<!-- This file represent the Cell component -->
 <template>
 	<div
 		:class="getClasses"
@@ -8,37 +9,41 @@
     @mouseover="hoverCell"
     @mouseleave="leaveCell" >
 		<template v-if="this.cell in this.moves">
-			<Piece :piece="this.cell" />
+      <div v-if="this.cell <= 20">
+          <img class="ease-in-out duration-300" src="@/assets/pieces/Red_Piece.png" alt="Red Piece Image" />
+      </div>
+      <div v-else-if="this.cell >= 31">
+          <img class="ease-in-out duration-300" src="@/assets/pieces/White_Piece.png" alt="White Piece Image" />
+      </div>
 		</template>
 	</div>
 </template>
 
 <script>
-import Piece from '@/components/boardComponents/Piece.vue'
 import { getCurrentInstance } from 'vue'
 
 var appInstance = null
 
 export default {
   props: ['cell', 'size', 'x', 'y', 'moves', 'myMoves'],
-  components: {
-    Piece
-  },
   setup() {
     appInstance = getCurrentInstance()
   },
   methods: {
+    // When a cell is clicked, send an emit to the parent
     selectCell() {
       if(this.cell > 0) {
         this.$emit("selectCell", this.cell);
       }
     },
+    // When mouse is hover cell, emit it to the parent if the cell contains a piece
     hoverCell() {
       if(("K"+this.cell in this.myMoves && this.myMoves["K"+this.cell].length > 0)
           || (this.cell in this.myMoves && this.myMoves[this.cell].length > 0)) {
         this.$emit("hover-cell", this.cell)
       }
     },
+    // When mouse live a cell, emit it to the parent
 		leaveCell() {
       if(this.cell !== 0) {
         this.$emit("release", this.cell)
@@ -46,6 +51,7 @@ export default {
     }
   },
   computed: {
+    // Give the specific class to the cell
     getClasses() {
       const classes = [];
       if((this.x + this.y) % 2) {
@@ -55,6 +61,7 @@ export default {
       }
       return classes;
     },
+    // Style the cell into the grid
     style() {
       return {
         width: '50px',

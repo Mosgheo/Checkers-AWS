@@ -1,3 +1,5 @@
+<!-- Component of user match history -->
+
 <template>
 <div class="overflow-hidden">
   <div class="overflow-scroll">
@@ -84,13 +86,14 @@ export default {
     api.get_history(this.$socket)
 
     return {
-      history: [],
-      currentPage: [],
-      perPage: 7,
-      page: 1
+      history: [], // Contains all matches
+      currentPage: [], // Contains the matches on the current page
+      perPage: 7, // Maximum match per page
+      page: 1, // Indicator of the page
     }
   },
   methods: {
+    // Go ahead with matches
     nextPage(button) {
       appInstance.$BUTTON_CLICK.play()
       this.currentPage = []
@@ -108,6 +111,7 @@ export default {
         button.path[1].children[0].setAttribute("class", "btn mr-5")
       }
     },
+    // Go back with matches
     previousPage(button) {
       appInstance.$BUTTON_CLICK.play()
       this.currentPage = []
@@ -126,15 +130,17 @@ export default {
         button.path[1].children[1].setAttribute("class", "btn")
       }
     },
-    getAvatar(user){
-      if(user.avatar == ""){
+    // Get the avatar of a specific user
+    getAvatar(user) {
+      if(user.avatar == "") {
         return "http://daisyui.com/tailwind-css-component-profile-1@40w.png"
-      }else{
+      } else {
         return user.avatar
       } 
     }
   },
   sockets: {
+    // Response sent by backend that contains all matches done by a specific user
     user_history(res) {
       this.history = res
       console.log(this.history)

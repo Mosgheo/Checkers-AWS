@@ -1,3 +1,5 @@
+<!-- This is leaderboard component -->
+
 <template>
 <div class="main-div flex flex-col justify-center px-32 py-14">
   <div class="mb-10">
@@ -67,16 +69,18 @@ export default {
     appInstance = getCurrentInstance().appContext.config.globalProperties
   },
   data() {
+    // Request leaderboard to backend
     api.get_leaderboard(this.$socket)
 
     return {
-      leaderboard: [],
-      currentPage: [],
-      perPage: 15,
-      page: 1
+      leaderboard: [], // All leaderboard infos
+      currentPage: [], // Current page ingos
+      perPage: 15, // Maximum infos per page
+      page: 1, // Indicator of the current page
     }
   },
   methods: {
+    // Go ahead with leaderboard infos and update the current page
     nextPage(button) {
       appInstance.$BUTTON_CLICK.play()
       this.currentPage = []
@@ -94,6 +98,7 @@ export default {
         button.path[1].children[0].setAttribute("class", "btn mr-5")
       }
     },
+    // Go back with leaderboard info and update the current page
     previousPage(button) {
       appInstance.$BUTTON_CLICK.play()
       this.currentPage = []
@@ -114,6 +119,7 @@ export default {
     }
   },
   sockets: {
+    // Response from backend to give all leaderboard infos
     leaderboard(res) {
       this.leaderboard = res
       for(let i = 0; i < this.perPage; i++) {

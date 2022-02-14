@@ -1,3 +1,5 @@
+// This is the router with all routes
+
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/Home";
 import Profile from "@/views/Profile";

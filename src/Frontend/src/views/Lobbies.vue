@@ -1,3 +1,4 @@
+<!-- This is the Lobbies component -->
 <template>
   <div class="lobbies overflow-x-auto py-8 px-5">
     <table class="table w-full">
@@ -9,7 +10,7 @@
           <th>Join</th>
         </tr>
       </thead> 
-      <tbody v-for="(lobby, index) in res" :key="index">
+      <tbody v-for="(lobby, index) in lobbies" :key="index">
         <tr>
           <td :textContent="lobby.host"></td> 
           <td :textContent="lobby.name"></td> 
@@ -34,21 +35,22 @@ export default {
   },
   data() {
     return {
-      res: [],
-      join: null
+      lobbies: [] //all open lobbies
     }
   },
   methods: {
+    // Join a specific lobby
     joinLobby(id) {
       appInstance.$BUTTON_CLICK.play()
-      if(this.res.length > 0) {
+      if(this.lobbies.length > 0) {
         api.join_lobby(this.$socket, id)
       }
     }
   },
   sockets: {
+    // Response from backend that give all open lobbies that player can join
     lobbies(res) {
-      this.res = res
+      this.lobbies = res
     }
   }
 }

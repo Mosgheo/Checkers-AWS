@@ -1,3 +1,5 @@
+<!-- This is the Signup component --> 
+
 <template>
 <div class="flex flex-col justify-center">
     <div class="pt-20">
@@ -82,6 +84,7 @@ export default {
         appInstance = getCurrentInstance().appContext.config.globalProperties
     },
     methods: {
+        // Send a request of signup to the backend
         signup() {
             appInstance.$BUTTON_CLICK.play()
             var mailformat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -100,6 +103,7 @@ export default {
                 signup_modal[0].setAttribute("class", "signup-modal modal modal-open")
             }
         },
+        // Close modal and redirect to login if the user signup correctly 
         close() {
             appInstance.$BUTTON_CLICK.play()
             signup_modal[0].setAttribute("class", "signup-modal modal modal-close")
@@ -109,11 +113,13 @@ export default {
         }
     },
     sockets: {
+        // Success response from backend to the user when he try to signup
         signup_success(res) {
             signup = true
             msg[0].textContent = res.message
             signup_modal[0].setAttribute("class", "signup-modal modal modal-open")
         },
+        // Error response from backend to the user when he try to signup
         signup_error(res) {
             msg[0].textContent = ""
             res.forEach(elem => {

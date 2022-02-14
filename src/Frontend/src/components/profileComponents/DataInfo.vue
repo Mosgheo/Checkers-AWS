@@ -1,3 +1,5 @@
+<!-- Component to show user's info -->
+
 <template>
   <div class="form-control items-center">
 
@@ -70,6 +72,7 @@ export default {
     appInstance = getCurrentInstance().appContext.config.globalProperties
   },
   data() {
+    // Request user's info to backend
     api.get_profile(this.$socket)
     return {
       first_name: "Name",
@@ -79,6 +82,7 @@ export default {
     }
   },
   methods:{
+    // Save the user's change and send it to the backend
     save_profile() {
       appInstance.$BUTTON_CLICK.play()
 
@@ -100,11 +104,13 @@ export default {
       //TODO UPDATE STATE.USER AND SEND UPDATE TO BACKEND
       //api.update_profile(this.$socket, user, localStorage.token)
     },
+    // Close modal
     close() {
       appInstance.$BUTTON_CLICK.play()
       update_modal[0].setAttribute("class", "update-modal modal")
       this.$forceUpdate()
     },
+    // Allow user to upload a profile image
     uploadImage(){
       let input = this.$refs.fileInput
       let file = input.files
@@ -136,11 +142,13 @@ export default {
     }}
   },
   sockets:{
+    // Sent by backend to give user an update succesfull or if there is an error
     updated_user(user) {
       msg[0].textContent = "Update successful"
       update_modal[0].setAttribute("class", "update-modal modal modal-open")
       store.commit('setUser',user)
     },
+    // Response by backend when user request info
     user_profile(res) {
       this.first_name = res.first_name
       this.last_name = res.last_name

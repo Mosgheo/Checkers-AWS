@@ -1,3 +1,5 @@
+<!-- This is the App component -->
+
 <template>
 <div id="app">
 
@@ -54,13 +56,14 @@ export default {
   },
   data() {
     return {
-      opponent_mail: null,
-      invites: [],
-      inviteId: null,
-      invitation_expired: false
+      opponent_mail: null, //opponent mail
+      invites: [], // all invites to this player
+      inviteId: null, // inviteId
+      invitation_expired: false // use to check when an invitation has expired
     }
   },
   methods: {
+    // Used to accept an invite from another player
     accept() {
       appInstance.$BUTTON_CLICK.play()
       if(!store.state.in_game) {
@@ -79,12 +82,14 @@ export default {
       }
       modal[0].className = "modal modal-invites"
     },
+    // Used to refuse an invite from another player
     decline() {
       appInstance.$BUTTON_CLICK.play()
       api.decline_invite(this.$socket, this.opponent_mail)
       this.invites.splice(this.inviteId, 1)
       modal[0].className = "modal modal-invites"
     },
+    // Used to open an invite
     checkInvite(invite, i) {
       this.opponent_mail = invite
       this.inviteId = i
@@ -95,18 +100,21 @@ export default {
       }
       modal[0].className = "modal modal-invites modal-open"
     },
+    // Close modal
     close() {
       appInstance.$BUTTON_CLICK.play()
       modalNotification[0].className = "modal modal-notification"
     }
   },
   sockets: {
+    // Response from backend that confirm user authentication
     token_ok(res){
       store.commit('setToken',res.token)
       sessionStorage.token = res.token
       store.commit('setUser',res.user)
       console.log("got a fresh new token for ya")
     },
+    // Response from backend that denies user authentication
     token_error(res) {
       console.log("something wrong with tokens boy")
       sessionStorage.token = ""
@@ -115,24 +123,29 @@ export default {
       messageNotification[0].innerHTML = "You need to sign in before do something"
       modalNotification[0].className = "modal modal-notification modal-open"
     },
+    // Response that don't allow user do to something wrong
     permit_error(error) {
       console.log(error)
       messageNotification[0].innerHTML = "You don't have the permissions"
       modalNotification[0].className = "modal modal-notification modal-open"
     },
+    // Response from backend when there are server side problems
     server_error(error) {
       console.log(error)
       messageNotification[0].innerHTML = "There is some server-side problem, please try again soon "
       modalNotification[0].className = "modal modal-notification modal-open"
     },
+    // Response from backend when a player try to do something without authentication
     client_error(error) {
       console.log(error)
       messageNotification[0].innerHTML = "Your token expired, please log-in again"
       modalNotification[0].className = "modal modal-notification modal-open"
     },
+    // Response from backend that give to user cancellation of a lobby
     lobby_deleted(msg) {
       console.log(msg)
     },
+    // Notification from backend when a player receive an invite
     lobby_invitation(msg) {
       console.log(msg)
       appInstance.$NOTIFICATION.play()
@@ -144,21 +157,25 @@ export default {
       }
       this.invites.push(msg)
     },
+    // Notification from backend when a player accept invite
     invite_accepted() {
       var component = this
       if(!store.state.in_game) {
         component.$router.push("/inGame")
       }
     },
+    // Notification from backend when a player refuse invite
     invitation_declined(msg) {
       console.log(msg)
     },
+    // Notification from backend when an invite has expired
     invitation_expired(msg) {
       this.invitation_expired = true
       console.log(msg)
       messageNotification[0].innerHTML = msg.message
       modalNotification[0].className = "modal modal-notification modal-open"
     },
+    // Notification from backend when an invite is no longer usable
     invitation_timeout(res) {
       console.log(res)
       if(res === store.getters.user.mail ) {
@@ -171,6 +188,7 @@ export default {
         this.invites = this.invites.filter(el => el !== res)
       }
     },
+    // Notification error from backend when a player try to invite a player that is not online or doesn't exist
     invite_error(msg) {
       messageNotification[0].innerHTML = msg.message
       modalNotification[0].className = "modal modal-notification modal-open"

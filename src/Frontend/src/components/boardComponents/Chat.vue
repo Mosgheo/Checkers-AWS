@@ -1,3 +1,5 @@
+<!-- This is the Chat component -->
+
 <template>
   <div>
     <beautiful-chat
@@ -36,11 +38,11 @@ export default {
           name: "",
           imageUrl: ""
         },
-      ], // the list of all the participant of the conversation. `name` is the user name, `id` is used to establish the author of a message, `imageUrl` is supposed to be the user avatar.
-      messageList: [], // the list of the messages to show, can be paginated and adjusted dynamically
+      ], // The list of all the participant of the conversation. `name` is the user name, `id` is used to establish the author of a message, `imageUrl` is supposed to be the user avatar.
+      messageList: [], // The list of the messages to show, can be paginated and adjusted dynamically
       newMessagesCount: 0,
-      isChatOpen: true, // to determine whether the chat window should be open or closed
-      showTypingIndicator: '', // when set to a value matching the participant.id it shows the typing indicator for the specific user
+      isChatOpen: true, // To determine whether the chat window should be open or closed
+      showTypingIndicator: '', // When set to a value matching the participant.id it shows the typing indicator for the specific user
       colors: {
         header: {
           bg: '#1F1E1E',
@@ -65,12 +67,13 @@ export default {
           bg: '#343232',
           text: '#ffffff'
         }
-      }, // specifies the color scheme for the component
+      }, // Specifies the color scheme for the component
       alwaysScrollToBottom: false, 
       messageStyling: true 
     }
   },
   methods: {
+    // Called when a player send a message
     sendMessage(message) {
       if(message.data.text.length > 0) {
         this.newMessagesCount = this.isChatOpen ? this.newMessagesCount : this.newMessagesCount + 1
@@ -78,19 +81,20 @@ export default {
         this.onMessageWasSent(message)
       }
     },
+    // Add the new message to the message list of the chat
     onMessageWasSent(message) {
-      // called when the user sends a message
       this.messageList = [ ...this.messageList, message ]
     },
+    // Called when the user clicks on the fab button to open the chat
     openChat() {
-      // called when the user clicks on the fab button to open the chat
       this.isChatOpen = true
       this.newMessagesCount = 0
     },
+    // Called when the user clicks on the botton to close the chat
     closeChat() {
-      // called when the user clicks on the botton to close the chat
       this.isChatOpen = false
     },
+    // Edit the new message
     editMessage(message) {
       const m = this.messageList.find(m=>m.id === message.id);
       m.isEdited = true;
@@ -98,6 +102,7 @@ export default {
     }
   },
   sockets: {
+    // When there is a message from backend, add it to the chat if is not mine
     game_msg(msg) {
         if(this.participants[0].id === "") {
             this.participants[0].id = this.opponent.mail

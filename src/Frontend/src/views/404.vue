@@ -1,3 +1,5 @@
+<!-- This is a 404 custom error component -->
+
 <template>
 <div id="notfound">
   <div class="notfound">

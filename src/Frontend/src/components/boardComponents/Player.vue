@@ -1,3 +1,5 @@
+<!-- This is a graphic component to represent a player in a game -->
+
 <template>
     <div class="player">
         <div class="card lg:card-side flex flex-row pt-3" >

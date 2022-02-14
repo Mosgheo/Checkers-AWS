@@ -1,3 +1,4 @@
+<!-- Custom component that represent a link for the Sidebar -->
 <template>
   <router-link @click="buttonClick" :to="to" class="this.to self-center link rounded-lg flex" :class="{ active: isActive }">
     <i class="icon" :class="icon" />

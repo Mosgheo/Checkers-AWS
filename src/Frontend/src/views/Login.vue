@@ -1,3 +1,5 @@
+<!-- This is the Login component -->
+
 <template>
 <div class="flex flex-col justify-center">
     <div class="pt-20 font-bold text-3xl">
@@ -65,6 +67,7 @@ export default {
         appInstance = getCurrentInstance().appContext.config.globalProperties
     },
     methods: {
+        // Send to backend a request of authentication
         login() {
             appInstance.$BUTTON_CLICK.play()
             if(mail[0].value === "" && password[0].value === "") {
@@ -74,6 +77,7 @@ export default {
                 api.login(this.$socket, mail[0].value, password[0].value)
             }
         },
+        // Close modal
         close() {
             appInstance.$BUTTON_CLICK.play()
             login_fail[0].setAttribute("class", "login-fail modal")
@@ -84,13 +88,15 @@ export default {
             appInstance.$BUTTON_CLICK.play()
         }
     },
-    sockets:{
+    sockets: {
+        // Response from backend that confirm the authentication
         login_ok(res) {
             //EXAMPLE ON HOW TO USE STORE
             store.commit('setToken',res.token)
             store.commit('setUser',res.user)
             this.$router.push("/")
         },
+        // Response from backend that give a message error to the user
         login_error(err) {
             msg[0].textContent = err.message.message
             login_fail[0].setAttribute("class", "login-fail modal modal-open")

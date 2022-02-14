@@ -1,6 +1,8 @@
+<!-- This is the Checkerboard component --> 
+
 <template>
 	<div class="content flex flex-col flex-grow max-w-screen-lg">
-    <appPlayer1 :player="this.player2"/>
+    <appPlayer1 :player="this.player2" />
 		<div class="wrapper">
 			<div class="subwrapper">
 				<div class="grid">
@@ -16,12 +18,12 @@
               :size="getSize"
               @hover-cell="checkMoves"
               @release="release" 
-              @selectCell="selectCell"/>
+              @selectCell="selectCell" />
           </template>
 				</div>
 			</div>
 		</div>
-    <appPlayer0 :player="this.player1" class="self-start"/>
+    <appPlayer0 :player="this.player1" class="self-start" />
 	</div>
 </template>
 
@@ -45,6 +47,7 @@ export default {
     appInstance = getCurrentInstance().appContext.config.globalProperties
     user = store.getters.user
   },
+  // Create the initial board to be filled when the game start
   data() {
     let grid = []
     var cell = 1
@@ -72,61 +75,36 @@ export default {
     }
 
     return {
-      redPiece: require("@/assets/pieces/Red_Piece.png"),
-      whitePiece: require("@/assets/pieces/White_Piece.png"),
-      redKingPiece: require("@/assets/pieces/KRed_Piece.png"),
-      whiteKingPiece: require("@/assets/pieces/KWhite_Piece.png"),
-      board: grid,
-      lobbyId: null,
-      playerTurn: null,
-      moves: [],
-      myMoves: [],
-      possibleMoves: [],
-      player1: [],
-      player2: [],
-      clickedCell: null,
-      counterClick: 0
+      board: grid, // The board of the game
+      lobbyId: null, // The lobbyId
+      playerTurn: null, // Used to check if is my turn
+      moves: [], // All moves
+      myMoves: [], // All my moves
+      possibleMoves: [], // All my possibleMoves
+      player1: [], // Info of player1
+      player2: [], // Info of player2
+      clickedCell: null, // The id of the first clicked cell
+      counterClick: 0 // N cells clicked
     }
   },
   computed: {
+    // Give the size of the board
     getSize() {
       return "0 0 " + 100/appInstance.$BOARD_SIZE + "%";
     }
   },
   methods: {
+    // Color the possible moves of a specific cell
     checkMoves(cell) {
       if(this.clickedCell === null && this.playerTurn === user.mail 
         && document.getElementById(""+cell).style.backgroundColor === "rgb(51, 51, 51)") {
-        for(let i = 0; i < this.possibleMoves.length; i++) {
-          if(this.possibleMoves[i].from === cell) {
-            document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
-          } else if((""+this.possibleMoves[i].from).includes("K")) {
-            if((""+this.possibleMoves[i].from).substring(1) === this.cell) {
-              if((""+this.possibleMoves[i].to).includes("K")) {
-                document.getElementById(("" + this.possibleMoves[i].to).substring(1)).style.backgroundColor = "red"
-              } else {
-                document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
-              }
-            }
-          }
-        }
+        this.colorCellsHoverOrLeave("red", cell)
       } else if(this.clickedCell !== null && this.playerTurn === user.mail 
         && document.getElementById(""+cell).style.backgroundColor === "rgb(209, 213, 219)") {
-        for(let i = 0; i < this.possibleMoves.length; i++) {
-          if(this.possibleMoves[i].from === cell) {
-            document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
-          } else if((""+this.possibleMoves[i].from).includes("K")) {
-            if((""+this.possibleMoves[i].from).substring(1) === this.cell) {
-              if((""+this.possibleMoves[i].to).includes("K")) {
-                document.getElementById(("" + this.possibleMoves[i].to).substring(1)).style.backgroundColor = "red"
-              } else {
-                document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "red"
-              }
-            }
-          }
-        }
+        this.colorCellsHoverOrLeave("red", cell)
       }
     },
+    // Change the background color of a cell's possible moves when mouse leave it
     release(cell) {
       var releaseCell = document.getElementById(""+cell)
       if(releaseCell.style.backgroundColor !== "rgb(51, 51, 51)" 
@@ -134,20 +112,9 @@ export default {
         && this.playerTurn === user.mail) {
           releaseCell.style.backgroundColor = "black"
       }
-      for(let i = 0; i < this.possibleMoves.length; i++) {
-        if(this.possibleMoves[i].from === cell) {
-          document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "black"
-        } else if((""+this.possibleMoves[i].from).includes("K")) {
-          if((""+this.possibleMoves[i].from).substring(1) === this.cell) {
-            if((""+this.possibleMoves[i].to).includes("K")) {
-              document.getElementById(("" + this.possibleMoves[i].to).substring(1)).style.backgroundColor = "black"
-            } else {
-              document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = "black"
-            }
-          }
-        }
-      }
+      this.colorCellsHoverOrLeave("black", cell)
     },
+    // Used to move a cell in a possible position and send it to the backend
     selectCell(cell) {
       if(this.playerTurn === user.mail) {
         if(cell === this.clickedCell) {
@@ -194,6 +161,7 @@ export default {
         }
       }
     },
+    // Check al the possible eat
     checkPossibleEat() {
       var possibleEat = []
       for(const [key, value] of Object.entries(this.myMoves)) {
@@ -207,6 +175,7 @@ export default {
       }
       return possibleEat
     },
+    // Color all cells but checking first all possible eat
     colorCells() {
       for(const [key] of Object.entries(this.myMoves)) {
         if(key.toString().includes("K")) {
@@ -235,9 +204,37 @@ export default {
           }
         }
       }
+    },
+    // Give the correct color the a cell when mouse hover it or leave it
+    colorCellsHoverOrLeave(color, cell) {
+      for(let i = 0; i < this.possibleMoves.length; i++) {
+        if(this.possibleMoves[i].from === cell) {
+          document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = color
+        } else if((""+this.possibleMoves[i].from).includes("K")) {
+          if((""+this.possibleMoves[i].from).substring(1) === this.cell) {
+            if((""+this.possibleMoves[i].to).includes("K")) {
+              document.getElementById(("" + this.possibleMoves[i].to).substring(1)).style.backgroundColor = color
+            } else {
+              document.getElementById("" + this.possibleMoves[i].to).style.backgroundColor = color
+            }
+          }
+        }
+      }
+    },
+    // Update possible moves of a speficic player
+    updatePossibleMoves() {
+      this.possibleMoves = []
+      for(const [key, value] of Object.entries(this.myMoves)) {
+        if(key && value.length !== 0) {
+          for(let i = 0; i < value.length; i++) {
+            this.possibleMoves.push(value[i])
+          }
+        }
+      }
     }
   },
   sockets: {
+    // Message sented by the backend that allow to initialize all parameters to start a game
     game_started(res) {
       console.log(res)
       this.player1 = res[0]
@@ -249,20 +246,13 @@ export default {
         this.myMoves = res[2].board[2]
       }
       this.moves = {...res[2].board[1], ...res[2].board[2]}
-
-      this.possibleMoves = []
-      for(const [key, value] of Object.entries(this.myMoves)) {
-        if(key && value.length !== 0) {
-          for(let i = 0; i < value.length; i++) {
-            this.possibleMoves.push(value[i])
-          }
-        }
-      }
+      this.updatePossibleMoves()
 
       this.lobbyId = res[3]
 
       this.colorCells()
     },
+    // After a move this message allow the client to update all the board
     update_board(res) {
       var cells = Array.from((document.getElementsByClassName("grid")[0]).children).filter(el => el.id !== "0")
       for(let i = 0; i < cells.length; i++) {
@@ -272,16 +262,16 @@ export default {
         var piece = document.createElement('img');
         piece.className = "ease-out duration-300"
         if(("K"+cells[i].id) in res[2]) {
-          piece.src = this.redKingPiece
+          piece.src = appInstance.$RED_KING_PIECE
           cells[i].appendChild(piece)
         } else if(cells[i].id in res[2]) {
-          piece.src = this.redPiece;
+          piece.src = appInstance.$RED_PIECE
           cells[i].appendChild(piece)
         } else if(("K"+cells[i].id) in res[1]) {
-          piece.src = this.whiteKingPiece
+          piece.src = appInstance.$WHITE_KING_PIECE
           cells[i].appendChild(piece)
         } else if(cells[i].id in res[1]) {
-          piece.src = this.whitePiece;
+          piece.src = appInstance.$WHITE_PIECE
           cells[i].appendChild(piece)
         }
       }
@@ -292,15 +282,9 @@ export default {
         this.myMoves = res[2]
       }
 
-      this.possibleMoves = []
-      for(const [key, value] of Object.entries(this.myMoves)) {
-        if(key && value.length !== 0) {
-          for(let i = 0; i < value.length; i++) {
-            this.possibleMoves.push(value[i])
-          }
-        }
-      }
+      this.updatePossibleMoves()
     },
+    // Allow to change the turn
     turn_change(res) {
       this.playerTurn = res.next_player
       this.colorCells()

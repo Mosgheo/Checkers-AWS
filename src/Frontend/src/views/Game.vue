@@ -1,3 +1,5 @@
+<!-- This is the Game component with Chat and Checkerboard-->
+
 <template>
     <div class="centralSpace flex flex-row justify-center px-20 py-10">
       <Checkerboard class="board flex flex-col"/>
@@ -46,10 +48,12 @@ export default {
     }
   },
   methods: {
+    // Close a modal
     closeModal() {
       appInstance.$BUTTON_CLICK.play()
       modal[0].className = "modal modal-change-location"
     },
+    // Used to check when a player want exit when is in game
     exitGame() {
       appInstance.$BUTTON_CLICK.play()
       if(this.lobbyId === null || this.lobbyId === undefined) {
@@ -68,20 +72,24 @@ export default {
     },
   },
   sockets: {
+    // Give lobby info
     lobbies(res) {
       if(this.lobbyId === null || this.lobbyId === undefined) {
         this.lobbyId = res.lobby_id
       }
     },
+    // Message sent when you left a game
     left_game(res) {
       console.log(res)
     },
+    // Message sent when opponent left a game
     opponent_left(msg) {
       changeLocation = true
       path = "/"
       document.getElementById("exit-game-msg").innerHTML = "Your opponent left the game, you got a free win"
       modal[0].className = "modal modal-change-location modal-open"
     },
+    // Message sent when the game is finished
     game_ended(msg) {
       changeLocation = true
       path = "/"
@@ -89,6 +97,7 @@ export default {
       document.getElementById("exit-game-msg").innerHTML = msg.message
       gameEndModal.setAttribute("class", "modal modal-change-location modal-open")
     },
+    // Message sent when the game is starting
     game_started(res) {
       console.log(res)
       store.getters.user.mail === res[0].mail ? this.opponent = res[1] : this.opponent = res[0]
@@ -96,6 +105,7 @@ export default {
       store.commit('setInGame', true)
     }
   },
+  // Guards used to give info to a player when he want to exit from a game lobby
   beforeRouteLeave(to, from, next) {
     if(changeLocation) {
       store.commit('setInGame', false)

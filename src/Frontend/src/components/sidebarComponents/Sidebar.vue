@@ -1,3 +1,4 @@
+<!-- Custom Sidebar component -->
 <template>
 <div>
   <div class="sidebar flex flex-col">
@@ -65,6 +66,7 @@ export default {
   },
   props: ['invites'],
   methods: {
+    // Check invites sent by another players
     checkInvite(invite, i) {
       appInstance.$BUTTON_CLICK.play()
       this.$emit("checkInvite", invite, i)

@@ -1,3 +1,4 @@
+// This is the store that contains user's info
 import { createStore } from 'vuex'
 
 export default createStore({

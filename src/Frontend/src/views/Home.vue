@@ -1,3 +1,5 @@
+<!-- This is the Home component -->
+
 <template>
   <div class="main-div flex flex-row items-center justify-center centralSpace px-28 py-5">
 
@@ -129,6 +131,7 @@ export default {
     appInstance = getCurrentInstance().appContext.config.globalProperties
   },
   methods: {
+    // Build a new lobby with a name and max stars
     startingMatch() {
       this.buttonClick()
       if(store.state.token !== "") {
@@ -138,6 +141,7 @@ export default {
         this.$router.push("/404")
       }
     },
+    // Request all open lobbies that you can join
     lobbyOpened() {
       this.buttonClick()
       if(store.state.token !== "") {
@@ -147,6 +151,7 @@ export default {
         this.$router.push("/404")
       }
     },
+    // Invite a player using mail
     invitePlayer() {
       this.buttonClick()
       if(store.state.token !== "") {

@@ -1,3 +1,5 @@
+<!-- This is the Profile component --> 
+
 <template>
   <div class="profile flex flex-col justify-center items-center py-5">
     <div class="basic-info card lg:card-side flex flex-row w-9/12">
@@ -58,6 +60,7 @@ export default {
     appInstance = getCurrentInstance().appContext.config.globalProperties
   },
   data() {
+    // Request user info to backend
     api.get_profile(this.$socket)
     return {
       avatar: "http://daisyui.com/tailwind-css-component-profile-1@40w.png",
@@ -68,6 +71,7 @@ export default {
     }
   },
   methods: {
+    // Show user info when data info tab is active
     dataInfo() {
       const elem = document.getElementById("dataInfo")
       appInstance.$BUTTON_CLICK.play()
@@ -78,6 +82,7 @@ export default {
         ((document.getElementsByClassName("card-title"))[1]).innerHTML = this.tabName
       }
     },
+    // Show match history info when match info tab is active
     matchInfo() {
       const elem = document.getElementById("matchInfo")
       appInstance.$BUTTON_CLICK.play()
@@ -90,6 +95,7 @@ export default {
     },
   },
   sockets: {
+    // Response from backend that contains user's info
     user_profile(res) {
       this.avatar = res.avatar
       this.first_last_name = res.first_name + " " + res.last_name
