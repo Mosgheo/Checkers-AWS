@@ -5,8 +5,8 @@ Luca Salvigni(0000952607)
 <\br>
 Manuele Pasini(0000926769)<\br><\br>
 
-Checkers e rappresenterà una versione multiplayer online del gioco da tavolo Dama.
-Gli utenti avranno la possibilità di registrarsi al sito creando un proprio account.
+Checkers e rappresenta una versione multiplayer online del gioco da tavolo Dama.
+Gli utenti hanno la possibilità di registrarsi al sito creando un proprio account.
 Una volta eseguito l’accesso, sarà possibile effettuare una partita contro un altro giocatore online mediante un meccanismo di ricerca o tramite invito.
 Una volta che due giocatori si trovano in una lobby è possibile avviare una partita e sarà messa a disposizione una chat di gioco per lo scambio di messaggi.
 Conclusasi la partita, verranno aggiornate le statistiche di gioco di ogni giocatore, e verranno assegnati dei punti in base alle performance; questi punti potranno essere utilizzati per stilare una classifica generale dei giocatori.
