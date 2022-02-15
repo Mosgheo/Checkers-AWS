@@ -85,7 +85,7 @@ async function setupGame(game_id,host_mail,opponent_mail){
     game.push(game_id)
     return game
   }catch(err){
-    if('response' in err && 'status' in err.response){
+    if(request_error(err)){
       if(err.response.status == 500){
         client.emit("server_error",{message:err.response.data})
       }else if(err.response.status == 400){
@@ -224,7 +224,7 @@ async function setup_game_turn_timeout(lobby_id){
     await change_turn(lobby_id)
     await axios.put(game_service+"/game/turnChange",{game_id:lobby_id})
     log("Turn timeout for game " + lobby_id)
-  },process.env.TIMEOUT))
+  },process.env.TURN_TIMEOUT))
   log("Timeout set for game" + lobby_id)
 }
 /**
@@ -256,6 +256,17 @@ async function updatePoints(winner,points1,loser,points2,tied=false){
       log(err)
       return []
     }
+}
+/**
+ * 
+ * @param err  error to be examined
+ * @returns true if err is some form of HTTP error, false otherwise
+ */
+function request_error(err){
+  return 'response' in err &&
+          err.response != undefined &&
+           'status' in err.response
+           && err.response.status != undefined
 }
 /**
  * Handle disconnections, 3 cases:
@@ -311,7 +322,7 @@ async function handle_disconnection(player){
         io.in(lobby_id).socketsLeave(lobby_id)
       }catch(err){
         log("something bad occured "+err)
-        if('response' in err && 'status' in err.response){
+        if(request_error(err)){
           if(err.response.status == 500){
             io.to(lobby_id).emit("server_error",{message:err.response.data})
           }
@@ -336,7 +347,9 @@ io.on('connection', async client => {
     await handle_disconnection(player)
   });
 
-  //Login procedure
+  /**
+   * Login procedure
+   */ 
   client.on('login', async (mail,password) => {
     log("a user is tryng to log in")
     //Update user id in online_users
@@ -352,7 +365,7 @@ io.on('connection', async client => {
         client.emit("login_ok",user)
       }catch(err){
         log(err)
-        if('response' in err && 'status' in err.response){
+        if(request_error(err)){
           if(err.response.status == 400){
             client.emit("login_error",{message:err.response.data})
           }
@@ -375,7 +388,7 @@ io.on('connection', async client => {
         })
         client.emit('signup_success',new_user)
     }catch(err){
-      if('response' in err && 'status' in err.response){
+      if(request_error(err)){
         if(err.response.status == 400 || err.response.status == 500){
           client.emit('signup_error',{message:err.response.data})
         }
@@ -400,7 +413,7 @@ io.on('connection', async client => {
           client.emit("token_ok",new_token)
         }catch(err){
           log(err)
-          if('response' in err && 'status' in err.response){
+          if(request_error(err)){
             if(err.response.status == 500){
               client.emit("token_error",{message:err.response.data})
             }
@@ -551,7 +564,7 @@ io.on('connection', async client => {
           //Clear the timeout associated to such invite
           clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
           invitation_timeouts.get(user_mail).delete(opponent_mail)
-        },process.env.TIMEOUT))
+        },process.env.INVITE_TIMEOUT))
       }else{
         invitation_timeouts.set(user_mail,new Map())
         invitation_timeouts.get(user_mail).set(opponent_mail,setTimeout(function(){
@@ -561,7 +574,7 @@ io.on('connection', async client => {
         //Clear the timeout associated to such invite
         clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
         invitation_timeouts.get(user_mail).delete(opponent_mail)
-        },process.env.TIMEOUT))
+        },process.env.INVITE_TIMEOUT))
 
       }
     }else{
@@ -620,7 +633,7 @@ io.on('connection', async client => {
             await setup_game_turn_timeout(lobby_id)
 
           }catch(err){
-            if('response' in err && 'status' in err.response){
+            if(request_error(err)){
               if(err.response.status == 500){
                 client.emit("server_error",err.response.data)
               }
@@ -729,7 +742,7 @@ io.on('connection', async client => {
                   client.emit("server_error",{message:"Something wrong while updating points."})
                 }
               }catch(err){
-                if('response' in err && 'status' in err.response){
+                if(request_error(err)){
                   if(err.response.status == 500){
                     client.emit("server_error",{message:err.response.data})
                   }
@@ -738,7 +751,7 @@ io.on('connection', async client => {
               }
             }
           }catch(err){
-            if('response' in err && 'status' in err.response){
+            if(request_error(err)){
               if(err.response.status == 400){
                 client.emit("client_error",{message:err.response.data})
               }
@@ -785,7 +798,7 @@ io.on('connection', async client => {
           log(player+" just left game "+lobby_id+", I just assigned the win to "+winner)
 
         }catch(err){
-          if('response' in err && 'status' in err.response){
+          if(request_error(err)){
             if(err.response.status == 500){
               client.emit("server_error",{message:err.response.data})
             }
@@ -800,64 +813,7 @@ io.on('connection', async client => {
       client.emit("token_error",{message:user[1]})
     }
   })
-  /**
-   * A client wants to tie a game
-   
-  client.on('tie_game',async(lobby_id,token) =>{
-    const user = await user_authenticated(token,client.id)
-    if(user[0]){
-      const player = online_users.get(client.id,token)
-      if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(player)){
-        const lobby = lobbies.get(lobby_id)
-        io.to(lobby_id).emit("tie_proposal",player)
-        lobby.tieProposal();
-        if(lobby.tie()){
-          try{
-            let {data:result} = await axios.put(game_service+"/game/tieGame",{game_id: lobby_id})
-            io.to(lobby_id).emit("tie_game",result)
-          }catch(err){
-            if('response' in err && 'status' in err.response){
-              if(err.response.status == 500){
-                client.emit("server_error",err.response.data)
-              }
-            }
-            log(err)
-          }
-        }
-      }else{
-        client.emit("permit_error",{message:"I don't know which lobby you're referring to and even if I knew you're not in it"})
-      }
-    }else{
-      client.emit("token_error",user[1])
-    }
-  })
- */
-  /**
-   * A client requested this game moves history
-   *
-  client.on('game_history',async(lobby_id,token)=>{
-    const user = await user_authenticated(token,client.id)
-    if(user[0]){
-      if(lobbies.has(lobby_id) && lobbies.get(lobby_id).hasPlayer(online_users.get(client.id))){
-        try{
-          let history = await axios.get(game_service+"/game/history",{game_id : lobby_id})
-          client.emit("game_history",history)
-        }catch(err){
-          if('response' in err && 'status' in err.response){
-            if(err.response.status == 500){
-              client.emit("server_error",err.response.data)
-            }
-          }
-          log(err)
-        }
-      }else{
-        client.emit("permit_error",{message:"I don't know which lobby you're referring to and even if I knew you're not in it"})
-      }
-    }else{
-      client.emit("token_error",user)
-    }
-  })
-*/
+
   /**
    *  * * * * * *
    * CHAT HANDLING
@@ -921,7 +877,7 @@ io.on('connection', async client => {
           client.emit("user_profile",user_profile)
         }
       }catch(err){
-        if('response' in err && 'status' in err.response){
+        if(request_error(err)){
           if(err.response.status == 400){
             client.emit("client_error",{message:err.response.data})
           }
@@ -971,7 +927,7 @@ io.on('connection', async client => {
           client.emit("updated_user",updated_user)
         }
       }catch(err){
-        if('response' in err && 'status' in err.response){
+        if(request_error(err)){
           if(err.response.status == 400){
             client.emit("client_error",{message:err.response.data})
           } 
