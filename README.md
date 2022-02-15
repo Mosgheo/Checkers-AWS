@@ -5,7 +5,7 @@ Luca Salvigni(0000952607)
 Manuele Pasini(0000926769)
 
 
-#Deployment
+## Deployment
 Il deployment dell'applicazione è stato realizzato mediante Docker: ad ognuno dei tre servizi che compongono il backend è stato associato un Dockerfile che permette la corretta inizializzazione del servizio a cui fa riferimento; inoltre la stessa configurazione è stata realizzata per il frontend.\newline
 Per lanciare l'applicazione è sufficiente collocarsi all'interno della cartella di progetto ed eseguire il comando
 <pre><code>docker-compose up
