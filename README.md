@@ -3,7 +3,6 @@
 Componenti del gruppo
 
 Luca Salvigni(0000952607)
-
 Manuele Pasini(0000926769)
 
 Checkers e rappresenta una versione multiplayer online del gioco da tavolo Dama.
