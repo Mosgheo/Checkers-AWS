@@ -1,9 +1,10 @@
 # Checkers-AWS
 
 Componenti del gruppo
+
 Luca Salvigni(0000952607)
-<\br>
-Manuele Pasini(0000926769)<\br><\br>
+
+Manuele Pasini(0000926769)
 
 Checkers e rappresenta una versione multiplayer online del gioco da tavolo Dama.
 Gli utenti hanno la possibilità di registrarsi al sito creando un proprio account.
