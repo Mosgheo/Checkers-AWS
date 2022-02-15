@@ -1,7 +1,11 @@
 {
   "name": "userservice",
   "version": "1.0.0",
-  "description": "",
+  "description": "User Management Service",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mosgheo/Checkers-AWS.git"
+  },
   "main": "index.js",
   "scripts": {
     "test": "mocha"
