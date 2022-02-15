@@ -16,6 +16,7 @@ function log(msg){
         console.log(msg)
     }
 }
+
 /**
  ** ** ** ** ** ** **
  ** GAME HANDLING  **
@@ -42,19 +43,6 @@ function winCheck(game_id){
     }
     return false
 }
-/** to be called when something goes wrong and someone crashes,
- * need to stop the game and save its state
- *
-async function saveGame(game_id) {
-    let game = games.get(game_id).draughts
-    history = game.history();
-    fen = game.fen()
-    Game.findOneAndUpdate({"game_id":game_id},{
-        $set: {
-            history:game_history,
-            fen:fen}})
-    
-}*/
 /**
  * Handles a game end.
  * @param {*} game_id  game that just ended
@@ -167,20 +155,6 @@ exports.turnChange = function(req,res){
         res.status(400).json({message:"No such game"})
     }
 }
-/**
- * 
- *
-exports.deleteGame = async function(req,res){
-    const game_id = req.body.game_id
-    const forfeiter = req.body.forfeiter
-    const winner = req.body.winner
-    const game_ended = await gameEnd(game_id,false,winner,forfeiter)
-    if(game_ended){
-        res.status(200).send({message: forfeiter +"has disconnected from the game,"+winner+" has officially won the game"})
-    }else{
-        res.status(500).send({message: "Something went wrong while closing the game."})
-    }
-}*/
 
 /**
  * A user moves a piece inside the board
@@ -196,7 +170,6 @@ exports.movePiece = function(req,res){
             log(req.body.from+"-"+req.body.to)
             if(game.gameOver()){
                 log("Game "+game_id+" is over!")
-                /**HANDLE WIN NOTIFICATION */
                 if(winCheck(game_id)){
                     log("Someone won game "+game_id)
                     gameEnd(game_id,false,game.winner,game.loser)
@@ -265,11 +238,7 @@ exports.create_game = function(req,res){
 
 
 /**
- ** 
- **
  ** UTILITIES
- **
- **
  */
 
 /*Attaches to every Piece on the board its list of available moves for frontend purposes.
