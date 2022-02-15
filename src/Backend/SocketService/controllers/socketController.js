@@ -224,7 +224,7 @@ async function setup_game_turn_timeout(lobby_id){
     await change_turn(lobby_id)
     await axios.put(game_service+"/game/turnChange",{game_id:lobby_id})
     log("Turn timeout for game " + lobby_id)
-  },process.env.TIMEOUT))
+  },process.env.TURN_TIMEOUT))
   log("Timeout set for game" + lobby_id)
 }
 /**
@@ -564,7 +564,7 @@ io.on('connection', async client => {
           //Clear the timeout associated to such invite
           clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
           invitation_timeouts.get(user_mail).delete(opponent_mail)
-        },process.env.TIMEOUT))
+        },process.env.INVITE_TIMEOUT))
       }else{
         invitation_timeouts.set(user_mail,new Map())
         invitation_timeouts.get(user_mail).set(opponent_mail,setTimeout(function(){
@@ -574,7 +574,7 @@ io.on('connection', async client => {
         //Clear the timeout associated to such invite
         clearTimeout(invitation_timeouts.get(user_mail).get(opponent_mail))
         invitation_timeouts.get(user_mail).delete(opponent_mail)
-        },process.env.TIMEOUT))
+        },process.env.INVITE_TIMEOUT))
 
       }
     }else{
