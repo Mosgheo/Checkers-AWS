@@ -30,6 +30,6 @@ USER_SERVICE = "http://localhost:3031"
 GAME_SERVICE = "http://localhost:3032"
 </code></pre>
 Mentre per quanto riguarda l'avvio di un client bisognerà spostarsi all'inerno della cartella \textbf{src} legata al Frontend ed utilizzare il comando:
-<pre><code>npm run serve -- --port X
+<pre><code>npm run serve --port X
 </code></pre>
 dove X è la porta in cui si vuole far girare il client.
