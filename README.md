@@ -22,7 +22,7 @@ Alternativamente, è possibile eseguire l'applicativo nella maniera primordiale 
 node index.js
 </code></pre>
 
-Se si vuole utilizzare questo approccio è necessario modificare le stringhe attraverso le quali il SocketService si mette in comunicazione con i restanti due servizi; nel dettaglio all'interno del file \textit{.env} nella cartella del SocketService è necessario aggiornare le seguenti righe di codice:
+Se si vuole utilizzare questo approccio è necessario modificare le stringhe attraverso le quali il SocketService si mette in comunicazione con i restanti due servizi; nel dettaglio all'interno del file .env nella cartella del SocketService è necessario aggiornare le seguenti righe di codice:
 <pre><code># USER_SERVICE = "http://userservice:3031"
 # GAME_SERVICE = "http://gameservice:3032"
 
