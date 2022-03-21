@@ -1,7 +1,10 @@
 
 const Game = require('../models/gameModel')
 const Draughts = require('./draughts')
-
+const https = require("https")
+const path = require('path');
+const fs = require('fs');
+const { default: axios } = require('axios');
 let games = new Map(); // {game_id -> game}
      /*      game: {
                 white: "",
@@ -16,6 +19,102 @@ function log(msg){
         console.log(msg)
     }
 }
+const game_agent = new https.Agent({
+    cert: fs.readFileSync(path.resolve(__dirname, ".."+path.sep+"cert"+path.sep+"game_cert.pem")),
+    key: fs.readFileSync(path.resolve(__dirname, ".."+path.sep+"cert"+path.sep+"game_key.pem")),
+    rejectUnauthorized: false
+  })
+    register_and_initialize_backup()
+    /**
+     * @TODO FILL THIS METHOD
+     *  SET INITIAL SERVICE STATE BASED ON SOME BACKUP SENT BY HBController
+     *  */ 
+    function restore_backup(backup){
+      // TODO
+    }
+    /**
+     * @TODO FILL THIS METHOD
+     * BUILD A BACKUP OF THIS SERVICE TO BE SENT TO HBController
+     */
+    function build_backup(){
+      return ""
+    }
+/**
+ * 
+ * @param err  error to be examined
+ * @returns true if err is some form of HTTP error, false otherwise
+ */
+function request_error(err){
+    return 'response' in err &&
+            err.response != undefined &&
+             'status' in err.response
+             && err.response.status != undefined
+  }
+   /**
+     * Function used to make request to other services
+     * 
+     * @param {*} method HTTP method to use
+     * @param {*} url service's url
+     * @param {*} params request's params 
+     * @returns  { status:
+    *             response_status:
+    *             response_data:
+    *          }
+    */
+ async function ask_service(method,url,params){
+   let response = ""
+   const default_error_msg = {
+     status:false,
+     response_status:"405",
+     response_data:"Wrong HTTPS method call"
+   }
+   try{
+     switch(method){
+       case "post":
+         response = await axios.post(url,params,{httpsAgent:game_agent})
+         break
+       case "put":
+         response = await axios.put(url,params,{httpsAgent:game_agent})
+         break
+       default:
+         return default_error_msg
+     }
+     return {
+       status:true,
+       response:response.data
+     }
+   }catch(err){
+     console.log(err)
+     return request_error(err) ? {status:false, response_status:err.response.status, response_data : err.response.data} : default_error_msg
+   }
+ }
+    async function set_heartbeat_timer(){
+      setTimeout(async ()=>{
+        log("Sending heartbeat..")
+        const hb_response = await ask_service("put",process.env.HB_SERVICE+"/heartbeat",{service_name: process.env.NAME,backup:build_backup()})
+        if(hb_response.status){
+          console.log("Heartbeat_response: "+ JSON.stringify(hb_response))
+          set_heartbeat_timer()
+        }else{
+          log("failed to send heartbeat")
+        }
+      },process.env.HB_TIMEOUT)
+    }
+
+    async function register_and_initialize_backup(){
+      const response = await ask_service("post",process.env.HB_SERVICE+"/register",{service_name:process.env.NAME})
+      console.log(JSON.stringify(response))
+      if(response.status){
+        if(response.response.backup != ""){
+          restore_backup()
+        }
+        set_heartbeat_timer()
+      }else{
+        setTimeout(async()=>{
+          register_and_initialize_backup()
+        },process.env.REGISTER_RETRY_TIMEOUT)
+      }
+    }
 
 /**
  ** ** ** ** ** ** **
