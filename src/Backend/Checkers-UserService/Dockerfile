@@ -1,0 +1,22 @@
+FROM node:lts-alpine
+ARG ARG_PORT
+ARG ARG_DB_PSW
+ARG ARG_USER_KEY
+ARG ARG_USER_CERT
+ARG ARG_CERTIFICATE
+
+ENV UserService_PORT=$ARG_PORT
+ENV DB_PSW=$ARG_DB_PSW
+ENV USER_KEY=$ARG_USER_KEY
+ENV USER_CERT=$ARG_USER_CERT
+ENV CERTIFICATE=$ARG_CERTIFICATE
+
+RUN mkdir -p /app/
+WORKDIR /app
+COPY . .
+RUN npm install --unsafe-perm
+RUN npm run gulp build
+
+WORKDIR /app/build
+EXPOSE $ARG_PORT
+CMD npm run deploy
