@@ -1,6 +1,0 @@
-FROM node:16
-RUN mkdir -p /app/Frontend
-WORKDIR /app/Frontend
-COPY . /app/Frontend
-RUN npm install --unsafe-perm
-EXPOSE 3000-3002
