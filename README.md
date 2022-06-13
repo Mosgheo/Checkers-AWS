@@ -26,28 +26,29 @@ Se non si vuole usufruire del deployment, è possibile eseguire l'applicativo ne
 *  Spostarsi nella cartella Checkers-UserService
 * Copiare il file [.env](https://drive.google.com/file/d/1lmgtsKn72Lre3753G40e_fq6SHvd5fL_/)
 * Eseguire la coppia di comandi nel seguente ordine
-<pre><code>npm ci
+<pre><code>npm install
 node index.js
 </code></pre>
 ### GameService
 * Spostarsi nella cartella Checkers-GameService
 * Copiare il file [.env](https://drive.google.com/file/d/1KFrMwNvDbEUS12ECI_9ETeiFN_dhPuWm/)
 * Eseguire la coppia di comandi nel seguente ordine
-<pre><code>npm ci
+<pre><code>npm install
 node index.js
 </code></pre>
 ### CoomunicationService
 * Spostarsi nella cartella Checkers-CoomunicationService
 * Copiare il file [.env](https://drive.google.com/file/d/1Yu7OgPrGOGBGMV70bkjkDd_bemcDqhEB/)
 * Eseguire la coppia di comandi nel seguente ordine
-<pre><code>npm ci
+<pre><code>npm install
 node index.js
 </code></pre>
 ### Frontend
 * Spostarsi nella cartella Checkers-Frontend
 * Eseguire la coppia di comandi nel seguente ordine
-<pre><code>npm ci
-npm run serve --port X
+<pre><code>npm install
+npm run lint
+npm run serve -- --port X
 </code></pre>
 dove X è la porta in cui si vuole far girare il client.
 
