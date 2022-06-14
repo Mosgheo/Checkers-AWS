@@ -45,7 +45,7 @@ node index.js
 </code></pre>
 ### Frontend
 * Spostarsi nella cartella Checkers-Frontend
-* Eseguire la coppia di comandi nel seguente ordine
+* Eseguire i comandi nel seguente ordine
 <pre><code>npm install
 npm run lint
 npm run serve -- --port X
